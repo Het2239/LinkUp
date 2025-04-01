@@ -148,7 +148,6 @@
             </div>
             <form id="personForm" class="space-y-4">
                 <input type="hidden" id="personId">
-                <input type="hidden" id="currentPhotoData">
                 <div>
                     <label class="block mb-1 dark:text-gray-200">Name*</label>
                     <input type="text" id="nameInput" class="w-full p-2 border rounded dark:bg-gray-700 dark:text-white dark:border-gray-600" required>
@@ -171,12 +170,7 @@
                 </div>
                 <div>
                     <label class="block mb-1 dark:text-gray-200">Profile Image</label>
-                    <div class="flex items-center space-x-2">
-                        <input type="file" id="photoInput" class="w-full p-2 border rounded dark:bg-gray-700 dark:text-white dark:border-gray-600" accept="image/*">
-                        <div id="photoPreview" class="hidden">
-                            <img id="previewImage" src="" alt="Preview" class="w-12 h-12 rounded-full object-cover">
-                        </div>
-                    </div>
+                    <input type="file" id="photoInput" class="w-full p-2 border rounded dark:bg-gray-700 dark:text-white dark:border-gray-600" accept="image/*">
                 </div>
                 <div>
                     <label class="block mb-1 dark:text-gray-200">Category*</label>
@@ -195,7 +189,7 @@
                     <button type="button" onclick="closeModal('addEditModal')" class="px-4 py-2 bg-gray-500 text-white rounded hover:bg-gray-600 transition">
                         Cancel
                     </button>
-                    <button type="submit" id="savePersonBtn" class="px-4 py-2 bg-indigo-600 text-white rounded hover:bg-indigo-700 transition">
+                    <button type="submit" class="px-4 py-2 bg-indigo-600 text-white rounded hover:bg-indigo-700 transition">
                         Save
                     </button>
                 </div>
@@ -238,7 +232,6 @@
         let currentFilter = 'all';
         let searchTerm = '';
         let peopleData = [];
-        let newPhotoData = null;
 
         // Check if the user is logged in and if they are an admin
         function checkLoginStatus() {
@@ -464,10 +457,6 @@
             document.getElementById('modalTitle').textContent = 'Add New Person';
             document.getElementById('personForm').reset();
             document.getElementById('personId').value = '';
-            document.getElementById('currentPhotoData').value = '';
-            document.getElementById('photoPreview').classList.add('hidden');
-            newPhotoData = null;
-            
             openModal('addEditModal');
         }
 
@@ -487,18 +476,6 @@
             document.getElementById('phoneInput').value = person.phone || '';
             document.getElementById('bioInput').value = person.bio || '';
             document.getElementById('categoryInput').value = person.category;
-            document.getElementById('currentPhotoData').value = person.photoData || '';
-            
-            // Reset the new photo data
-            newPhotoData = null;
-
-            // Show current photo preview if it exists
-            if (person.photoData) {
-                document.getElementById('previewImage').src = person.photoData;
-                document.getElementById('photoPreview').classList.remove('hidden');
-            } else {
-                document.getElementById('photoPreview').classList.add('hidden');
-            }
 
             closeModal('personModal');
             openModal('addEditModal');
@@ -530,12 +507,8 @@
             
             const reader = new FileReader();
             reader.onload = function(event) {
-                // Store the photo data
-                newPhotoData = event.target.result;
-                
-                // Show preview
-                document.getElementById('previewImage').src = newPhotoData;
-                document.getElementById('photoPreview').classList.remove('hidden');
+                // Store the data URL in a global variable
+                document.getElementById('photoInput').dataset.photoData = event.target.result;
             };
             reader.readAsDataURL(file);
         });
@@ -553,7 +526,8 @@
             const rollNo = document.getElementById('rollNoInput').value;
             const email = document.getElementById('emailInput').value;
             const phone = document.getElementById('phoneInput').value;
-            const currentPhotoData = document.getElementById('currentPhotoData').value;
+            const photoInput = document.getElementById('photoInput');
+            const photoData = photoInput.dataset.photoData || '';
             const category = document.getElementById('categoryInput').value;
             const bio = document.getElementById('bioInput').value;
             
@@ -561,6 +535,7 @@
                 // Update existing person
                 const index = peopleData.findIndex(p => p.id === personId);
                 if (index !== -1) {
+                    // Only update the photo if a new one was selected
                     const updatedPerson = {
                         ...peopleData[index],
                         name,
@@ -572,11 +547,8 @@
                         bio
                     };
                     
-                    // Only update photo if a new one was selected
-                    if (newPhotoData) {
-                        updatedPerson.photoData = newPhotoData;
-                    } else {
-                        updatedPerson.photoData = currentPhotoData;
+                    if (photoData) {
+                        updatedPerson.photoData = photoData;
                     }
                     
                     peopleData[index] = updatedPerson;

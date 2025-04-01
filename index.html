@@ -125,10 +125,10 @@
                     <h2 class="text-xl font-semibold mb-4">Features</h2>
                     <ul class="space-y-2">
                         <li><a href="#" class="block py-2 px-4 rounded-lg nav-link" onclick="loadContent('notice')">Notice Board</a></li>
-                        <li><a href="#" class="block py-2 px-4 rounded-lg nav-link" onclick="loadContent('taxi')">Taxi Search</a></li>
+                        <li><a href="taxi-search.html" class="block py-2 px-4 rounded-lg nav-link">Taxi Search</a></li>
                         <li><a href="#" class="block py-2 px-4 rounded-lg nav-link" onclick="loadContent('study')">Study Materials</a></li>
                         <li><a href="#" class="block py-2 px-4 rounded-lg nav-link" onclick="loadContent('mail')">Mail Formats</a></li>
-                        <li><a href="#" class="block py-2 px-4 rounded-lg nav-link" onclick="loadContent('people')">Know Your People</a></li>
+                        <li><a href="kyp.html" class="block py-2 px-4 rounded-lg nav-link" >Know Your People</a></li>
                         <li><a href="#" class="block py-2 px-4 rounded-lg nav-link" onclick="loadContent('trips')">Outings & Trips</a></li>
                         <li><a href="#" class="block py-2 px-4 rounded-lg nav-link" onclick="loadContent('mess')">Mess & Canteen</a></li>
                     </ul>
@@ -281,32 +281,41 @@
         }
 
         function showHomepage(userName) {
-            // Hide auth page
-            document.getElementById('authPage').style.display = 'none';
-            
-            // Show homepage
-            document.getElementById('homepage').style.display = 'block';
-            
-            // Set welcome message
-            document.getElementById('userName').textContent = userName;
-            document.getElementById('welcomeMessage').classList.remove('hidden');
-        }
+    // Hide auth page
+    document.getElementById('authPage').style.display = 'none';
+    
+    // Show homepage
+    document.getElementById('homepage').style.display = 'block';
+    
+    // Set welcome message
+    document.getElementById('userName').textContent = userName;
+    document.getElementById('welcomeMessage').classList.remove('hidden');
+    
+    // Store user info in localStorage instead of sessionStorage
+    localStorage.setItem('currentUserData', JSON.stringify({
+        name: userName,
+        email: document.getElementById('loginEmail').value || 'admin@example.com'
+    }));
+}
 
-        function logout() {
-            // Hide homepage
-            document.getElementById('homepage').style.display = 'none';
-            
-            // Show auth page
-            document.getElementById('authPage').style.display = 'flex';
-            
-            // Reset forms
-            document.getElementById('loginForm').reset();
-            document.getElementById('adminForm').reset();
-            document.getElementById('registerForm').reset();
-            
-            // Switch to login tab
-            switchTab('login');
-        }
+function logout() {
+    // Hide homepage
+    document.getElementById('homepage').style.display = 'none';
+    
+    // Show auth page
+    document.getElementById('authPage').style.display = 'flex';
+    
+    // Reset forms
+    document.getElementById('loginForm').reset();
+    document.getElementById('adminForm').reset();
+    document.getElementById('registerForm').reset();
+    
+    // Switch to login tab
+    switchTab('login');
+    
+    // Clear local storage instead of session storage
+    localStorage.removeItem('currentUserData');
+}   
 
         function loadContent(section) {
             // Hide all content sections
@@ -328,6 +337,22 @@
         if (window.matchMedia('(prefers-color-scheme: dark)').matches) {
             document.documentElement.classList.add('dark');
         }
+        // Handle page parameters (for navigation from other pages)
+document.addEventListener('DOMContentLoaded', function() {
+    // Check if user is logged in
+    const userData = localStorage.getItem('currentUserData');
+    if (userData) {
+        const user = JSON.parse(userData);
+        showHomepage(user.name);
+        
+        // Check for page parameter in URL
+        const urlParams = new URLSearchParams(window.location.search);
+        const page = urlParams.get('page');
+        if (page) {
+            loadContent(page);
+        }
+    }
+});
     </script>
 </body>
 </html>
