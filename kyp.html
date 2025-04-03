@@ -31,22 +31,24 @@
             background-color: rgba(255, 255, 255, 0.1);
             transform: translateY(-2px);
         }
+        /* Add transition for sidebar */
+        #sidebar {
+            transition: transform 0.3s ease;
+        }
     </style>
 </head>
 <body class="bg-gray-50 dark:bg-gray-900 min-h-screen">
     <!-- Navbar -->
-    <nav class="bg-indigo-600 text-white shadow-lg">
+    <nav class="bg-indigo-600 text-white shadow-lg sticky top-0 z-50">
         <div class="container mx-auto px-4">
             <div class="flex justify-between items-center py-4">
                 <div class="flex items-center space-x-4">
                     <h1 class="text-2xl font-bold">Student Companion</h1>
                     <span id="welcomeMessage" class="hidden md:inline text-sm">Welcome, <span id="userName">User</span>!</span>
                 </div>
-                <button id="mobileMenuBtn" class="md:hidden text-white focus:outline-none">
-                    <i class="bi bi-list text-2xl"></i>
-                </button>
-                <div class="hidden md:flex items-center space-x-4">
-                    <button id="logoutBtn" class="py-2 px-4 rounded-lg bg-white bg-opacity-20 hover:bg-opacity-30 transition" onclick="logout()">Logout</button>
+                
+                <div class="flex items-center">
+                    <button id="logoutBtn" class="py-1 px-2 md:py-2 md:px-4 text-xs md:text-base rounded-lg bg-white bg-opacity-20 hover:bg-opacity-30 transition" onclick="logout()">Logout</button>
                 </div>
             </div>
         </div>
@@ -61,9 +63,9 @@
 
     <!-- Main Content Layout -->
     <div class="flex flex-col md:flex-row">
-        <!-- Sidebar -->
-        <div class="md:w-64 bg-indigo-800 text-white min-h-screen p-4">
-            <div class="mb-8">
+        <!-- Sidebar - Fixed position on mobile, normal on desktop -->
+        <div id="sidebar" class="fixed md:relative w-64 bg-indigo-800 text-white h-screen z-40 transform -translate-x-full md:translate-x-0 transition-transform duration-300">
+            <div class="p-4">
                 <h2 class="text-xl font-semibold mb-4">Features</h2>
                 <ul class="space-y-2">
                     <li><a href="index.html?page=notice" class="block py-2 px-4 rounded-lg nav-link">Notice Board</a></li>
@@ -71,10 +73,17 @@
                     <li><a href="index.html?page=study" class="block py-2 px-4 rounded-lg nav-link">Study Materials</a></li>
                     <li><a href="index.html?page=mail" class="block py-2 px-4 rounded-lg nav-link">Mail Formats</a></li>
                     <li><a href="#" class="block py-2 px-4 rounded-lg nav-link bg-white bg-opacity-20">Know Your People</a></li>
-                    <li><a href="index.html?page=trips" class="block py-2 px-4 rounded-lg nav-link">Outings & Trips</a></li>
-                    <li><a href="index.html?page=mess" class="block py-2 px-4 rounded-lg nav-link">Mess & Canteen</a></li>
+                    <li><a href="outings.html" class="block py-2 px-4 rounded-lg nav-link">Outings & Trips</a></li>
+                    <li><a href="messmenu.html" class="block py-2 px-4 rounded-lg nav-link">Mess & Canteen</a></li>
                 </ul>
             </div>
+        </div>
+        
+        <!-- Mobile sidebar toggle button -->
+        <div class="fixed bottom-4 left-4 z-40 md:hidden">
+            <button onclick="toggleSidebar()" class="bg-indigo-600 text-white p-3 rounded-full shadow-lg">
+                <i class="bi bi-list text-xl"></i>
+            </button>
         </div>
 
         <!-- Main Content -->
@@ -223,8 +232,11 @@
             // Mobile menu toggle
             document.getElementById('mobileMenuBtn').addEventListener('click', () => {
                 const mobileMenu = document.getElementById('mobileMenu');
-                mobileMenu.classList.toggle('hidden');
+                mobileMenu.classList.toggle('hidden');  
             });
+            
+            // Sidebar toggle button
+            document.getElementById('sidebarToggleBtn').addEventListener('click', toggleSidebar);
         });
 
         let isAdmin = true;
@@ -232,10 +244,18 @@
         let currentFilter = 'all';
         let searchTerm = '';
         let peopleData = [];
+        
+        // Toggle sidebar visibility for mobile
+        function toggleSidebar() {
+    const sidebar = document.getElementById('sidebar');
+    sidebar.classList.toggle('-translate-x-full');
+    
+    // Icon changing code has been removed
+}
 
         // Check if the user is logged in and if they are an admin
         function checkLoginStatus() {
-            const userData = localStorage.getItem('currentUserData');
+            const userData = sessionStorage.getItem('currentUserData');
             if (!userData) {
                 // Redirect to login page if not logged in
                 window.location.href = 'index.html';

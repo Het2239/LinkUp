@@ -24,55 +24,61 @@
         .taxi-card:hover {
             transform: translateY(-5px);
         }
+        .sidebar-transition {
+            transition: transform 0.3s ease, width 0.3s ease;
+        }
     </style>
 </head>
 <body class="bg-gray-50 dark:bg-gray-900">
     <!-- Navbar -->
-    <nav class="bg-indigo-600 text-white shadow-lg">
+    <nav class="bg-indigo-600 text-white shadow-lg sticky top-0 z-50">
         <div class="container mx-auto px-4">
             <div class="flex justify-between items-center py-4">
                 <div class="flex items-center space-x-4">
                     <h1 class="text-2xl font-bold">Student Companion</h1>
-                    <span id="welcomeMessage" class="hidden md:inline text-sm">Welcome, <span id="userName">User</span>!</span>
+                    <!-- Fixed: Always show welcome message but adjust font size -->
+                    <span id="welcomeMessage" class="text-xs md:text-sm">Welcome, <span id="userName">User</span>!</span>
                 </div>
-                <button id="mobileMenuBtn" class="md:hidden text-white focus:outline-none">
-                    <i class="bi bi-list text-2xl"></i>
-                </button>
-                <div class="hidden md:flex items-center space-x-4">
-                    <button id="logoutBtn" class="py-2 px-4 rounded-lg bg-white bg-opacity-20 hover:bg-opacity-30 transition" onclick="logout()">Logout</button>
+                <!-- Fixed: Always show logout button but make it compact on small screens -->
+                <div class="flex items-center">
+                    <button id="logoutBtn" class="py-1 px-2 md:py-2 md:px-4 text-xs md:text-base rounded-lg bg-white bg-opacity-20 hover:bg-opacity-30 transition" onclick="logout()">Logout</button>
                 </div>
             </div>
         </div>
     </nav>
 
-    <!-- Mobile Menu -->
-    <div id="mobileMenu" class="hidden md:hidden bg-indigo-700 text-white">
-        <div class="container mx-auto px-4 py-2">
-            <button class="w-full text-left py-2 px-4 hover:bg-indigo-600 rounded-lg" onclick="logout()">Logout</button>
-        </div>
-    </div>
-
     <!-- Main Content -->
-    <div class="flex flex-col md:flex-row">
+    <div class="flex flex-col lg:flex-row relative">
         <!-- Sidebar -->
-        <div class="md:w-64 bg-indigo-800 text-white min-h-screen p-4">
-            <div class="mb-8">
+        <div id="sidebar" class="fixed lg:relative w-64 bg-indigo-800 text-white h-screen z-40 transform -translate-x-full lg:translate-x-0 sidebar-transition">
+            <div class="p-4">
                 <h2 class="text-xl font-semibold mb-4">Features</h2>
                 <ul class="space-y-2">
-                    <li><a href="#" class="block py-2 px-4 rounded-lg nav-link" onclick="redirectToPage('notice')">Notice Board</a></li>
-                    <li><a href="#" class="block py-2 px-4 rounded-lg nav-link bg-white bg-opacity-20" onclick="redirectToPage('taxi')">Taxi Search</a></li>
-                    <li><a href="#" class="block py-2 px-4 rounded-lg nav-link" onclick="redirectToPage('study')">Study Materials</a></li>
-                    <li><a href="#" class="block py-2 px-4 rounded-lg nav-link" onclick="redirectToPage('mail')">Mail Formats</a></li>
-                    <li><a href="#" class="block py-2 px-4 rounded-lg nav-link" onclick="redirectToPage('people')">Know Your People</a></li>
-                    <li><a href="#" class="block py-2 px-4 rounded-lg nav-link" onclick="redirectToPage('trips')">Outings & Trips</a></li>
-                    <li><a href="#" class="block py-2 px-4 rounded-lg nav-link" onclick="redirectToPage('mess')">Mess & Canteen</a></li>
+                    <li><a href="index.html?page=notice" class="block py-2 px-4 rounded-lg nav-link">Notice Board</a></li>
+                    <li><a href="#" class="block py-2 px-4 rounded-lg nav-link bg-white bg-opacity-20">Taxi Search</a></li>
+                    <li><a href="index.html?page=study" class="block py-2 px-4 rounded-lg nav-link">Study Materials</a></li>
+                    <li><a href="index.html?page=mail" class="block py-2 px-4 rounded-lg nav-link">Mail Formats</a></li>
+                    <li><a href="kyp.html" class="block py-2 px-4 rounded-lg nav-link">Know Your People</a></li>
+                    <li><a href="outings.html" class="block py-2 px-4 rounded-lg nav-link">Outings & Trips</a></li>
+                    <li><a href="messmenu.html" class="block py-2 px-4 rounded-lg nav-link">Mess & Canteen</a></li>
                 </ul>
             </div>
         </div>
 
+        <!-- Overlay for sidebar -->
+        <div id="sidebarOverlay" class="fixed inset-0 bg-black bg-opacity-50 z-20 hidden" onclick="toggleSidebar()"></div>
+
+        <!-- Mobile sidebar button (floating) -->
+        <!-- Fixed: Always show sidebar button on small screens -->
+        <div>
+            <button id="showSidebarBtn" class="fixed bottom-6 left-6 lg:hidden bg-indigo-600 text-white p-3 rounded-full shadow-lg z-30">
+                <i class="bi bi-list text-xl"></i>
+            </button>
+        </div>
+        
         <!-- Main Content Area -->
-        <div class="flex-1 p-8">
-            <div class="bg-white dark:bg-gray-800 rounded-xl shadow-lg p-6">
+        <div class="flex-1 p-4 md:p-8">
+            <div class="bg-white dark:bg-gray-800 rounded-xl shadow-lg p-4 md:p-6">
                 <h2 class="text-2xl font-bold mb-6 text-gray-800 dark:text-white">Taxi Search</h2>
                 <p class="text-gray-600 dark:text-gray-300 mb-6">Find and join taxi groups for shared rides to save money and reduce carbon footprint.</p>
                 
@@ -167,8 +173,8 @@
         let currentUser = { name: 'User', email: 'user@example.com', phone: '' };
         
         // Check if we're in a logged-in session (in a real app, this would be more secure)
-        if (localStorage.getItem('currentUserData')) {
-            currentUser = JSON.parse(localStorage.getItem('currentUserData'));
+        if (sessionStorage.getItem('currentUserData')) {
+            currentUser = JSON.parse(sessionStorage.getItem('currentUserData'));
             document.getElementById('userName').textContent = currentUser.name;
         }
 
@@ -196,6 +202,23 @@
 
         // Call cleanup function on page load
         cleanExpiredTrips();
+
+        // Fixed toggle sidebar functionality
+        function toggleSidebar() {
+            const sidebar = document.getElementById('sidebar');
+            const overlay = document.getElementById('sidebarOverlay');
+            
+            if (sidebar.classList.contains('-translate-x-full')) {
+                sidebar.classList.remove('-translate-x-full');
+                overlay.classList.remove('hidden');
+            } else {
+                sidebar.classList.add('-translate-x-full');
+                overlay.classList.add('hidden');
+            }
+        }
+
+        // Add event listener for the sidebar button
+        document.getElementById('showSidebarBtn').addEventListener('click', toggleSidebar);
 
         // Form submission handler
         document.getElementById('tripForm').addEventListener('submit', function(e) {
@@ -505,15 +528,10 @@
             renderTrips();
         });
 
-        // Mobile menu toggle
-        document.getElementById('mobileMenuBtn').addEventListener('click', function() {
-            document.getElementById('mobileMenu').classList.toggle('hidden');
-        });
-
         // Logout function
         function logout() {
             // Clear user data
-            localStorage.removeItem('currentUserData');
+            sessionStorage.removeItem('currentUserData');
             // Redirect to index page
             window.location.href = 'index.html';
         }
@@ -533,8 +551,30 @@
             }
         }
 
-        // Initial render
-        renderTrips();
+        // Fixed: Improved checkScreenSize function
+        function checkScreenSize() {
+            const sidebar = document.getElementById('sidebar');
+            const overlay = document.getElementById('sidebarOverlay');
+            const sidebarBtn = document.getElementById('showSidebarBtn');
+            
+            if (window.innerWidth >= 1024) { // lg breakpoint
+                sidebar.classList.remove('-translate-x-full');
+                overlay.classList.add('hidden');
+                // No need to hide the button as it's already hidden by lg:hidden class
+            } else {
+                sidebar.classList.add('-translate-x-full');
+                // Button is automatically visible due to CSS class
+            }
+        }
+
+        // Add resize event listener
+        window.addEventListener('resize', checkScreenSize);
+        
+        // Call on page load
+        window.addEventListener('load', function() {
+            checkScreenSize();
+            renderTrips();
+        });
     </script>
 </body>
 </html>

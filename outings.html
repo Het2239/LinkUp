@@ -1,0 +1,614 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Student Companion - Outings & Trips</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        * {
+            font-family: 'Poppins', sans-serif;
+        }
+        .nav-link {
+            transition: all 0.3s ease;
+        }
+        .nav-link:hover {
+            background-color: rgba(255, 255, 255, 0.1);
+            transform: translateY(-2px);
+        }
+        .trip-card {
+            transition: transform 0.3s ease;
+        }
+        .trip-card:hover {
+            transform: translateY(-5px);
+        }
+        :root {
+            color-scheme: light dark;
+        }
+    </style>
+</head>
+<body class="bg-gray-50 dark:bg-gray-900">
+    <!-- Navbar -->
+    <nav class="bg-indigo-600 text-white shadow-lg">
+        <div class="container mx-auto px-4">
+            <div class="flex justify-between items-center py-4">
+                <div class="flex items-center space-x-4">
+                    <h1 class="text-2xl font-bold">Student Companion</h1>
+                    <span id="welcomeMessage" class="hidden md:inline text-sm">Welcome, <span id="userName">User</span>!</span>
+                </div>
+                
+                <div class="flex items-center">
+                    <button id="logoutBtn" class="py-1 px-2 md:py-2 md:px-4 text-xs md:text-base rounded-lg bg-white bg-opacity-20 hover:bg-opacity-30 transition" onclick="logout()">Logout</button>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content Container -->
+    <div class="flex flex-col md:flex-row">
+        <!-- Sidebar -->
+        <div id="sidebar" class="fixed md:relative w-64 bg-indigo-800 text-white h-screen z-40 transform -translate-x-full md:translate-x-0 transition-transform duration-300">
+            <div class="p-4">
+                <h2 class="text-xl font-semibold mb-4">Features</h2>
+                <ul class="space-y-2">
+                    <li><a href="index.html?page=notice" class="block py-2 px-4 rounded-lg nav-link">Notice Board</a></li>
+                    <li><a href="taxi-search.html" class="block py-2 px-4 rounded-lg nav-link">Taxi Search</a></li>
+                    <li><a href="index.html?page=study" class="block py-2 px-4 rounded-lg nav-link">Study Materials</a></li>
+                    <li><a href="index.html?page=mail" class="block py-2 px-4 rounded-lg nav-link">Mail Formats</a></li>
+                    <li><a href="kyp.html" class="block py-2 px-4 rounded-lg nav-link">Know Your People</a></li>
+                    <li><a href="#" class="block py-2 px-4 rounded-lg nav-link bg-indigo-700">Outings & Trips</a></li>
+                    <li><a href="messmenu.html" class="block py-2 px-4 rounded-lg nav-link">Mess & Canteen</a></li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- Mobile Sidebar Toggle -->
+        <div class="fixed bottom-4 left-4 z-40 md:hidden">
+            <button onclick="toggleSidebar()" class="bg-indigo-600 text-white p-3 rounded-full shadow-lg">
+                <i class="bi bi-list text-xl"></i>
+            </button>
+        </div>
+
+        <!-- Main Content -->
+        <div class="flex-1 p-4 md:p-8">
+            <div class="bg-white dark:bg-gray-800 rounded-xl shadow-lg p-4 md:p-6">
+                <!-- Header -->
+                <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-6">
+                    <h2 class="text-2xl font-bold text-gray-800 dark:text-white mb-4 md:mb-0">Outings & Trips</h2>
+                    <div class="flex gap-2">
+                        <button onclick="filterMyTrips()" class="bg-indigo-500 text-white px-4 py-2 rounded-lg hover:bg-indigo-600 transition">
+                            <i class="bi bi-person-lines-fill mr-2"></i>My Trips
+                        </button>
+                        <button onclick="openNewTripModal()" class="bg-indigo-600 text-white px-4 py-2 rounded-lg hover:bg-indigo-700 transition">
+                            <i class="bi bi-plus-lg mr-2"></i>Share New Trip
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Filters -->
+                <div class="mb-6 flex flex-wrap gap-4">
+                    <select id="tripType" class="bg-white dark:bg-gray-700 border dark:border-gray-600 rounded-lg px-4 py-2 text-gray-800 dark:text-white" onchange="filterTrips()">
+                        <option value="all">All Trips</option>
+                        <option value="upcoming">Upcoming</option>
+                        <option value="past">Past Experiences</option>
+                        <option value="mytrips">My Trips</option>
+                    </select>
+                    <input type="text" id="searchInput" placeholder="Search destinations..." class="bg-white dark:bg-gray-700 border dark:border-gray-600 rounded-lg px-4 py-2 flex-grow text-gray-800 dark:text-white" oninput="filterTrips()">
+                </div>
+
+                <!-- Trip Cards Container -->
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6" id="tripContainer">
+                    <!-- Trip cards will be dynamically added here -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- New Trip Modal -->
+    <div id="newTripModal" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+        <div class="bg-white dark:bg-gray-800 rounded-lg p-6 w-full max-w-lg">
+            <div class="flex justify-between items-center mb-4">
+                <h2 id="tripModalTitle" class="text-xl font-bold text-gray-800 dark:text-white">Share New Trip</h2>
+                <button onclick="closeNewTripModal()" class="text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200">
+                    <i class="bi bi-x-lg"></i>
+                </button>
+            </div>
+            <form id="newTripForm" class="space-y-4">
+                <input type="hidden" id="editTripId" value="">
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Destination</label>
+                    <input type="text" id="newTripDestination" required class="w-full border dark:border-gray-600 rounded-lg px-3 py-2 bg-white dark:bg-gray-700 text-gray-800 dark:text-white">
+                </div>
+                <div class="grid grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Start Date</label>
+                        <input type="date" id="newTripStartDate" required class="w-full border dark:border-gray-600 rounded-lg px-3 py-2 bg-white dark:bg-gray-700 text-gray-800 dark:text-white">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">End Date</label>
+                        <input type="date" id="newTripEndDate" required class="w-full border dark:border-gray-600 rounded-lg px-3 py-2 bg-white dark:bg-gray-700 text-gray-800 dark:text-white">
+                    </div>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Description</label>
+                    <textarea id="newTripDescription" required class="w-full border dark:border-gray-600 rounded-lg px-3 py-2 bg-white dark:bg-gray-700 text-gray-800 dark:text-white" rows="3"></textarea>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Photo</label>
+                    <input type="file" id="newTripPhoto" class="w-full border dark:border-gray-600 rounded-lg px-3 py-2 bg-white dark:bg-gray-700 text-gray-800 dark:text-white" accept="image/*">
+                </div>
+                <button type="submit" id="tripSubmitButton" class="w-full bg-indigo-600 text-white py-2 rounded-lg hover:bg-indigo-700 transition">
+                    Share Trip
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Trip Info Modal -->
+    <div id="tripInfoModal" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+        <div class="bg-white dark:bg-gray-800 rounded-lg p-6 w-full max-w-lg">
+            <div class="flex justify-between items-center mb-4">
+                <h2 class="text-xl font-bold text-gray-800 dark:text-white">Trip Information</h2>
+                <button onclick="closeTripInfoModal()" class="text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200">
+                    <i class="bi bi-x-lg"></i>
+                </button>
+            </div>
+            <div id="tripInfoContent" class="text-gray-800 dark:text-white">
+                <!-- Trip information will be dynamically added here -->
+            </div>
+            <div id="tripActionButtons" class="flex justify-end mt-4 gap-2">
+                <!-- Action buttons will be added here if the user is the creator -->
+            </div>
+        </div>
+    </div>
+
+    <!-- Delete Confirmation Modal -->
+    <div id="deleteConfirmModal" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+        <div class="bg-white dark:bg-gray-800 rounded-lg p-6 w-full max-w-md">
+            <h2 class="text-xl font-bold text-gray-800 dark:text-white mb-4">Confirm Deletion</h2>
+            <p class="text-gray-600 dark:text-gray-300 mb-6">Are you sure you want to delete this trip? This action cannot be undone.</p>
+            <div class="flex justify-end gap-4">
+                <button onclick="closeDeleteConfirmModal()" class="px-4 py-2 bg-gray-200 dark:bg-gray-700 text-gray-800 dark:text-white rounded-lg hover:bg-gray-300 dark:hover:bg-gray-600 transition">
+                    Cancel
+                </button>
+                <button id="confirmDeleteBtn" class="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition">
+                    Delete
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Success Toast Notification -->
+    <div id="toastNotification" class="hidden fixed bottom-4 right-4 bg-green-500 text-white px-6 py-3 rounded-lg shadow-xl z-50">
+        <span id="toastMessage"></span>
+    </div>
+
+    <script>
+        // Initialize trips array from local storage or use sample data
+        let trips = [];
+        const TRIPS_STORAGE_KEY = 'studentCompanionTrips';
+        
+        // Function to initialize trips from local storage or sample data
+        function initTrips() {
+            const storedTrips = localStorage.getItem(TRIPS_STORAGE_KEY);
+            if (storedTrips) {
+                trips = JSON.parse(storedTrips);
+            } else {
+                // Sample trip data
+                trips = [
+                    {
+                        id: 1,
+                        destination: "Beach Weekend Getaway",
+                        date: "2024-02-15",
+                        endDate: "2024-02-17",
+                        description: "Join us for a relaxing weekend at the beach! Activities include surfing, volleyball, and bonfire. This is a longer description to test the truncation.",
+                        imageUrl: "https://source.unsplash.com/random/800x600/?beach",
+                        creator: "Alex Johnson",
+                        creatorId: "user123" // Sample creator ID
+                    },
+                    {
+                        id: 2,
+                        destination: "Mountain Hiking Adventure",
+                        date: "2024-03-01",
+                        endDate: "2024-03-03",
+                        description: "Experience the thrill of mountain hiking! Stunning views and great company guaranteed.",
+                        imageUrl: "https://source.unsplash.com/random/800x600/?mountain",
+                        creator: "Sarah Smith",
+                        creatorId: "user456" // Sample creator ID
+                    },
+                    {
+                        id: 3,
+                        destination: "City Exploration",
+                        date: "2024-04-01",
+                        endDate: "2024-04-05",
+                        description: "Explore the city's hidden gems and iconic landmarks. A truly unforgettable experience!",
+                        imageUrl: "https://source.unsplash.com/random/800x600/?city",
+                        creator: "Emily White",
+                        creatorId: "user789" // Sample creator ID
+                    }
+                ];
+                // Save sample data to local storage
+                saveTripsToLocalStorage();
+            }
+        }
+
+        // Function to save trips to local storage
+        function saveTripsToLocalStorage() {
+            localStorage.setItem(TRIPS_STORAGE_KEY, JSON.stringify(trips));
+        }
+
+        // Function to render trips with filtering
+        function renderTrips(filterType = 'all', searchTerm = '') {
+            const container = document.getElementById('tripContainer');
+            container.innerHTML = '';
+            
+            const currentUser = getCurrentUser();
+            const today = new Date();
+            today.setHours(0, 0, 0, 0);
+            
+            let filteredTrips = [...trips];
+            
+            // Apply type filter
+            if (filterType === 'upcoming') {
+                filteredTrips = filteredTrips.filter(trip => new Date(trip.date) >= today);
+            } else if (filterType === 'past') {
+                filteredTrips = filteredTrips.filter(trip => new Date(trip.endDate) < today);
+            } else if (filterType === 'mytrips' && currentUser) {
+                filteredTrips = filteredTrips.filter(trip => trip.creatorId === currentUser.id);
+            }
+            
+            // Apply search filter
+            if (searchTerm) {
+                const term = searchTerm.toLowerCase();
+                filteredTrips = filteredTrips.filter(trip => 
+                    trip.destination.toLowerCase().includes(term) || 
+                    trip.description.toLowerCase().includes(term)
+                );
+            }
+
+            // Sort by date (newest first)
+            filteredTrips.sort((a, b) => new Date(b.date) - new Date(a.date));
+            
+            if (filteredTrips.length === 0) {
+                container.innerHTML = `
+                    <div class="col-span-1 md:col-span-2 lg:col-span-3 text-center py-8">
+                        <p class="text-gray-500 dark:text-gray-400">No trips found. Why not <a href="#" onclick="openNewTripModal()" class="text-indigo-600">create one</a>?</p>
+                    </div>
+                `;
+                return;
+            }
+
+            filteredTrips.forEach(trip => {
+                const card = document.createElement('div');
+                card.className = 'bg-white dark:bg-gray-700 rounded-lg shadow-md overflow-hidden trip-card';
+                const truncatedDescription = trip.description.length > 50 ? trip.description.substring(0, 50) + '...' : trip.description;
+                
+                // Check if the trip is created by the current user
+                const isCreator = currentUser && trip.creatorId === currentUser.id;
+                
+                // Add edit and delete buttons directly on the card if user is the creator
+                let actionButtons = '';
+                if (isCreator) {
+                    actionButtons = `
+                        <div class="flex space-x-2">
+                            <button onclick="openNewTripModal(${trip.id})" class="bg-indigo-500 text-white px-3 py-1 rounded hover:bg-indigo-600 transition text-sm">
+                                <i class="bi bi-pencil-fill"></i> Edit
+                            </button>
+                            <button onclick="confirmDeleteTrip(${trip.id})" class="bg-red-500 text-white px-3 py-1 rounded hover:bg-red-600 transition text-sm">
+                                <i class="bi bi-trash-fill"></i> Delete
+                            </button>
+                        </div>
+                    `;
+                }
+                
+                card.innerHTML = `
+                    <img src="${trip.imageUrl}" alt="${trip.destination}" class="w-full h-48 object-cover">
+                    <div class="p-4">
+                        <h3 class="text-xl font-semibold mb-2 text-gray-800 dark:text-white">${trip.destination}</h3>
+                        <p class="text-gray-600 dark:text-gray-300 mb-2">${truncatedDescription}</p>
+                        <div class="flex items-center text-sm text-gray-500 dark:text-gray-400 mb-4">
+                            <i class="bi bi-calendar-event mr-2"></i>
+                            ${new Date(trip.date).toLocaleDateString()} - ${new Date(trip.endDate).toLocaleDateString()}
+                        </div>
+                        <div class="flex items-center text-sm text-gray-500 dark:text-gray-400 mb-4">
+                            <i class="bi bi-person mr-2"></i>
+                            Posted by: ${trip.creator}
+                        </div>
+                        <div class="flex flex-col space-y-2 sm:flex-row sm:items-center sm:justify-between">
+                            ${isCreator ? `
+                                <div class="text-xs px-2 py-1 bg-indigo-100 dark:bg-indigo-900 text-indigo-800 dark:text-indigo-200 rounded">
+                                    Your trip
+                                </div>
+                            ` : `<div></div>`}
+                            <button onclick="showTripInfo(${trip.id})" class="bg-indigo-600 text-white px-4 py-2 rounded hover:bg-indigo-700 transition">
+                                View Details
+                            </button>
+                        </div>
+                        ${isCreator ? `<div class="mt-4 border-t pt-4 border-gray-200 dark:border-gray-600">${actionButtons}</div>` : ''}
+                    </div>
+                `;
+                container.appendChild(card);
+            });
+        }
+
+        // Filter trips based on selection and search
+        function filterTrips() {
+            const filterType = document.getElementById('tripType').value;
+            const searchTerm = document.getElementById('searchInput').value;
+            renderTrips(filterType, searchTerm);
+        }
+
+        // Quickly filter to show only user's trips
+        function filterMyTrips() {
+            document.getElementById('tripType').value = 'mytrips';
+            filterTrips();
+        }
+
+        // Modal functions
+        function openNewTripModal(tripId = null) {
+            const modal = document.getElementById('newTripModal');
+            const form = document.getElementById('newTripForm');
+            const modalTitle = document.getElementById('tripModalTitle');
+            const submitButton = document.getElementById('tripSubmitButton');
+            
+            // Reset form
+            form.reset();
+            document.getElementById('editTripId').value = '';
+            
+            if (tripId) {
+                // Edit mode
+                const trip = trips.find(t => t.id === tripId);
+                if (trip) {
+                    modalTitle.textContent = 'Edit Trip';
+                    submitButton.textContent = 'Update Trip';
+                    
+                    // Fill form with trip data
+                    document.getElementById('newTripDestination').value = trip.destination;
+                    document.getElementById('newTripStartDate').value = trip.date;
+                    document.getElementById('newTripEndDate').value = trip.endDate;
+                    document.getElementById('newTripDescription').value = trip.description;
+                    document.getElementById('editTripId').value = trip.id;
+                    
+                    // Close any open trip info modal
+                    closeTripInfoModal();
+                }
+            } else {
+                // New trip mode
+                modalTitle.textContent = 'Share New Trip';
+                submitButton.textContent = 'Share Trip';
+            }
+            
+            modal.classList.remove('hidden');
+        }
+
+        function closeNewTripModal() {
+            document.getElementById('newTripModal').classList.add('hidden');
+        }
+
+        // Show trip info
+        function showTripInfo(tripId) {
+            const trip = trips.find(t => t.id === tripId);
+            if (trip) {
+                const tripInfoContent = document.getElementById('tripInfoContent');
+                tripInfoContent.innerHTML = `
+                    <img src="${trip.imageUrl}" alt="${trip.destination}" class="w-full h-48 object-cover mb-4 rounded-lg">
+                    <h3 class="text-xl font-semibold mb-2">${trip.destination}</h3>
+                    <p class="text-gray-600 dark:text-gray-300 mb-4">${trip.description}</p>
+                    <div class="flex items-center text-sm text-gray-500 dark:text-gray-400 mb-4">
+                        <i class="bi bi-calendar-event mr-2"></i>
+                        ${new Date(trip.date).toLocaleDateString()} - ${new Date(trip.endDate).toLocaleDateString()}
+                    </div>
+                    <p class="text-gray-700 dark:text-gray-300">Creator: ${trip.creator}</p>
+                `;
+                
+                // Check if current user is the creator to show edit/delete buttons
+                const actionButtons = document.getElementById('tripActionButtons');
+                actionButtons.innerHTML = '';
+                
+                const currentUser = getCurrentUser();
+                if (currentUser && trip.creatorId === currentUser.id) {
+                    actionButtons.innerHTML = `
+                        <button onclick="openNewTripModal(${trip.id})" class="bg-indigo-600 text-white px-4 py-2 rounded hover:bg-indigo-700 transition">
+                            <i class="bi bi-pencil"></i> Edit
+                        </button>
+                        <button onclick="confirmDeleteTrip(${trip.id})" class="bg-red-600 text-white px-4 py-2 rounded hover:bg-red-700 transition">
+                            <i class="bi bi-trash"></i> Delete
+                        </button>
+                    `;
+                }
+                
+                document.getElementById('tripInfoModal').classList.remove('hidden');
+            } else {
+                showToast("Trip not found!", "error");
+            }
+        }
+
+        // Close trip info modal
+        function closeTripInfoModal() {
+            document.getElementById('tripInfoModal').classList.add('hidden');
+        }
+
+        // Confirm delete trip
+        function confirmDeleteTrip(tripId) {
+            // Close the trip info modal
+            closeTripInfoModal();
+            
+            // Setup and show the delete confirmation modal
+            const confirmDeleteBtn = document.getElementById('confirmDeleteBtn');
+            confirmDeleteBtn.onclick = function() {
+                deleteTrip(tripId);
+            };
+            
+            document.getElementById('deleteConfirmModal').classList.remove('hidden');
+        }
+
+        // Close delete confirmation modal
+        function closeDeleteConfirmModal() {
+            document.getElementById('deleteConfirmModal').classList.add('hidden');
+        }
+
+        // Delete trip
+        function deleteTrip(tripId) {
+            const index = trips.findIndex(t => t.id === tripId);
+            if (index !== -1) {
+                const deletedTrip = trips[index];
+                trips.splice(index, 1);
+                saveTripsToLocalStorage();
+                renderTrips(document.getElementById('tripType').value, document.getElementById('searchInput').value);
+                closeDeleteConfirmModal();
+                showToast(`"${deletedTrip.destination}" has been deleted successfully`);
+            }
+        }
+
+        // Show toast notification
+        function showToast(message, type = 'success') {
+            const toast = document.getElementById('toastNotification');
+            const toastMessage = document.getElementById('toastMessage');
+            
+            // Set message
+            toastMessage.textContent = message;
+            
+            // Set color based on type
+            if (type === 'success') {
+                toast.className = 'fixed bottom-4 right-4 bg-green-500 text-white px-6 py-3 rounded-lg shadow-xl z-50';
+            } else if (type === 'error') {
+                toast.className = 'fixed bottom-4 right-4 bg-red-500 text-white px-6 py-3 rounded-lg shadow-xl z-50';
+            }
+            
+            // Show toast
+            toast.classList.remove('hidden');
+            
+            // Hide after 3 seconds
+            setTimeout(() => {
+                toast.classList.add('hidden');
+            }, 3000);
+        }
+
+        // Toggle sidebar for mobile view
+        function toggleSidebar() {
+            const sidebar = document.getElementById('sidebar');
+            sidebar.classList.toggle('-translate-x-full');
+        }
+
+        // Get current user from session storage
+        function getCurrentUser() {
+            const userData = sessionStorage.getItem('currentUserData');
+            return userData ? JSON.parse(userData) : null;
+        }
+
+        // Form submission for new/edit trip
+        document.getElementById('newTripForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const editTripId = document.getElementById('editTripId').value;
+            const destination = document.getElementById('newTripDestination').value;
+            const startDate = document.getElementById('newTripStartDate').value;
+            const endDate = document.getElementById('newTripEndDate').value;
+            const description = document.getElementById('newTripDescription').value;
+            const photoInput = document.getElementById('newTripPhoto');
+            const currentUser = getCurrentUser();
+            
+            if (!currentUser) {
+                showToast('You need to be logged in to create or edit trips', 'error');
+                return;
+            }
+            
+            // Check if end date is after start date
+            if (new Date(endDate) < new Date(startDate)) {
+                showToast('End date must be after start date', 'error');
+                return;
+            }
+            
+            // Function to process trip data after image processing
+            function processTripData(imageUrl) {
+                let successMessage = '';
+                
+                if (editTripId) {
+                    // Update existing trip
+                    const tripIndex = trips.findIndex(t => t.id === parseInt(editTripId));
+                    if (tripIndex !== -1) {
+                        // Store old data for comparison
+                        const oldDestination = trips[tripIndex].destination;
+                        
+                        trips[tripIndex] = {
+                            ...trips[tripIndex],
+                            destination: destination,
+                            date: startDate,
+                            endDate: endDate,
+                            description: description,
+                            ...(imageUrl && { imageUrl: imageUrl })
+                        };
+                        
+                        successMessage = `"${oldDestination}" has been updated successfully`;
+                    }
+                } else {
+                    // Create new trip
+                    const newTrip = {
+                        id: Date.now(), // Using timestamp as unique ID
+                        destination: destination,
+                        date: startDate,
+                        endDate: endDate,
+                        description: description,
+                        imageUrl: imageUrl || "https://source.unsplash.com/random/800x600/?travel",
+                        creator: currentUser.name,
+                        creatorId: currentUser.id
+                    };
+                    trips.push(newTrip);
+                    
+                    successMessage = `"${destination}" has been created successfully`;
+                }
+                
+                saveTripsToLocalStorage();
+                renderTrips(document.getElementById('tripType').value, document.getElementById('searchInput').value);
+                closeNewTripModal();
+                showToast(successMessage);
+            }
+            
+            // Process image if provided
+            if (photoInput.files.length > 0) {
+                const reader = new FileReader();
+                reader.onloadend = function() {
+                    processTripData(reader.result);
+                }
+                reader.readAsDataURL(photoInput.files[0]);
+            } else {
+                // If editing and no new image, keep existing image. If new trip, use default
+                processTripData(editTripId ? null : "https://source.unsplash.com/random/800x600/?travel");
+            }
+        });
+
+        // Function to check if user is logged in and get user data from sessionStorage
+        function checkLogin() {
+            const userData = sessionStorage.getItem('currentUserData');
+            if (userData) {
+                const user = JSON.parse(userData);
+                document.getElementById('userName').textContent = user.name;
+                document.getElementById('welcomeMessage').classList.remove('hidden');
+            } else {
+                // Redirect to login page if not logged in
+                window.location.href = 'index.html';
+            }
+        }
+
+        // Logout function
+        function logout() {
+            sessionStorage.removeItem('currentUserData');
+            window.location.href = 'index.html';
+        }
+
+        // Initialize dark mode based on system preference
+        if (window.matchMedia('(prefers-color-scheme: dark)').matches) {
+            document.documentElement.classList.add('dark');
+        }
+
+        // Initialize the page
+        document.addEventListener('DOMContentLoaded', function() {
+            checkLogin();
+            initTrips();
+            renderTrips();
+        });
+    </script>
+</body>
+</html>

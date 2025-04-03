@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Student Companion - Know Your People</title>
+    <title>Mess & Canteen Menu - Student Companion</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
@@ -11,18 +11,16 @@
         * {
             font-family: 'Poppins', sans-serif;
         }
-        .person-card {
-            transition: all 0.3s ease;
+        .auth-container {
+            background: linear-gradient(135deg, #6366f1 0%, #3b82f6 100%);
         }
-        .person-card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+        .glass-effect {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
         }
-        .modal-transition {
-            transition: all 0.3s ease;
-        }
-        .profile-img {
-            object-fit: cover;
+        :root {
+            color-scheme: light dark;
         }
         .nav-link {
             transition: all 0.3s ease;
@@ -31,610 +29,1030 @@
             background-color: rgba(255, 255, 255, 0.1);
             transform: translateY(-2px);
         }
+        .menu-day.active {
+            background-color: #4f46e5;
+            color: white;
+        }
+        .menu-tab.active {
+            background-color: #4f46e5;
+            color: white;
+        }
     </style>
 </head>
-<body class="bg-gray-50 dark:bg-gray-900 min-h-screen">
-    <!-- Navbar -->
-    <nav class="bg-indigo-600 text-white shadow-lg">
-        <div class="container mx-auto px-4">
-            <div class="flex justify-between items-center py-4">
-                <div class="flex items-center space-x-4">
-                    <h1 class="text-2xl font-bold">Student Companion</h1>
-                    <span id="welcomeMessage" class="hidden md:inline text-sm">Welcome, <span id="userName">User</span>!</span>
-                </div>
-                <button id="mobileMenuBtn" class="md:hidden text-white focus:outline-none">
-                    <i class="bi bi-list text-2xl"></i>
-                </button>
-                <div class="hidden md:flex items-center space-x-4">
-                    <button id="logoutBtn" class="py-2 px-4 rounded-lg bg-white bg-opacity-20 hover:bg-opacity-30 transition" onclick="logout()">Logout</button>
+<body class="bg-gray-50 dark:bg-gray-900">
+    <!-- Auth Container (Initially Hidden) -->
+    
+
+    <!-- Homepage with Navbar -->
+    <div id="homepage" class="min-h-screen bg-gray-50 dark:bg-gray-900">
+        <!-- Navbar -->
+        <nav class="bg-indigo-600 text-white shadow-lg">
+            <div class="container mx-auto px-4">
+                <div class="flex justify-between items-center py-4">
+                    <div class="flex items-center space-x-4">
+                        <h1 class="text-2xl font-bold">Student Companion</h1>
+                        <span id="welcomeMessage" class="hidden md:inline text-sm">Welcome, <span id="userName">User</span>!</span>
+                    </div>
+                    <button id="mobileMenuBtn" class="md:hidden text-white focus:outline-none">
+                        <i class="bi bi-list text-2xl"></i>
+                    </button>
+                    <div class="hidden md:flex items-center space-x-4">
+                        <button id="logoutBtn" class="py-2 px-4 rounded-lg bg-white bg-opacity-20 hover:bg-opacity-30 transition" onclick="logout()">Logout</button>
+                    </div>
                 </div>
             </div>
-        </div>
-    </nav>
+        </nav>
 
-    <!-- Mobile Menu -->
-    <div id="mobileMenu" class="hidden md:hidden bg-indigo-700 text-white">
-        <div class="container mx-auto px-4 py-2">
-            <button class="w-full text-left py-2 px-4 hover:bg-indigo-600 rounded-lg" onclick="logout()">Logout</button>
-        </div>
-    </div>
-
-    <!-- Main Content Layout -->
-    <div class="flex flex-col md:flex-row">
-        <!-- Sidebar -->
-        <div class="md:w-64 bg-indigo-800 text-white min-h-screen p-4">
-            <div class="mb-8">
-                <h2 class="text-xl font-semibold mb-4">Features</h2>
-                <ul class="space-y-2">
-                    <li><a href="index.html?page=notice" class="block py-2 px-4 rounded-lg nav-link">Notice Board</a></li>
-                    <li><a href="taxi-search.html" class="block py-2 px-4 rounded-lg nav-link">Taxi Search</a></li>
-                    <li><a href="index.html?page=study" class="block py-2 px-4 rounded-lg nav-link">Study Materials</a></li>
-                    <li><a href="index.html?page=mail" class="block py-2 px-4 rounded-lg nav-link">Mail Formats</a></li>
-                    <li><a href="#" class="block py-2 px-4 rounded-lg nav-link bg-white bg-opacity-20">Know Your People</a></li>
-                    <li><a href="index.html?page=trips" class="block py-2 px-4 rounded-lg nav-link">Outings & Trips</a></li>
-                    <li><a href="index.html?page=mess" class="block py-2 px-4 rounded-lg nav-link">Mess & Canteen</a></li>
-                </ul>
+        <!-- Mobile Menu -->
+        <div id="mobileMenu" class="hidden md:hidden bg-indigo-700 text-white">
+            <div class="container mx-auto px-4 py-2">
+                <button class="w-full text-left py-2 px-4 hover:bg-indigo-600 rounded-lg" onclick="logout()">Logout</button>
             </div>
         </div>
 
-        <!-- Main Content -->
-        <div class="flex-1 p-8">
-            <div class="bg-white dark:bg-gray-800 rounded-xl shadow-lg p-6">
-                <h2 class="text-2xl font-bold mb-6 text-gray-800 dark:text-white">Know Your People</h2>
-
-                <!-- Category Tabs -->
-                <div class="flex flex-wrap mb-8 space-x-2">
-                    <button onclick="filterPeople('all')" class="category-btn active px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition">
-                        All
-                    </button>
-                    <button onclick="filterPeople('faculty')" class="category-btn px-4 py-2 bg-gray-200 dark:bg-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-300 dark:hover:bg-gray-600 transition">
-                        Faculty
-                    </button>
-                    <button onclick="filterPeople('club')" class="category-btn px-4 py-2 bg-gray-200 dark:bg-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-300 dark:hover:bg-gray-600 transition">
-                        Club Representatives
-                    </button>
-                    <button onclick="filterPeople('student')" class="category-btn px-4 py-2 bg-gray-200 dark:bg-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-300 dark:hover:bg-gray-600 transition">
-                        Student Body
-                    </button>
-                </div>
-
-                <!-- Search Bar -->
-                <div class="max-w-md mb-8">
-                    <div class="relative flex items-center w-full">
-                        <input type="text" id="searchInput" placeholder="Search by name, role, or roll no..." 
-                            class="w-full px-4 py-2 rounded-lg border dark:bg-gray-700 dark:text-white dark:border-gray-600 focus:outline-none focus:ring-2 focus:ring-indigo-500">
-                        <i class="bi bi-search absolute right-3 text-gray-500 dark:text-gray-400"></i>
-                    </div>
-                </div>
-
-                <!-- Add Person Button (Admin only) -->
-                <div class="text-center mb-8">
-                    <button id="addPersonBtn" onclick="openAddModal()" class="admin-only hidden px-6 py-3 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition">
-                        <i class="bi bi-plus-lg mr-2"></i> Add New Person
-                    </button>
-                </div>
-
-                <!-- People Cards Grid -->
-                <div id="peopleGrid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                    <!-- People cards will be populated here -->
+        <!-- Sidebar Navigation -->
+        <div class="flex flex-col md:flex-row">
+            <!-- Sidebar -->
+            <div class="md:w-64 bg-indigo-800 text-white min-h-screen p-4">
+                <div class="mb-8">
+                    <h2 class="text-xl font-semibold mb-4">Features</h2>
+                    <ul class="space-y-2">
+                        <li><a href="index.html?page=notice" class="block py-2 px-4 rounded-lg nav-link">Notice Board</a></li>
+                        <li><a href="taxi-search.html" class="block py-2 px-4 rounded-lg nav-link">Taxi Search</a></li>
+                        <li><a href="index.html?page=study" class="block py-2 px-4 rounded-lg nav-link">Study Materials</a></li>
+                        <li><a href="index.html?page=mail" class="block py-2 px-4 rounded-lg nav-link">Mail Formats</a></li>
+                        <li><a href="kyp.html" class="block py-2 px-4 rounded-lg nav-link">Know Your People</a></li>
+                        <li><a href="index.html?page=trips" class="block py-2 px-4 rounded-lg nav-link">Outings & Trips</a></li>
+                        <li><a href="#" class="block py-2 px-4 rounded-lg nav-link bg-white bg-opacity-20">Mess & Canteen</a></li>
+                    </ul>
                 </div>
             </div>
-        </div>
-    </div>
 
-    <!-- Person Details Modal -->
-    <div id="personModal" class="fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center z-50">
-        <div class="bg-white dark:bg-gray-800 p-6 rounded-lg w-full max-w-md mx-4 modal-transition">
-            <div class="flex justify-between items-center mb-4">
-                <h3 class="text-2xl font-semibold dark:text-white">Person Details</h3>
-                <button onclick="closeModal('personModal')" class="text-gray-500 hover:text-gray-700 dark:text-gray-300 dark:hover:text-white text-xl">
-                    <i class="bi bi-x-lg"></i>
-                </button>
-            </div>
-            <div id="personDetails" class="space-y-4 dark:text-gray-200">
-                <!-- Person details will be populated here -->
-            </div>
-        </div>
-    </div>
-
-    <!-- Add/Edit Person Modal -->
-    <div id="addEditModal" class="fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center z-50">
-        <div class="bg-white dark:bg-gray-800 p-6 rounded-lg w-full max-w-md mx-4 modal-transition">
-            <div class="flex justify-between items-center mb-4">
-                <h3 id="modalTitle" class="text-2xl font-semibold dark:text-white">Add New Person</h3>
-                <button onclick="closeModal('addEditModal')" class="text-gray-500 hover:text-gray-700 dark:text-gray-300 dark:hover:text-white text-xl">
-                    <i class="bi bi-x-lg"></i>
-                </button>
-            </div>
-            <form id="personForm" class="space-y-4">
-                <input type="hidden" id="personId">
-                <input type="hidden" id="currentPhotoData">
-                <div>
-                    <label class="block mb-1 dark:text-gray-200">Name*</label>
-                    <input type="text" id="nameInput" class="w-full p-2 border rounded dark:bg-gray-700 dark:text-white dark:border-gray-600" required>
-                </div>
-                <div>
-                    <label class="block mb-1 dark:text-gray-200">Role/Position*</label>
-                    <input type="text" id="roleInput" class="w-full p-2 border rounded dark:bg-gray-700 dark:text-white dark:border-gray-600" required>
-                </div>
-                <div>
-                    <label class="block mb-1 dark:text-gray-200">Roll No.</label>
-                    <input type="text" id="rollNoInput" class="w-full p-2 border rounded dark:bg-gray-700 dark:text-white dark:border-gray-600">
-                </div>
-                <div>
-                    <label class="block mb-1 dark:text-gray-200">Email*</label>
-                    <input type="email" id="emailInput" class="w-full p-2 border rounded dark:bg-gray-700 dark:text-white dark:border-gray-600" required>
-                </div>
-                <div>
-                    <label class="block mb-1 dark:text-gray-200">Phone</label>
-                    <input type="tel" id="phoneInput" class="w-full p-2 border rounded dark:bg-gray-700 dark:text-white dark:border-gray-600">
-                </div>
-                <div>
-                    <label class="block mb-1 dark:text-gray-200">Profile Image</label>
-                    <div class="flex items-center space-x-2">
-                        <input type="file" id="photoInput" class="w-full p-2 border rounded dark:bg-gray-700 dark:text-white dark:border-gray-600" accept="image/*">
-                        <div id="photoPreview" class="hidden">
-                            <img id="previewImage" src="" alt="Preview" class="w-12 h-12 rounded-full object-cover">
-                        </div>
-                    </div>
-                </div>
-                <div>
-                    <label class="block mb-1 dark:text-gray-200">Category*</label>
-                    <select id="categoryInput" class="w-full p-2 border rounded dark:bg-gray-700 dark:text-white dark:border-gray-600" required>
-                        <option value="">Select category</option>
-                        <option value="faculty">Faculty</option>
-                        <option value="club">Club Representative</option>
-                        <option value="student">Student Body</option>
-                    </select>
-                </div>
-                <div>
-                    <label class="block mb-1 dark:text-gray-200">Bio</label>
-                    <textarea id="bioInput" class="w-full p-2 border rounded dark:bg-gray-700 dark:text-white dark:border-gray-600" rows="3"></textarea>
-                </div>
-                <div class="flex justify-end space-x-2 pt-2">
-                    <button type="button" onclick="closeModal('addEditModal')" class="px-4 py-2 bg-gray-500 text-white rounded hover:bg-gray-600 transition">
-                        Cancel
-                    </button>
-                    <button type="submit" id="savePersonBtn" class="px-4 py-2 bg-indigo-600 text-white rounded hover:bg-indigo-700 transition">
-                        Save
-                    </button>
-                </div>
-            </form>
-        </div>
-    </div>
-
-    <!-- Delete Confirmation Modal -->
-    <div id="deleteModal" class="fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center z-50">
-        <div class="bg-white dark:bg-gray-800 p-6 rounded-lg w-full max-w-md mx-4 modal-transition">
-            <h3 class="text-xl font-semibold mb-4 dark:text-white">Confirm Delete</h3>
-            <p class="mb-6 dark:text-gray-300">Are you sure you want to delete this person? This action cannot be undone.</p>
-            <div class="flex justify-end space-x-2">
-                <button onclick="closeModal('deleteModal')" class="px-4 py-2 bg-gray-500 text-white rounded hover:bg-gray-600 transition">
-                    Cancel
-                </button>
-                <button onclick="deletePerson()" class="px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700 transition">
-                    Delete
-                </button>
-            </div>
-        </div>
-    </div>
-
-    <script>
-        // Check if user is logged in on page load
-        document.addEventListener('DOMContentLoaded', function() {
-            checkLoginStatus();
-            loadPeopleData();
-            renderPeople();
-            
-            // Mobile menu toggle
-            document.getElementById('mobileMenuBtn').addEventListener('click', () => {
-                const mobileMenu = document.getElementById('mobileMenu');
-                mobileMenu.classList.toggle('hidden');
-            });
-        });
-
-        let isAdmin = false;
-        let currentPersonId = null;
-        let currentFilter = 'all';
-        let searchTerm = '';
-        let peopleData = [];
-        let newPhotoData = null;
-
-        // Check if the user is logged in and if they are an admin
-        function checkLoginStatus() {
-            const userData = localStorage.getItem('currentUserData');
-            if (!userData) {
-                // Redirect to login page if not logged in
-                window.location.href = 'index.html';
-                return;
-            }
-            
-            const user = JSON.parse(userData);
-            document.getElementById('userName').textContent = user.name;
-            document.getElementById('welcomeMessage').classList.remove('hidden');
-            
-            // Check if user is admin
-            isAdmin = user.email === 'admin@example.com' || user.name === 'Admin';
-            
-            // Show admin controls if the user is an admin
-            if (isAdmin) {
-                document.querySelectorAll('.admin-only').forEach(el => {
-                    el.classList.remove('hidden');
-                });
-            }
-        }
-
-        // Logout function
-        function logout() {
-            localStorage.removeItem('currentUserData');
-            window.location.href = 'index.html';
-        }
-
-        // Load people data from localStorage
-        function loadPeopleData() {
-            const storedPeople = localStorage.getItem('peopleDatabase');
-            if (storedPeople) {
-                peopleData = JSON.parse(storedPeople);
-            } else {
-                // Initialize with sample data
-                peopleData = [
-                    {
-                        id: 1,
-                        name: "Dr. Sarah Johnson",
-                        role: "Head of Computer Science Department",
-                        rollNo: "",
-                        email: "sarah.johnson@university.edu",
-                        phone: "123-456-7890",
-                        photoData: "",
-                        category: "faculty",
-                        bio: "Dr. Johnson has been teaching Computer Science for over 15 years. Her research focuses on artificial intelligence and machine learning applications."
-                    },
-                    {
-                        id: 2,
-                        name: "Michael Rodriguez",
-                        role: "President, Photography Club",
-                        rollNo: "20CS045",
-                        email: "michael.r@university.edu",
-                        phone: "234-567-8901",
-                        photoData: "",
-                        category: "club",
-                        bio: "Michael has been passionate about photography since high school and leads the Photography Club with enthusiasm and creativity."
-                    },
-                    {
-                        id: 3,
-                        name: "Jessica Chen",
-                        role: "Student Body President",
-                        rollNo: "21ME078",
-                        email: "jessica.chen@university.edu",
-                        phone: "345-678-9012",
-                        photoData: "",
-                        category: "student",
-                        bio: "Jessica is a senior studying Political Science. She is committed to improving campus life and representing student interests."
-                    }
-                ];
-                savePeopleData();
-            }
-        }
-
-        // Save people data to localStorage
-        function savePeopleData() {
-            localStorage.setItem('peopleDatabase', JSON.stringify(peopleData));
-        }
-
-        // Render people cards
-        function renderPeople() {
-            const peopleGrid = document.getElementById('peopleGrid');
-            
-            // Filter people based on category and search term
-            const filteredPeople = peopleData.filter(person => {
-                const matchesCategory = currentFilter === 'all' || person.category === currentFilter;
-                const matchesSearch = searchTerm === '' || 
-                    person.name.toLowerCase().includes(searchTerm.toLowerCase()) || 
-                    person.role.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                    (person.rollNo && person.rollNo.toLowerCase().includes(searchTerm.toLowerCase()));
-                return matchesCategory && matchesSearch;
-            });
-            
-            // Sort alphabetically by name
-            filteredPeople.sort((a, b) => a.name.localeCompare(b.name));
-            
-            if (filteredPeople.length === 0) {
-                peopleGrid.innerHTML = `
-                    <div class="col-span-full text-center py-10">
-                        <i class="bi bi-search text-4xl text-gray-400 dark:text-gray-600"></i>
-                        <p class="text-gray-500 dark:text-gray-400 mt-2">No people found matching your criteria.</p>
-                    </div>
-                `;
-                return;
-            }
-
-            peopleGrid.innerHTML = filteredPeople.map(person => `
-                <div class="bg-white dark:bg-gray-700 rounded-lg shadow-md overflow-hidden person-card">
-                    <div class="relative">
-                        <img src="${person.photoData || 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?ixlib=rb-1.2.1&auto=format&fit=crop&w=300&q=80'}" 
-                            alt="${person.name}" class="w-full h-48 profile-img">
-                        <div class="absolute bottom-0 left-0 w-full bg-gradient-to-t from-black to-transparent p-3">
-                            <span class="text-xs text-white font-medium px-2 py-1 rounded bg-indigo-600">${getCategoryLabel(person.category)}</span>
-                        </div>
-                    </div>
-                    <div class="p-4 dark:text-white">
-                        <h3 class="font-semibold text-lg">${person.name}</h3>
-                        <p class="text-gray-600 dark:text-gray-300 text-sm">${person.role}</p>
-                        ${person.rollNo ? `<p class="text-indigo-600 dark:text-indigo-400 text-xs font-medium mt-1">Roll No: ${person.rollNo}</p>` : ''}
-                        <div class="flex mt-3 space-x-2">
-                            <button onclick="viewPerson(${person.id})" class="flex-1 px-3 py-1.5 bg-indigo-100 dark:bg-indigo-800 text-indigo-600 dark:text-indigo-200 rounded hover:bg-indigo-200 dark:hover:bg-indigo-700 transition">
-                                <i class="bi bi-info-circle mr-1"></i> Details
-                            </button>
-                            ${isAdmin ? `
-                            <button onclick="editPerson(${person.id})" class="px-3 py-1.5 bg-gray-100 dark:bg-gray-600 text-gray-600 dark:text-gray-300 rounded hover:bg-gray-200 dark:hover:bg-gray-500 transition">
-                                <i class="bi bi-pencil"></i>
-                            </button>
-                            <button onclick="confirmDelete(${person.id})" class="px-3 py-1.5 bg-red-100 dark:bg-red-900 text-red-600 dark:text-red-300 rounded hover:bg-red-200 dark:hover:bg-red-800 transition">
-                                <i class="bi bi-trash"></i>
-                            </button>
-                            ` : ''}
-                        </div>
-                    </div>
-                </div>
-            `).join('');
-        }
-
-        // Filter people by category
-        function filterPeople(category) {
-            currentFilter = category;
-            
-            // Update active button styling
-            document.querySelectorAll('.category-btn').forEach(btn => {
-                btn.classList.remove('active', 'bg-indigo-600', 'text-white');
-                btn.classList.add('bg-gray-200', 'dark:bg-gray-700');
-            });
-            
-            const activeBtn = document.querySelector(`.category-btn[onclick="filterPeople('${category}')"]`);
-            activeBtn.classList.add('active', 'bg-indigo-600', 'text-white');
-            activeBtn.classList.remove('bg-gray-200', 'dark:bg-gray-700');
-            
-            renderPeople();
-        }
-
-        // Get category label for display
-        function getCategoryLabel(category) {
-            switch (category) {
-                case 'faculty': return 'Faculty';
-                case 'club': return 'Club Rep';
-                case 'student': return 'Student Body';
-                default: return category;
-            }
-        }
-
-        // View person details
-        function viewPerson(id) {
-            const person = peopleData.find(p => p.id === id);
-            if (!person) return;
-
-            const personDetails = document.getElementById('personDetails');
-            personDetails.innerHTML = `
-                <div class="flex justify-center mb-4">
-                    <img src="${person.photoData || 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?ixlib=rb-1.2.1&auto=format&fit=crop&w=300&q=80'}" 
-                        alt="${person.name}" class="w-32 h-32 rounded-full object-cover border-4 border-indigo-100 dark:border-indigo-800">
-                </div>
-                <h3 class="text-xl font-semibold text-center dark:text-white">${person.name}</h3>
-                <p class="text-indigo-600 dark:text-indigo-400 font-medium text-center">${person.role}</p>
-                ${person.rollNo ? `<p class="text-center text-gray-500 dark:text-gray-400">Roll No: ${person.rollNo}</p>` : ''}
-                <div class="mt-4 space-y-3 dark:text-gray-300">
-                    <div class="flex items-center">
-                        <i class="bi bi-envelope text-gray-500 dark:text-gray-400 mr-3"></i>
-                        <span>${person.email}</span>
-                    </div>
-                    ${person.phone ? `
-                    <div class="flex items-center">
-                        <i class="bi bi-telephone text-gray-500 dark:text-gray-400 mr-3"></i>
-                        <span>${person.phone}</span>
-                    </div>
-                    ` : ''}
-                    <div class="flex items-start">
-                        <i class="bi bi-person-badge text-gray-500 dark:text-gray-400 mr-3 mt-1"></i>
-                        <span>${getCategoryLabel(person.category)}</span>
-                    </div>
-                    ${person.bio ? `
-                    <div class="pt-2">
-                        <h4 class="text-sm font-medium text-gray-600 dark:text-gray-400 mb-1">Bio</h4>
-                        <p class="text-gray-700 dark:text-gray-300">${person.bio}</p>
-                    </div>
-                    ` : ''}
-                </div>
-                ${isAdmin ? `
-                <div class="flex justify-center space-x-3 mt-6">
-                    <button onclick="editPerson(${person.id})" class="px-4 py-2 bg-indigo-600 text-white rounded hover:bg-indigo-700 transition">
-                        <i class="bi bi-pencil mr-1"></i> Edit
-                    </button>
-                    <button onclick="confirmDelete(${person.id})" class="px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700 transition">
-                        <i class="bi bi-trash mr-1"></i> Delete
-                    </button>
-                </div>
-                ` : ''}
-            `;
-            
-            openModal('personModal');
-        }
-
-        // Open add person modal
-        function openAddModal() {
-            if (!isAdmin) return;
-            
-            document.getElementById('modalTitle').textContent = 'Add New Person';
-            document.getElementById('personForm').reset();
-            document.getElementById('personId').value = '';
-            document.getElementById('currentPhotoData').value = '';
-            document.getElementById('photoPreview').classList.add('hidden');
-            newPhotoData = null;
-            
-            openModal('addEditModal');
-        }
-
-        // Edit person
-        function editPerson(id) {
-            if (!isAdmin) return;
-            
-            const person = peopleData.find(p => p.id === id);
-            if (!person) return;
-
-            document.getElementById('modalTitle').textContent = 'Edit Person';
-            document.getElementById('personId').value = person.id;
-            document.getElementById('nameInput').value = person.name;
-            document.getElementById('roleInput').value = person.role;
-            document.getElementById('rollNoInput').value = person.rollNo || '';
-            document.getElementById('emailInput').value = person.email;
-            document.getElementById('phoneInput').value = person.phone || '';
-            document.getElementById('bioInput').value = person.bio || '';
-            document.getElementById('categoryInput').value = person.category;
-            document.getElementById('currentPhotoData').value = person.photoData || '';
-            
-            // Reset the new photo data
-            newPhotoData = null;
-
-            // Show current photo preview if it exists
-            if (person.photoData) {
-                document.getElementById('previewImage').src = person.photoData;
-                document.getElementById('photoPreview').classList.remove('hidden');
-            } else {
-                document.getElementById('photoPreview').classList.add('hidden');
-            }
-
-            closeModal('personModal');
-            openModal('addEditModal');
-        }
-
-        // Confirm delete
-        function confirmDelete(id) {
-            if (!isAdmin) return;
-            
-            currentPersonId = id;
-            closeModal('personModal');
-            openModal('deleteModal');
-        }
-
-        // Delete person
-        function deletePerson() {
-            if (!isAdmin || currentPersonId === null) return;
-            
-            peopleData = peopleData.filter(p => p.id !== currentPersonId);
-            savePeopleData();
-            closeModal('deleteModal');
-            renderPeople();
-        }
-
-        // Handle file input for profile photo
-        document.getElementById('photoInput').addEventListener('change', function(e) {
-            const file = e.target.files[0];
-            if (!file) return;
-            
-            const reader = new FileReader();
-            reader.onload = function(event) {
-                // Store the photo data
-                newPhotoData = event.target.result;
-                
-                // Show preview
-                document.getElementById('previewImage').src = newPhotoData;
-                document.getElementById('photoPreview').classList.remove('hidden');
-            };
-            reader.readAsDataURL(file);
-        });
-
-        // Form submission handler
-        document.getElementById('personForm').addEventListener('submit', function(e) {
-            e.preventDefault();
-            
-            if (!isAdmin) return;
-            
-            const personIdElement = document.getElementById('personId');
-            const personId = personIdElement.value ? parseInt(personIdElement.value) : null;
-            const name = document.getElementById('nameInput').value;
-            const role = document.getElementById('roleInput').value;
-            const rollNo = document.getElementById('rollNoInput').value;
-            const email = document.getElementById('emailInput').value;
-            const phone = document.getElementById('phoneInput').value;
-            const currentPhotoData = document.getElementById('currentPhotoData').value;
-            const category = document.getElementById('categoryInput').value;
-            const bio = document.getElementById('bioInput').value;
-            
-            if (personId) {
-                // Update existing person
-                const index = peopleData.findIndex(p => p.id === personId);
-                if (index !== -1) {
-                    const updatedPerson = {
-                        ...peopleData[index],
-                        name,
-                        role,
-                        rollNo,
-                        email,
-                        phone,
-                        category,
-                        bio
-                    };
+            <!-- Main Content -->
+            <div class="flex-1 p-8">
+                <div class="bg-white dark:bg-gray-800 rounded-xl shadow-lg p-6">
+                    <h2 class="text-2xl font-bold mb-6 text-gray-800 dark:text-white">Mess & Canteen Menu</h2>
                     
-                    // Only update photo if a new one was selected
-                    if (newPhotoData) {
-                        updatedPerson.photoData = newPhotoData;
-                    } else {
-                        updatedPerson.photoData = currentPhotoData;
-                    }
-                    
-                    peopleData[index] = updatedPerson;
-                }
-            } else {
-                // Add new person
-                const newId = peopleData.length > 0 ? Math.max(...peopleData.map(p => p.id)) + 1 : 1;
-                peopleData.push({
-                    id: newId,
-                    name,
-                    role,
-                    rollNo,
-                    email,
-                    phone,
-                    photoData,
-                    category,
-                    bio
-                });
-            }
-            
-            // Reset the photo data attribute
-            photoInput.dataset.photoData = '';
-            
-            // Save to localStorage
-            savePeopleData();
-            
-            closeModal('addEditModal');
-            renderPeople();
+                    <!-- Menu Tabs -->
+                    <div class="flex flex-wrap gap-2 mb-6">
+                        <button class="menu-tab active px-4 py-2 bg-indigo-100 dark:bg-indigo-900 rounded-lg text-indigo-600 dark:text-indigo-300 font-medium" onclick="switchMenuSection('messMenu')">Mess Menu</button>
+                        <button class="menu-tab px-4 py-2 bg-indigo-100 dark:bg-indigo-900 rounded-lg text-indigo-600 dark:text-indigo-300 font-medium" onclick="switchMenuSection('canteenMenu')">Canteen Menu</button>
+                        <button id="adminMenuControlsBtn" class="menu-tab hidden px-4 py-2 bg-indigo-100 dark:bg-indigo-900 rounded-lg text-indigo-600 dark:text-indigo-300 font-medium" onclick="switchMenuSection('adminControls')">Admin Controls</button>
+                    </div>
+
+                    <!-- Mess Menu Section -->
+                    <div id="messMenu" class="menu-section">
+                        <div class="mb-6">
+                            <h3 class="text-lg font-semibold mb-4 text-gray-700 dark:text-gray-300">Weekly Mess Schedule</h3>
+                            
+                            <!-- Day selector -->
+                            <div class="flex flex-wrap gap-2 mb-6">
+                                <button class="menu-day active px-4 py-2 bg-indigo-100 dark:bg-indigo-900 rounded-lg text-indigo-600 dark:text-indigo-300 font-medium" onclick="showDayMenu('monday')">Monday</button>
+                                <button class="menu-day px-4 py-2 bg-indigo-100 dark:bg-indigo-900 rounded-lg text-indigo-600 dark:text-indigo-300 font-medium" onclick="showDayMenu('tuesday')">Tuesday</button>
+                                <button class="menu-day px-4 py-2 bg-indigo-100 dark:bg-indigo-900 rounded-lg text-indigo-600 dark:text-indigo-300 font-medium" onclick="showDayMenu('wednesday')">Wednesday</button>
+                                <button class="menu-day px-4 py-2 bg-indigo-100 dark:bg-indigo-900 rounded-lg text-indigo-600 dark:text-indigo-300 font-medium" onclick="showDayMenu('thursday')">Thursday</button>
+                                <button class="menu-day px-4 py-2 bg-indigo-100 dark:bg-indigo-900 rounded-lg text-indigo-600 dark:text-indigo-300 font-medium" onclick="showDayMenu('friday')">Friday</button>
+                                <button class="menu-day px-4 py-2 bg-indigo-100 dark:bg-indigo-900 rounded-lg text-indigo-600 dark:text-indigo-300 font-medium" onclick="showDayMenu('saturday')">Saturday</button>
+                                <button class="menu-day px-4 py-2 bg-indigo-100 dark:bg-indigo-900 rounded-lg text-indigo-600 dark:text-indigo-300 font-medium" onclick="showDayMenu('sunday')">Sunday</button>
+                            </div>
+
+                            <!-- Today's Menu Highlight -->
+                            <div class="bg-indigo-50 dark:bg-indigo-900/30 p-4 rounded-lg mb-6">
+                                <h4 class="font-semibold text-indigo-700 dark:text-indigo-300 mb-2">Today's Menu <span id="todayDate" class="text-sm font-normal text-indigo-500 dark:text-indigo-400"></span></h4>
+                                <p class="text-indigo-600 dark:text-indigo-300 text-sm">Showing menu for <span id="currentDayName">Monday</span></p>
+                            </div>
+
+                            <!-- Menu Cards -->
+                            <div id="dailyMenuContainer">
+                                <!-- Monday Menu -->
+                                <div id="monday-menu" class="day-menu">
+                                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                                        <div class="bg-white dark:bg-gray-700 p-4 rounded-lg shadow">
+                                            <h5 class="font-semibold text-gray-800 dark:text-white mb-2">Breakfast (7:30 AM - 9:00 AM)</h5>
+                                            <ul class="text-gray-600 dark:text-gray-300 space-y-1">
+                                                <li>• Bread & Butter</li>
+                                                <li>• Boiled Eggs / Banana</li>
+                                                <li>• Poha</li>
+                                                <li>• Tea / Coffee</li>
+                                            </ul>
+                                        </div>
+                                        <div class="bg-white dark:bg-gray-700 p-4 rounded-lg shadow">
+                                            <h5 class="font-semibold text-gray-800 dark:text-white mb-2">Lunch (12:30 PM - 2:00 PM)</h5>
+                                            <ul class="text-gray-600 dark:text-gray-300 space-y-1">
+                                                <li>• Roti</li>
+                                                <li>• Rice</li>
+                                                <li>• Dal Makhani</li>
+                                                <li>• Mix Vegetable</li>
+                                                <li>• Curd</li>
+                                                <li>• Salad</li>
+                                            </ul>
+                                        </div>
+                                        <div class="bg-white dark:bg-gray-700 p-4 rounded-lg shadow">
+                                            <h5 class="font-semibold text-gray-800 dark:text-white mb-2">Dinner (7:30 PM - 9:00 PM)</h5>
+                                            <ul class="text-gray-600 dark:text-gray-300 space-y-1">
+                                                <li>• Roti</li>
+                                                <li>• Rice</li>
+                                                <li>• Rajma</li>
+                                                <li>• Aloo Gobi</li>
+                                                <li>• Sweet Corn Soup</li>
+                                                <li>• Salad</li>
+                                            </ul>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Tuesday Menu -->
+                                <div id="tuesday-menu" class="day-menu hidden">
+                                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                                        <div class="bg-white dark:bg-gray-700 p-4 rounded-lg shadow">
+                                            <h5 class="font-semibold text-gray-800 dark:text-white mb-2">Breakfast (7:30 AM - 9:00 AM)</h5>
+                                            <ul class="text-gray-600 dark:text-gray-300 space-y-1">
+                                                <li>• Paratha</li>
+                                                <li>• Curd</li>
+                                                <li>• Upma</li>
+                                                <li>• Tea / Coffee</li>
+                                            </ul>
+                                        </div>
+                                        <div class="bg-white dark:bg-gray-700 p-4 rounded-lg shadow">
+                                            <h5 class="font-semibold text-gray-800 dark:text-white mb-2">Lunch (12:30 PM - 2:00 PM)</h5>
+                                            <ul class="text-gray-600 dark:text-gray-300 space-y-1">
+                                                <li>• Roti</li>
+                                                <li>• Jeera Rice</li>
+                                                <li>• Yellow Dal</li>
+                                                <li>• Paneer Curry</li>
+                                                <li>• Raita</li>
+                                                <li>• Salad</li>
+                                            </ul>
+                                        </div>
+                                        <div class="bg-white dark:bg-gray-700 p-4 rounded-lg shadow">
+                                            <h5 class="font-semibold text-gray-800 dark:text-white mb-2">Dinner (7:30 PM - 9:00 PM)</h5>
+                                            <ul class="text-gray-600 dark:text-gray-300 space-y-1">
+                                                <li>• Roti</li>
+                                                <li>• Rice</li>
+                                                <li>• Chana Masala</li>
+                                                <li>• Bhindi Fry</li>
+                                                <li>• Tomato Soup</li>
+                                                <li>• Salad</li>
+                                            </ul>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Wednesday Menu -->
+                                <div id="wednesday-menu" class="day-menu hidden">
+                                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                                        <div class="bg-white dark:bg-gray-700 p-4 rounded-lg shadow">
+                                            <h5 class="font-semibold text-gray-800 dark:text-white mb-2">Breakfast (7:30 AM - 9:00 AM)</h5>
+                                            <ul class="text-gray-600 dark:text-gray-300 space-y-1">
+                                                <li>• Idli / Vada</li>
+                                                <li>• Sambar</li>
+                                                <li>• Coconut Chutney</li>
+                                                <li>• Tea / Coffee</li>
+                                            </ul>
+                                        </div>
+                                        <div class="bg-white dark:bg-gray-700 p-4 rounded-lg shadow">
+                                            <h5 class="font-semibold text-gray-800 dark:text-white mb-2">Lunch (12:30 PM - 2:00 PM)</h5>
+                                            <ul class="text-gray-600 dark:text-gray-300 space-y-1">
+                                                <li>• Roti</li>
+                                                <li>• Rice</li>
+                                                <li>• Moong Dal</li>
+                                                <li>• Malai Kofta</li>
+                                                <li>• Curd</li>
+                                                <li>• Salad</li>
+                                            </ul>
+                                        </div>
+                                        <div class="bg-white dark:bg-gray-700 p-4 rounded-lg shadow">
+                                            <h5 class="font-semibold text-gray-800 dark:text-white mb-2">Dinner (7:30 PM - 9:00 PM)</h5>
+                                            <ul class="text-gray-600 dark:text-gray-300 space-y-1">
+                                                <li>• Roti</li>
+                                                <li>• Pulao</li>
+                                                <li>• Dal Tadka</li>
+                                                <li>• Matar Paneer</li>
+                                                <li>• Salad</li>
+                                                <li>• Gulab Jamun</li>
+                                            </ul>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Thursday Menu -->
+                                <div id="thursday-menu" class="day-menu hidden">
+                                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                                        <!-- Similar structure to other days -->
+                                        <div class="bg-white dark:bg-gray-700 p-4 rounded-lg shadow">
+                                            <h5 class="font-semibold text-gray-800 dark:text-white mb-2">Breakfast (7:30 AM - 9:00 AM)</h5>
+                                            <ul class="text-gray-600 dark:text-gray-300 space-y-1">
+                                                <li>• Aloo Paratha</li>
+                                                <li>• Curd</li>
+                                                <li>• Sprouts</li>
+                                                <li>• Tea / Coffee</li>
+                                            </ul>
+                                        </div>
+                                        <div class="bg-white dark:bg-gray-700 p-4 rounded-lg shadow">
+                                            <h5 class="font-semibold text-gray-800 dark:text-white mb-2">Lunch (12:30 PM - 2:00 PM)</h5>
+                                            <ul class="text-gray-600 dark:text-gray-300 space-y-1">
+                                                <li>• Roti</li>
+                                                <li>• Rice</li>
+                                                <li>• Arhar Dal</li>
+                                                <li>• Aloo Matar</li>
+                                                <li>• Raita</li>
+                                                <li>• Salad</li>
+                                            </ul>
+                                        </div>
+                                        <div class="bg-white dark:bg-gray-700 p-4 rounded-lg shadow">
+                                            <h5 class="font-semibold text-gray-800 dark:text-white mb-2">Dinner (7:30 PM - 9:00 PM)</h5>
+                                            <ul class="text-gray-600 dark:text-gray-300 space-y-1">
+                                                <li>• Roti</li>
+                                                <li>• Rice</li>
+                                                <li>• Kadhi Pakora</li>
+                                                <li>• Mix Vegetable</li>
+                                                <li>• Salad</li>
+                                            </ul>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Friday Menu -->
+                                <div id="friday-menu" class="day-menu hidden">
+                                    <!-- Friday menu content -->
+                                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                                        <div class="bg-white dark:bg-gray-700 p-4 rounded-lg shadow">
+                                            <h5 class="font-semibold text-gray-800 dark:text-white mb-2">Breakfast (7:30 AM - 9:00 AM)</h5>
+                                            <ul class="text-gray-600 dark:text-gray-300 space-y-1">
+                                                <li>• Puri</li>
+                                                <li>• Aloo Sabzi</li>
+                                                <li>• Fruit Bowl</li>
+                                                <li>• Tea / Coffee</li>
+                                            </ul>
+                                        </div>
+                                        <div class="bg-white dark:bg-gray-700 p-4 rounded-lg shadow">
+                                            <h5 class="font-semibold text-gray-800 dark:text-white mb-2">Lunch (12:30 PM - 2:00 PM)</h5>
+                                            <ul class="text-gray-600 dark:text-gray-300 space-y-1">
+                                                <li>• Roti</li>
+                                                <li>• Rice</li>
+                                                <li>• Chhole</li>
+                                                <li>• Shahi Paneer</li>
+                                                <li>• Curd</li>
+                                                <li>• Salad</li>
+                                            </ul>
+                                        </div>
+                                        <div class="bg-white dark:bg-gray-700 p-4 rounded-lg shadow">
+                                            <h5 class="font-semibold text-gray-800 dark:text-white mb-2">Dinner (7:30 PM - 9:00 PM)</h5>
+                                            <ul class="text-gray-600 dark:text-gray-300 space-y-1">
+                                                <li>• Veg Biryani</li>
+                                                <li>• Raita</li>
+                                                <li>• Aloo Baingan</li>
+                                                <li>• Salad</li>
+                                                <li>• Ice Cream</li>
+                                            </ul>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Saturday Menu -->
+                                <div id="saturday-menu" class="day-menu hidden">
+                                    <!-- Saturday menu content -->
+                                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                                        <div class="bg-white dark:bg-gray-700 p-4 rounded-lg shadow">
+                                            <h5 class="font-semibold text-gray-800 dark:text-white mb-2">Breakfast (7:30 AM - 9:00 AM)</h5>
+                                            <ul class="text-gray-600 dark:text-gray-300 space-y-1">
+                                                <li>• Sandwich</li>
+                                                <li>• Boiled Eggs / Banana</li>
+                                                <li>• Vermicelli Upma</li>
+                                                <li>• Tea / Coffee</li>
+                                            </ul>
+                                        </div>
+                                        <div class="bg-white dark:bg-gray-700 p-4 rounded-lg shadow">
+                                            <h5 class="font-semibold text-gray-800 dark:text-white mb-2">Lunch (12:30 PM - 2:00 PM)</h5>
+                                            <ul class="text-gray-600 dark:text-gray-300 space-y-1">
+                                                <li>• Special Thali</li>
+                                                <li>• Paneer Butter Masala</li>
+                                                <li>• Jeera Rice</li>
+                                                <li>• Dal Fry</li>
+                                                <li>• Naan</li>
+                                                <li>• Rasgulla</li>
+                                            </ul>
+                                        </div>
+                                        <div class="bg-white dark:bg-gray-700 p-4 rounded-lg shadow">
+                                            <h5 class="font-semibold text-gray-800 dark:text-white mb-2">Dinner (7:30 PM - 9:00 PM)</h5>
+                                            <ul class="text-gray-600 dark:text-gray-300 space-y-1">
+                                                <li>• Roti</li>
+                                                <li>• Rice</li>
+                                                <li>• Dal Tadka</li>
+                                                <li>• Palak Paneer</li>
+                                                <li>• Salad</li>
+                                            </ul>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Sunday Menu -->
+                                <div id="sunday-menu" class="day-menu hidden">
+                                    <!-- Sunday menu content -->
+                                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                                        <div class="bg-white dark:bg-gray-700 p-4 rounded-lg shadow">
+                                            <h5 class="font-semibold text-gray-800 dark:text-white mb-2">Breakfast (8:00 AM - 10:00 AM)</h5>
+                                            <ul class="text-gray-600 dark:text-gray-300 space-y-1">
+                                                <li>• Dosa</li>
+                                                <li>• Sambar</li>
+                                                <li>• Coconut Chutney</li>
+                                                <li>• Fruit Bowl</li>
+                                                <li>• Tea / Coffee</li>
+                                            </ul>
+                                        </div>
+                                        <div class="bg-white dark:bg-gray-700 p-4 rounded-lg shadow">
+                                            <h5 class="font-semibold text-gray-800 dark:text-white mb-2">Lunch (12:30 PM - 2:30 PM)</h5>
+                                            <ul class="text-gray-600 dark:text-gray-300 space-y-1">
+                                                <li>• Chole Bhature</li>
+                                                <li>• Pulao</li>
+                                                <li>• Raita</li>
+                                                <li>• Salad</li>
+                                                <li>• Sweet (Jalebi)</li>
+                                            </ul>
+                                        </div>
+                                        <div class="bg-white dark:bg-gray-700 p-4 rounded-lg shadow">
+                                            <h5 class="font-semibold text-gray-800 dark:text-white mb-2">Dinner (7:30 PM - 9:30 PM)</h5>
+                                            <!-- Continuing from the Sunday Dinner section -->
+<ul class="text-gray-600 dark:text-gray-300 space-y-1">
+    <li>• Roti</li>
+    <li>• Rice</li>
+    <li>• Mix Dal</li>
+    <li>• Paneer Butter Masala</li>
+    <li>• Salad</li>
+    <li>• Custard</li>
+</ul>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Canteen Menu Section -->
+                    <div id="canteenMenu" class="menu-section hidden">
+                        <div class="mb-6">
+                            <h3 class="text-lg font-semibold mb-4 text-gray-700 dark:text-gray-300">Canteen Food Items</h3>
+                            
+                            <!-- Category selection -->
+                            <div class="flex flex-wrap gap-2 mb-6">
+                                <button class="menu-category active px-4 py-2 bg-indigo-100 dark:bg-indigo-900 rounded-lg text-indigo-600 dark:text-indigo-300 font-medium" onclick="showCategory('snacks')">Snacks</button>
+                                <button class="menu-category px-4 py-2 bg-indigo-100 dark:bg-indigo-900 rounded-lg text-indigo-600 dark:text-indigo-300 font-medium" onclick="showCategory('beverages')">Beverages</button>
+                                <button class="menu-category px-4 py-2 bg-indigo-100 dark:bg-indigo-900 rounded-lg text-indigo-600 dark:text-indigo-300 font-medium" onclick="showCategory('meals')">Meals</button>
+                                <button class="menu-category px-4 py-2 bg-indigo-100 dark:bg-indigo-900 rounded-lg text-indigo-600 dark:text-indigo-300 font-medium" onclick="showCategory('desserts')">Desserts</button>
+                            </div>
+
+                            <!-- Menu Items by Category -->
+                            <div id="categoryContainer">
+                                <!-- Snacks -->
+                                <div id="snacks-menu" class="category-menu">
+                                    <div class="bg-white dark:bg-gray-800 rounded-lg shadow overflow-hidden">
+                                        <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
+                                            <thead class="bg-gray-50 dark:bg-gray-700">
+                                                <tr>
+                                                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Item</th>
+                                                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Price</th>
+                                                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Availability</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody class="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
+                                                <tr>
+                                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white">Samosa</td>
+                                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-300">₹15</td>
+                                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-green-500">Available</td>
+                                                </tr>
+                                                <tr>
+                                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white">Bread Pakora</td>
+                                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-300">₹20</td>
+                                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-green-500">Available</td>
+                                                </tr>
+                                                <tr>
+                                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white">Veg Sandwich</td>
+                                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-300">₹35</td>
+                                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-green-500">Available</td>
+                                                </tr>
+                                                <tr>
+                                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white">Cheese Sandwich</td>
+                                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-300">₹50</td>
+                                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-green-500">Available</td>
+                                                </tr>
+                                                <tr>
+                                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white">French Fries</td>
+                                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-300">₹45</td>
+                                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-green-500">Available</td>
+                                                </tr>
+                                                <tr>
+                                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white">Vada Pav</td>
+                                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-300">₹25</td>
+                                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-green-500">Available</td>
+                                                </tr>
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>
+
+                                <!-- Beverages -->
+                                <div id="beverages-menu" class="category-menu hidden">
+                                    <div class="bg-white dark:bg-gray-800 rounded-lg shadow overflow-hidden">
+                                        <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
+                                            <thead class="bg-gray-50 dark:bg-gray-700">
+                                                <tr>
+                                                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Item</th>
+                                                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Price</th>
+                                                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Availability</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody class="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
+                                                <tr>
+                                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white">Tea</td>
+                                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-300">₹10</td>
+                                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-green-500">Available</td>
+                                                </tr>
+                                                <tr>
+                                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white">Coffee</td>
+                                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-300">₹15</td>
+                                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-green-500">Available</td>
+                                                </tr>
+                                                <tr>
+                                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white">Cold Coffee</td>
+                                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-300">₹40</td>
+                                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-green-500">Available</td>
+                                                </tr>
+                                                <tr>
+                                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white">Fresh Juice</td>
+                                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-300">₹35</td>
+                                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-green-500">Available</td>
+                                                </tr>
+                                                <tr>
+                                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white">Soft Drinks</td>
+                                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-300">₹20</td>
+                                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-green-500">Available</td>
+                                                </tr>
+                                                <tr>
+                                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white">Lassi</td>
+                                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-300">₹30</td>
+                                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-green-500">Available</td>
+                                                </tr>
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>
+
+                                <!-- Meals -->
+                                <div id="meals-menu" class="category-menu hidden">
+                                    <div class="bg-white dark:bg-gray-800 rounded-lg shadow overflow-hidden">
+                                        <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
+                                            <thead class="bg-gray-50 dark:bg-gray-700">
+                                                <tr>
+                                                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Item</th>
+                                                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Price</th>
+                                                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Availability</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody class="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
+                                                <tr>
+                                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white">Veg Thali</td>
+                                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-300">₹80</td>
+                                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-green-500">Available</td>
+                                                </tr>
+                                                <tr>
+                                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white">Special Thali</td>
+                                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-300">₹120</td>
+                                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-green-500">Available</td>
+                                                </tr>
+                                                <tr>
+                                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white">Chole Bhature</td>
+                                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-300">₹70</td>
+                                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-green-500">Available</td>
+                                                </tr>
+                                                <tr>
+                                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white">Rajma Rice</td>
+                                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-300">₹60</td>
+                                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-green-500">Available</td>
+                                                </tr>
+                                                <tr>
+                                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white">Paneer Butter Masala</td>
+                                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-300">₹110</td>
+                                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-green-500">Available</td>
+                                                </tr>
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>
+
+                                <!-- Desserts -->
+                                <div id="desserts-menu" class="category-menu hidden">
+                                    <div class="bg-white dark:bg-gray-800 rounded-lg shadow overflow-hidden">
+                                        <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
+                                            <thead class="bg-gray-50 dark:bg-gray-700">
+                                                <tr>
+                                                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Item</th>
+                                                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Price</th>
+                                                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Availability</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody class="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
+                                                <tr>
+                                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white">Ice Cream</td>
+                                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-300">₹40</td>
+                                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-green-500">Available</td>
+                                                </tr>
+                                                <tr>
+                                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white">Gulab Jamun</td>
+                                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-300">₹15</td>
+                                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-green-500">Available</td>
+                                                </tr>
+                                                <tr>
+                                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white">Pastry</td>
+                                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-300">₹35</td>
+                                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-green-500">Available</td>
+                                                </tr>
+                                                <tr>
+                                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white">Brownie</td>
+                                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-300">₹45</td>
+                                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-red-500">Out of Stock</td>
+                                                </tr>
+                                                <tr>
+                                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white">Fruit Custard</td>
+                                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-300">₹40</td>
+                                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-green-500">Available</td>
+                                                </tr>
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Admin Controls Section -->
+                    <div id="adminControls" class="menu-section hidden">
+                        <div class="mb-6">
+                            <h3 class="text-lg font-semibold mb-4 text-gray-700 dark:text-gray-300">Menu Management</h3>
+                            <p class="text-gray-600 dark:text-gray-400 mb-6">Welcome Admin! Here you can update the mess and canteen menus.</p>
+
+                            <!-- Admin Tabs -->
+                            <div class="mb-6">
+                                <div class="flex flex-wrap gap-2 mb-6">
+                                    <button class="admin-tab active px-4 py-2 bg-indigo-100 dark:bg-indigo-900 rounded-lg text-indigo-600 dark:text-indigo-300 font-medium" onclick="switchAdminTab('updateMessMenu')">Update Mess Menu</button>
+                                    <button class="admin-tab px-4 py-2 bg-indigo-100 dark:bg-indigo-900 rounded-lg text-indigo-600 dark:text-indigo-300 font-medium" onclick="switchAdminTab('updateCanteenMenu')">Update Canteen Menu</button>
+                                    <button class="admin-tab px-4 py-2 bg-indigo-100 dark:bg-indigo-900 rounded-lg text-indigo-600 dark:text-indigo-300 font-medium" onclick="switchAdminTab('specialAnnouncements')">Special Announcements</button>
+                                </div>
+
+                                <!-- Update Mess Menu -->
+                                <div id="updateMessMenu" class="admin-tab-content">
+                                    <div class="bg-white dark:bg-gray-800 rounded-lg shadow p-6">
+                                        <h4 class="text-lg font-medium mb-4 text-gray-800 dark:text-white">Update Weekly Mess Menu</h4>
+                                        
+                                        <form id="messMenuForm">
+                                            <div class="mb-4">
+                                                <label class="block text-gray-700 dark:text-gray-300 mb-2">Select Day:</label>
+                                                <select id="menuDay" class="w-full p-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-800 dark:text-white">
+                                                    <option value="monday">Monday</option>
+                                                    <option value="tuesday">Tuesday</option>
+                                                    <option value="wednesday">Wednesday</option>
+                                                    <option value="thursday">Thursday</option>
+                                                    <option value="friday">Friday</option>
+                                                    <option value="saturday">Saturday</option>
+                                                    <option value="sunday">Sunday</option>
+                                                </select>
+                                            </div>
+                                            
+                                            <div class="mb-4">
+                                                <label class="block text-gray-700 dark:text-gray-300 mb-2">Select Meal:</label>
+                                                <select id="mealType" class="w-full p-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-800 dark:text-white">
+                                                    <option value="breakfast">Breakfast</option>
+                                                    <option value="lunch">Lunch</option>
+                                                    <option value="dinner">Dinner</option>
+                                                </select>
+                                            </div>
+                                            
+                                            <div class="mb-4">
+                                                <label class="block text-gray-700 dark:text-gray-300 mb-2">Menu Items (One per line):</label>
+                                                <textarea id="menuItems" rows="6" class="w-full p-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-800 dark:text-white" placeholder="Enter menu items, one per line"></textarea>
+                                            </div>
+                                            
+                                            <button type="submit" class="px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition">Update Menu</button>
+                                        </form>
+                                    </div>
+                                </div>
+
+                                <!-- Update Canteen Menu -->
+                                <div id="updateCanteenMenu" class="admin-tab-content hidden">
+                                    <div class="bg-white dark:bg-gray-800 rounded-lg shadow p-6">
+                                        <h4 class="text-lg font-medium mb-4 text-gray-800 dark:text-white">Update Canteen Menu</h4>
+                                        
+                                        <form id="canteenMenuForm">
+                                            <div class="mb-4">
+                                                <label class="block text-gray-700 dark:text-gray-300 mb-2">Select Category:</label>
+                                                <select id="foodCategory" class="w-full p-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-800 dark:text-white">
+                                                    <option value="snacks">Snacks</option>
+                                                    <option value="beverages">Beverages</option>
+                                                    <option value="meals">Meals</option>
+                                                    <option value="desserts">Desserts</option>
+                                                </select>
+                                            </div>
+                                            
+                                            <div class="mb-4">
+                                                <label class="block text-gray-700 dark:text-gray-300 mb-2">Item Name:</label>
+                                                <input type="text" id="itemName" class="w-full p-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-800 dark:text-white" placeholder="Enter item name">
+                                            </div>
+                                            
+                                            <div class="mb-4">
+                                                <label class="block text-gray-700 dark:text-gray-300 mb-2">Price (₹):</label>
+                                                <input type="number" id="itemPrice" class="w-full p-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-800 dark:text-white" placeholder="Enter price">
+                                            </div>
+                                            
+                                            <div class="mb-4">
+                                                <label class="block text-gray-700 dark:text-gray-300 mb-2">Availability:</label>
+                                                <select id="itemAvailability" class="w-full p-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-800 dark:text-white">
+                                                    <option value="available">Available</option>
+                                                    <option value="unavailable">Out of Stock</option>
+                                                </select>
+                                            </div>
+                                            
+                                            <div class="flex space-x-2">
+                                                <button type="submit" class="px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition">Add / Update Item</button>
+                                                <button type="button" id="deleteItemBtn" class="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition">Delete Item</button>
+                                            </div>
+                                        </form>
+                                    </div>
+                                </div>
+
+                                <!-- Special Announcements -->
+                                <div id="specialAnnouncements" class="admin-tab-content hidden">
+                                    <div class="bg-white dark:bg-gray-800 rounded-lg shadow p-6">
+                                        <h4 class="text-lg font-medium mb-4 text-gray-800 dark:text-white">Add Special Announcements</h4>
+                                        
+                                        <form id="announcementForm">
+                                            <div class="mb-4">
+                                                <label class="block text-gray-700 dark:text-gray-300 mb-2">Announcement Title:</label>
+                                                <input type="text" id="announcementTitle" class="w-full p-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-800 dark:text-white" placeholder="Enter announcement title">
+                                            </div>
+                                            
+                                            <div class="mb-4">
+                                                <label class="block text-gray-700 dark:text-gray-300 mb-2">Announcement Message:</label>
+                                                <textarea id="announcementMessage" rows="4" class="w-full p-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-800 dark:text-white" placeholder="Enter announcement details"></textarea>
+                                            </div>
+                                            
+                                            <div class="mb-4">
+                                                <label class="block text-gray-700 dark:text-gray-300 mb-2">Valid Until:</label>
+                                                <input type="date" id="announcementValidity" class="w-full p-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-800 dark:text-white">
+                                            </div>
+                                            
+                                            <button type="submit" class="px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition">Post Announcement</button>
+                                        </form>
+                                        
+                                        <div class="mt-6">
+                                            <h5 class="font-medium mb-2 text-gray-700 dark:text-gray-300">Current Announcements:</h5>
+                                            <div class="space-y-2">
+                                                <div class="bg-indigo-50 dark:bg-indigo-900/30 p-3 rounded-lg">
+                                                    <div class="flex justify-between">
+                                                        <h6 class="font-medium text-indigo-600 dark:text-indigo-300">Special Mess Night - This Friday</h6>
+                                                        <button class="text-red-500 hover:text-red-700"><i class="bi bi-trash"></i></button>
+                                                    </div>
+                                                    <p class="text-sm text-indigo-500 dark:text-indigo-400">Valid until: 05/04/2025</p>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- JavaScript -->
+     <script>
+    // Authentication Logic
+function switchTab(tabName) {
+    document.querySelectorAll('#loginForm, #adminForm, #registerForm').forEach(form => {
+        form.classList.add('hidden');
+    });
+    document.getElementById(`${tabName}Form`).classList.remove('hidden');
+}
+
+function handleLogin(event) {
+    event.preventDefault();
+    const email = document.getElementById('loginEmail').value;
+    const password = document.getElementById('loginPassword').value;
+    
+    // Create user data object and store in localStorage (matches Know Your People page)
+    const userData = {
+        name: email.split('@')[0],
+        email: email,
+        isAdmin: false
+    };
+    localStorage.setItem('currentUserData', JSON.stringify(userData));
+    
+    // Display homepage
+    document.getElementById('authPage').style.display = 'none';
+    document.getElementById('homepage').style.display = 'block';
+    document.getElementById('userName').textContent = userData.name;
+}
+
+function handleAdminLogin(event) {
+    event.preventDefault();
+    const adminId = document.getElementById('adminId').value;
+    const adminPassword = document.getElementById('adminPassword').value;
+    
+    // Create admin user data object and store in localStorage (matches Know Your People page)
+    const userData = {
+        name: 'Admin',
+        email: adminId,
+        isAdmin: true
+    };
+    localStorage.setItem('currentUserData', JSON.stringify(userData));
+    
+    // Display homepage
+    document.getElementById('authPage').style.display = 'none';
+    document.getElementById('homepage').style.display = 'block';
+    document.getElementById('userName').textContent = `Admin: ${adminId}`;
+    
+    // Show admin controls in menu
+    document.getElementById('adminControlsLink').classList.remove('hidden');
+}
+
+function handleRegistration(event) {
+    event.preventDefault();
+    const fullName = document.getElementById('regName').value;
+    const email = document.getElementById('regEmail').value;
+    const password = document.getElementById('regPassword').value;
+    
+    // In a real application, you would register the user in database
+    // For demo purposes, we're just showing a success message
+    alert('Registration successful! You can now login.');
+    switchTab('login');
+}
+
+// Check if user is logged in on page load
+function checkLoginStatus() {
+    const userData = localStorage.getItem('currentUserData');
+    if (!userData) {
+        // Redirect to login page if not logged in
+        window.location.href = 'index.html';
+        return;
+    }
+    
+    const user = JSON.parse(userData);
+    document.getElementById('userName').textContent = user.isAdmin ? `Admin: ${user.name}` : user.name;
+    document.getElementById('welcomeMessage').classList.remove('hidden');
+    
+    // Show admin controls if the user is an admin
+    if (user.isAdmin) {
+        document.querySelectorAll('.admin-only').forEach(el => {
+            el.classList.remove('hidden');
         });
+        document.getElementById('adminControlsLink').classList.remove('hidden');
+    }
+}
 
-        // Search functionality
-        document.getElementById('searchInput').addEventListener('input', function(e) {
-            searchTerm = e.target.value.trim();
-            renderPeople();
-        });
+// Logout function
+function logout() {
+    localStorage.removeItem('currentUserData');
+    window.location.href = 'index.html';
+}
 
-        // Modal functions
-        function openModal(modalId) {
-            document.getElementById(modalId).style.display = 'flex';
-            // Prevent background scrolling
-            document.body.style.overflow = 'hidden';
-        }
+// Mess & Canteen Menu Logic
+function switchMenu(menuType) {
+    document.querySelectorAll('.menu-section').forEach(section => {
+        section.classList.add('hidden');
+    });
+    document.getElementById(`${menuType}`).classList.remove('hidden');
+    
+    // Update active button
+    document.querySelectorAll('.menu-button').forEach(btn => {
+        btn.classList.remove('bg-indigo-500', 'text-white');
+        btn.classList.add('bg-indigo-100', 'text-indigo-600', 'dark:bg-indigo-900', 'dark:text-indigo-300');
+    });
+    document.querySelector(`[onclick="switchMenu('${menuType}')"]`).classList.remove('bg-indigo-100', 'text-indigo-600', 'dark:bg-indigo-900', 'dark:text-indigo-300');
+    document.querySelector(`[onclick="switchMenu('${menuType}')"]`).classList.add('bg-indigo-500', 'text-white');
+}
 
-        function closeModal(modalId) {
-            document.getElementById(modalId).style.display = 'none';
-            // Re-enable background scrolling
-            document.body.style.overflow = 'auto';
-        }
+function showDayMenu(day) {
+    // Hide all day menus
+    document.querySelectorAll('.day-menu').forEach(menu => {
+        menu.classList.add('hidden');
+    });
+    
+    // Show selected day menu
+    document.getElementById(`${day}-menu`).classList.remove('hidden');
+    
+    // Update active day button
+    document.querySelectorAll('.day-button').forEach(btn => {
+        btn.classList.remove('active', 'bg-indigo-500', 'text-white');
+        btn.classList.add('bg-indigo-100', 'text-indigo-600', 'dark:bg-indigo-900', 'dark:text-indigo-300');
+    });
+    document.querySelector(`[onclick="showDayMenu('${day}')"]`).classList.remove('bg-indigo-100', 'text-indigo-600', 'dark:bg-indigo-900', 'dark:text-indigo-300');
+    document.querySelector(`[onclick="showDayMenu('${day}')"]`).classList.add('active', 'bg-indigo-500', 'text-white');
+}
 
-        // Close modals when clicking outside
-        document.querySelectorAll('[id$="Modal"]').forEach(modal => {
-            modal.addEventListener('click', (e) => {
-                if (e.target === modal) {
-                    closeModal(modal.id);
-                }
-            });
-        });
-    </script>
+function showCategory(category) {
+    // Hide all category menus
+    document.querySelectorAll('.category-menu').forEach(menu => {
+        menu.classList.add('hidden');
+    });
+    
+    // Show selected category menu
+    document.getElementById(`${category}-menu`).classList.remove('hidden');
+    
+    // Update active category button
+    document.querySelectorAll('.menu-category').forEach(btn => {
+        btn.classList.remove('active', 'bg-indigo-500', 'text-white');
+        btn.classList.add('bg-indigo-100', 'text-indigo-600', 'dark:bg-indigo-900', 'dark:text-indigo-300');
+    });
+    document.querySelector(`[onclick="showCategory('${category}')"]`).classList.remove('bg-indigo-100', 'text-indigo-600', 'dark:bg-indigo-900', 'dark:text-indigo-300');
+    document.querySelector(`[onclick="showCategory('${category}')"]`).classList.add('active', 'bg-indigo-500', 'text-white');
+}
 
+// Admin Controls Logic - Only accessible by admin users
+function switchAdminTab(tabName) {
+    // Check if user is admin before allowing access
+    const userData = sessionStorage.getItem('currentUserData');
+    if (!userData) {
+        window.location.href = 'index.html';
+        return;
+    }
+    
+    const user = JSON.parse(userData);
+    if (!user.isAdmin) {
+        alert('You do not have permission to access admin controls.');
+        return;
+    }
+    
+    // Hide all admin tab contents
+    document.querySelectorAll('.admin-tab-content').forEach(tab => {
+        tab.classList.add('hidden');
+    });
+    
+    // Show selected tab content
+    document.getElementById(tabName).classList.remove('hidden');
+    
+    // Update active tab button
+    document.querySelectorAll('.admin-tab').forEach(btn => {
+        btn.classList.remove('active', 'bg-indigo-500', 'text-white');
+        btn.classList.add('bg-indigo-100', 'text-indigo-600', 'dark:bg-indigo-900', 'dark:text-indigo-300');
+    });
+    document.querySelector(`[onclick="switchAdminTab('${tabName}')"]`).classList.remove('bg-indigo-100', 'text-indigo-600', 'dark:bg-indigo-900', 'dark:text-indigo-300');
+    document.querySelector(`[onclick="switchAdminTab('${tabName}')"]`).classList.add('active', 'bg-indigo-500', 'text-white');
+}
+
+// Form submission handlers for admin controls
+document.getElementById('messMenuForm').addEventListener('submit', function(event) {
+    event.preventDefault();
+    
+    // Check if user is admin before allowing submission
+    const userData = localStorage.getItem('currentUserData');
+    if (!userData || !JSON.parse(userData).isAdmin) {
+        alert('You do not have permission to modify the menu.');
+        return;
+    }
+    
+    const day = document.getElementById('menuDay').value;
+    const mealType = document.getElementById('mealType').value;
+    const menuItems = document.getElementById('menuItems').value;
+    
+    // In a real application, you would update the database
+    alert(`Menu updated for ${day} ${mealType} successfully!`);
+});
+
+document.getElementById('canteenMenuForm').addEventListener('submit', function(event) {
+    event.preventDefault();
+    
+    // Check if user is admin before allowing submission
+    const userData = localStorage.getItem('currentUserData');
+    if (!userData || !JSON.parse(userData).isAdmin) {
+        alert('You do not have permission to modify the menu.');
+        return;
+    }
+    
+    const category = document.getElementById('foodCategory').value;
+    const itemName = document.getElementById('itemName').value;
+    const itemPrice = document.getElementById('itemPrice').value;
+    const availability = document.getElementById('itemAvailability').value;
+    
+    // In a real application, you would update the database
+    alert(`Canteen menu item "${itemName}" added/updated successfully!`);
+});
+
+document.getElementById('deleteItemBtn').addEventListener('click', function() {
+    // Check if user is admin before allowing deletion
+    const userData = localStorage.getItem('currentUserData');
+    if (!userData || !JSON.parse(userData).isAdmin) {
+        alert('You do not have permission to delete items.');
+        return;
+    }
+    
+    const itemName = document.getElementById('itemName').value;
+    if (itemName) {
+        // In a real application, you would delete from database
+        alert(`Item "${itemName}" deleted successfully!`);
+        document.getElementById('itemName').value = '';
+        document.getElementById('itemPrice').value = '';
+    } else {
+        alert('Please enter item name to delete');
+    }
+});
+
+document.getElementById('announcementForm').addEventListener('submit', function(event) {
+    event.preventDefault();
+    
+    // Check if user is admin before allowing announcements
+    const userData = localStorage.getItem('currentUserData');
+    if (!userData || !JSON.parse(userData).isAdmin) {
+        alert('You do not have permission to post announcements.');
+        return;
+    }
+    
+    const title = document.getElementById('announcementTitle').value;
+    const message = document.getElementById('announcementMessage').value;
+    const validity = document.getElementById('announcementValidity').value;
+    
+    // In a real application, you would add to database
+    alert(`Announcement "${title}" posted successfully!`);
+    
+    // Add to current announcements (demo)
+    const announcementDiv = document.createElement('div');
+    announcementDiv.className = 'bg-indigo-50 dark:bg-indigo-900/30 p-3 rounded-lg mt-2';
+    announcementDiv.innerHTML = `
+        <div class="flex justify-between">
+            <h6 class="font-medium text-indigo-600 dark:text-indigo-300">${title}</h6>
+            <button class="text-red-500 hover:text-red-700" onclick="this.parentElement.parentElement.remove()">
+                <i class="bi bi-trash"></i>
+            </button>
+        </div>
+        <p class="text-sm text-indigo-500 dark:text-indigo-400">Valid until: ${validity}</p>
+        <p class="text-sm text-gray-600 dark:text-gray-400 mt-1">${message}</p>
+    `;
+    
+    document.querySelector('#specialAnnouncements .space-y-2').appendChild(announcementDiv);
+    
+    // Clear form
+    document.getElementById('announcementTitle').value = '';
+    document.getElementById('announcementMessage').value = '';
+});
+
+// Theme Toggle
+const themeToggle = document.getElementById('themeToggle');
+themeToggle.addEventListener('click', () => {
+    document.documentElement.classList.toggle('dark');
+    const isDark = document.documentElement.classList.contains('dark');
+    localStorage.setItem('darkMode', isDark ? 'enabled' : 'disabled');
+    
+    // Update icon
+    themeToggle.innerHTML = isDark 
+        ? '<i class="bi bi-sun-fill"></i>' 
+        : '<i class="bi bi-moon-fill"></i>';
+});
+
+// Initialize the application
+document.addEventListener('DOMContentLoaded', () => {
+    // Check login status
+    checkLoginStatus();
+    
+    // Set default to day menu
+    showDayMenu('monday');
+    showCategory('snacks');
+    
+    // Check for saved theme preference
+    const savedTheme = localStorage.getItem('darkMode');
+    if (savedTheme === 'enabled') {
+        document.documentElement.classList.add('dark');
+        themeToggle.innerHTML = '<i class="bi bi-sun-fill"></i>';
+    } else {
+        themeToggle.innerHTML = '<i class="bi bi-moon-fill"></i>';
+    }
+    
+    // For demo: check if URL has admin parameter - should be removed in production
+    const urlParams = new URLSearchParams(window.location.search);
+    if (urlParams.get('admin') === 'true') {
+        const userData = {
+            name: 'Admin',
+            email: 'admin@example.com',
+            isAdmin: true
+        };
+        localStorage.setItem('currentUserData', JSON.stringify(userData));
+        
+        document.getElementById('authPage').style.display = 'none';
+        document.getElementById('homepage').style.display = 'block';
+        document.getElementById('userName').textContent = 'Admin Demo';
+        document.getElementById('adminControlsLink').classList.remove('hidden');
+    }
+});
+
+// Mobile menu toggle
+function toggleMobileMenu() {
+    const mobileMenu = document.getElementById('mobileMenu');
+    mobileMenu.classList.toggle('hidden');
+}
+
+// Sidebar toggle for smaller screens
+function toggleSidebar() {
+    const sidebar = document.getElementById('sidebar');
+    sidebar.classList.toggle('-translate-x-full');
+}
+</script>
 </body>
 </html>

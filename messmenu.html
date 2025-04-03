@@ -1,0 +1,1140 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Student Companion - Mess & Canteen</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap"
+        rel="stylesheet">
+    <style>
+        * {
+            font-family: 'Poppins', sans-serif;
+        }
+
+        .nav-link {
+            transition: all 0.3s ease;
+        }
+
+        .nav-link:hover {
+            background-color: rgba(255, 255, 255, 0.1);
+            transform: translateY(-2px);
+        }
+    </style>
+</head>
+
+<body class="bg-gray-50 dark:bg-gray-900 min-h-screen">
+    <!-- Navbar -->
+    <nav class="bg-indigo-600 text-white shadow-lg sticky top-0 z-50">
+        <div class="container mx-auto px-4">
+            <div class="flex justify-between items-center py-4">
+                <div class="flex items-center space-x-4">
+                    <h1 class="text-2xl font-bold">Student Companion</h1>
+                    <span id="welcomeMessage" class="hidden md:inline text-sm">Welcome, <span
+                            id="userName">User</span>!</span>
+                </div>
+                <div class="flex items-center">
+                    <button id="logoutBtn" class="py-1 px-2 md:py-2 md:px-4 text-xs md:text-base rounded-lg bg-white bg-opacity-20 hover:bg-opacity-30 transition" onclick="logout()">Logout</button>
+                </div>  
+            </div>
+        </div>
+    </nav>
+
+    <!-- Mobile Menu -->
+    <div id="mobileMenu" class="hidden md:hidden bg-indigo-700 text-white">
+        <div class="container mx-auto px-4 py-2">
+            <button class="w-full text-left py-2 px-4 hover:bg-indigo-600 rounded-lg" onclick="logout()">Logout</button>
+        </div>
+    </div>
+
+    <!-- Main Content Layout -->
+    <div class="flex flex-col md:flex-row relative">
+        <!-- Sidebar -->
+        <div id="sidebar"
+            class="md:w-64 bg-indigo-800 text-white min-h-screen p-4 transform md:transform-none transition-transform md:relative fixed inset-y-0 left-0 z-30 md:translate-x-0 -translate-x-full">
+            <div class="mb-8">
+                <h2 class="text-xl font-semibold mb-4">Features</h2>
+                <ul class="space-y-2">
+                    <li><a href="index.html?page=notice" class="block py-2 px-4 rounded-lg nav-link">Notice Board</a>
+                    </li>
+                    <li><a href="taxi-search.html" class="block py-2 px-4 rounded-lg nav-link">Taxi Search</a></li>
+                    <li><a href="index.html?page=study" class="block py-2 px-4 rounded-lg nav-link">Study Materials</a>
+                    </li>
+                    <li><a href="index.html?page=mail" class="block py-2 px-4 rounded-lg nav-link">Mail Formats</a></li>
+                    <li><a href="kyp.html" class="block py-2 px-4 rounded-lg nav-link">Know Your People</a>
+                    </li>
+                    <li><a href="outings.html" class="block py-2 px-4 rounded-lg nav-link">Outings & Trips</a>
+                    </li>
+                    <li><a href="#" class="block py-2 px-4 rounded-lg nav-link bg-white bg-opacity-20">Mess &
+                            Canteen</a></li>
+                    <li id="adminControlsLink" class="hidden"><a href="admin-controls.html"
+                            class="block py-2 px-4 rounded-lg nav-link text-yellow-300">Admin Controls</a></li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- Mobile sidebar toggle -->
+        <div class="fixed bottom-4 left-4 z-40 md:hidden">
+            <button onclick="toggleSidebar()" class="bg-indigo-600 text-white p-3 rounded-full shadow-lg">
+                <i class="bi bi-list text-xl"></i>
+            </button>
+        </div>
+
+        <!-- Main Content -->
+        <div class="flex-1 p-4 md:p-8">
+            <div class="bg-white dark:bg-gray-800 rounded-xl shadow-lg p-4 md:p-6">
+                <h2 class="text-2xl font-bold mb-6 text-gray-800 dark:text-white">Mess & Canteen</h2>
+
+                <!-- Menu Type Buttons -->
+                <div class="flex flex-wrap gap-2 mb-6">
+                    <button onclick="switchMenu('messMenu')"
+                        class="menu-button px-4 py-2 rounded-lg bg-indigo-500 text-white">
+                        Mess Menu
+                    </button>
+                    <button onclick="switchMenu('canteenMenu')"
+                        class="menu-button px-4 py-2 rounded-lg bg-indigo-100 text-indigo-600 dark:bg-indigo-900 dark:text-indigo-300">
+                        Canteen Menu
+                    </button>
+                </div>
+
+                <!-- Mess Menu Section -->
+                <div id="messMenu" class="menu-section">
+                    <div class="mb-6">
+                        <h3 class="text-xl font-semibold mb-4 text-gray-700 dark:text-gray-200">Weekly Mess Menu</h3>
+
+                        <!-- Day Selection -->
+                        <div class="flex flex-wrap gap-2 mb-6">
+                            <button onclick="showDayMenu('monday')"
+                                class="day-button px-3 py-1.5 rounded-md active bg-indigo-500 text-white">Monday</button>
+                            <button onclick="showDayMenu('tuesday')"
+                                class="day-button px-3 py-1.5 rounded-md bg-indigo-100 text-indigo-600 dark:bg-indigo-900 dark:text-indigo-300">Tuesday</button>
+                            <button onclick="showDayMenu('wednesday')"
+                                class="day-button px-3 py-1.5 rounded-md bg-indigo-100 text-indigo-600 dark:bg-indigo-900 dark:text-indigo-300">Wednesday</button>
+                            <button onclick="showDayMenu('thursday')"
+                                class="day-button px-3 py-1.5 rounded-md bg-indigo-100 text-indigo-600 dark:bg-indigo-900 dark:text-indigo-300">Thursday</button>
+                            <button onclick="showDayMenu('friday')"
+                                class="day-button px-3 py-1.5 rounded-md bg-indigo-100 text-indigo-600 dark:bg-indigo-900 dark:text-indigo-300">Friday</button>
+                            <button onclick="showDayMenu('saturday')"
+                                class="day-button px-3 py-1.5 rounded-md bg-indigo-100 text-indigo-600 dark:bg-indigo-900 dark:text-indigo-300">Saturday</button>
+                            <button onclick="showDayMenu('sunday')"
+                                class="day-button px-3 py-1.5 rounded-md bg-indigo-100 text-indigo-600 dark:bg-indigo-900 dark:text-indigo-300">Sunday</button>
+                        </div>
+
+                        <!-- Monday Menu -->
+                        <div id="monday-menu" class="day-menu">
+                            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                                <div class="bg-indigo-50 dark:bg-indigo-900/30 rounded-lg p-4">
+                                    <h4 class="font-semibold text-lg mb-2 text-indigo-600 dark:text-indigo-300">
+                                        Breakfast (7:30 - 9:00)</h4>
+                                    <ul class="space-y-1 text-gray-700 dark:text-gray-300">
+                                        <li>• Bread & Butter</li>
+                                        <li>• Boiled Eggs</li>
+                                        <li>• Corn Flakes</li>
+                                        <li>• Tea/Coffee</li>
+                                    </ul>
+                                </div>
+                                <div class="bg-indigo-50 dark:bg-indigo-900/30 rounded-lg p-4">
+                                    <h4 class="font-semibold text-lg mb-2 text-indigo-600 dark:text-indigo-300">Lunch
+                                        (12:30 - 2:00)</h4>
+                                    <ul class="space-y-1 text-gray-700 dark:text-gray-300">
+                                        <li>• Rice</li>
+                                        <li>• Dal Fry</li>
+                                        <li>• Mix Vegetable</li>
+                                        <li>• Chicken Curry</li>
+                                        <li>• Salad & Papad</li>
+                                    </ul>
+                                </div>
+                                <div class="bg-indigo-50 dark:bg-indigo-900/30 rounded-lg p-4">
+                                    <h4 class="font-semibold text-lg mb-2 text-indigo-600 dark:text-indigo-300">Dinner
+                                        (7:30 - 9:00)</h4>
+                                    <ul class="space-y-1 text-gray-700 dark:text-gray-300">
+                                        <li>• Roti</li>
+                                        <li>• Rice</li>
+                                        <li>• Dal Tadka</li>
+                                        <li>• Paneer Butter Masala</li>
+                                        <li>• Sweet</li>
+                                    </ul>
+                                </div>
+                                <div class="bg-indigo-50 dark:bg-indigo-900/30 rounded-lg p-4">
+                                    <h4 class="font-semibold text-lg mb-2 text-indigo-600 dark:text-indigo-300">Dinner
+                                        (7:30 - 9:00)</h4>
+                                    <ul class="space-y-1 text-gray-700 dark:text-gray-300">
+                                        <li>• Roti</li>
+                                        <li>• Rice</li>
+                                        <li>• Dal Tadka</li>
+                                        <li>• Paneer Butter Masala</li>
+                                        <li>• Sweet</li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Tuesday Menu -->
+                        <div id="tuesday-menu" class="day-menu hidden">
+                            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                                <div class="bg-indigo-50 dark:bg-indigo-900/30 rounded-lg p-4">
+                                    <h4 class="font-semibold text-lg mb-2 text-indigo-600 dark:text-indigo-300">
+                                        Breakfast (7:30 - 9:00)</h4>
+                                    <ul class="space-y-1 text-gray-700 dark:text-gray-300">
+                                        <li>• Aloo Paratha</li>
+                                        <li>• Curd</li>
+                                        <li>• Fruit</li>
+                                        <li>• Tea/Coffee</li>
+                                    </ul>
+                                </div>
+                                <div class="bg-indigo-50 dark:bg-indigo-900/30 rounded-lg p-4">
+                                    <h4 class="font-semibold text-lg mb-2 text-indigo-600 dark:text-indigo-300">Lunch
+                                        (12:30 - 2:00)</h4>
+                                    <ul class="space-y-1 text-gray-700 dark:text-gray-300">
+                                        <li>• Rice</li>
+                                        <li>• Dal Makhani</li>
+                                        <li>• Bhindi Fry</li>
+                                        <li>• Fish Curry</li>
+                                        <li>• Salad & Papad</li>
+                                    </ul>
+                                </div>
+                                <div class="bg-indigo-50 dark:bg-indigo-900/30 rounded-lg p-4">
+                                    <h4 class="font-semibold text-lg mb-2 text-indigo-600 dark:text-indigo-300">Dinner
+                                        (7:30 - 9:00)</h4>
+                                    <ul class="space-y-1 text-gray-700 dark:text-gray-300">
+                                        <li>• Roti</li>
+                                        <li>• Jeera Rice</li>
+                                        <li>• Dal Palak</li>
+                                        <li>• Malai Kofta</li>
+                                        <li>• Ice Cream</li>
+                                    </ul>
+                                </div>
+                                <div class="bg-indigo-50 dark:bg-indigo-900/30 rounded-lg p-4">
+                                    <h4 class="font-semibold text-lg mb-2 text-indigo-600 dark:text-indigo-300">Dinner
+                                        (7:30 - 9:00)</h4>
+                                    <ul class="space-y-1 text-gray-700 dark:text-gray-300">
+                                        <li>• Roti</li>
+                                        <li>• Rice</li>
+                                        <li>• Dal Tadka</li>
+                                        <li>• Paneer Butter Masala</li>
+                                        <li>• Sweet</li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Wednesday Menu -->
+                        <div id="wednesday-menu" class="day-menu hidden">
+                            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                                <div class="bg-indigo-50 dark:bg-indigo-900/30 rounded-lg p-4">
+                                    <h4 class="font-semibold text-lg mb-2 text-indigo-600 dark:text-indigo-300">
+                                        Breakfast (7:30 - 9:00)</h4>
+                                    <ul class="space-y-1 text-gray-700 dark:text-gray-300">
+                                        <li>• Idli</li>
+                                        <li>• Sambhar</li>
+                                        <li>• Coconut Chutney</li>
+                                        <li>• Tea/Coffee</li>
+                                    </ul>
+                                </div>
+                                <div class="bg-indigo-50 dark:bg-indigo-900/30 rounded-lg p-4">
+                                    <h4 class="font-semibold text-lg mb-2 text-indigo-600 dark:text-indigo-300">Lunch
+                                        (12:30 - 2:00)</h4>
+                                    <ul class="space-y-1 text-gray-700 dark:text-gray-300">
+                                        <li>• Rice</li>
+                                        <li>• Sambhar</li>
+                                        <li>• Cabbage Thoran</li>
+                                        <li>• Egg Curry</li>
+                                        <li>• Salad & Papad</li>
+                                    </ul>
+                                </div>
+                                <div class="bg-indigo-50 dark:bg-indigo-900/30 rounded-lg p-4">
+                                    <h4 class="font-semibold text-lg mb-2 text-indigo-600 dark:text-indigo-300">Dinner
+                                        (7:30 - 9:00)</h4>
+                                    <ul class="space-y-1 text-gray-700 dark:text-gray-300">
+                                        <li>• Roti</li>
+                                        <li>• Rice</li>
+                                        <li>• Dal Fry</li>
+                                        <li>• Veg Kofta</li>
+                                        <li>• Gulab Jamun</li>
+                                    </ul>
+                                </div>
+                                <div class="bg-indigo-50 dark:bg-indigo-900/30 rounded-lg p-4">
+                                    <h4 class="font-semibold text-lg mb-2 text-indigo-600 dark:text-indigo-300">Dinner
+                                        (7:30 - 9:00)</h4>
+                                    <ul class="space-y-1 text-gray-700 dark:text-gray-300">
+                                        <li>• Roti</li>
+                                        <li>• Rice</li>
+                                        <li>• Dal Tadka</li>
+                                        <li>• Paneer Butter Masala</li>
+                                        <li>• Sweet</li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Add other day menus similarly -->
+                        <div id="thursday-menu" class="day-menu hidden">
+                            <!-- Thursday menu content -->
+                            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                                <!-- Similar structure for Thursday -->
+                                <div class="bg-indigo-50 dark:bg-indigo-900/30 rounded-lg p-4">
+                                    <h4 class="font-semibold text-lg mb-2 text-indigo-600 dark:text-indigo-300">
+                                        Breakfast (7:30 - 9:00)</h4>
+                                    <ul class="space-y-1 text-gray-700 dark:text-gray-300">
+                                        <li>• Poha</li>
+                                        <li>• Boiled Eggs</li>
+                                        <li>• Fruit</li>
+                                        <li>• Tea/Coffee</li>
+                                    </ul>
+                                </div>
+                                <div class="bg-indigo-50 dark:bg-indigo-900/30 rounded-lg p-4">
+                                    <h4 class="font-semibold text-lg mb-2 text-indigo-600 dark:text-indigo-300">Lunch
+                                        (12:30 - 2:00)</h4>
+                                    <ul class="space-y-1 text-gray-700 dark:text-gray-300">
+                                        <li>• Rice</li>
+                                        <li>• Dal Tadka</li>
+                                        <li>• Aloo Gobi</li>
+                                        <li>• Chicken Curry</li>
+                                        <li>• Salad & Papad</li>
+                                    </ul>
+                                </div>
+                                <div class="bg-indigo-50 dark:bg-indigo-900/30 rounded-lg p-4">
+                                    <h4 class="font-semibold text-lg mb-2 text-indigo-600 dark:text-indigo-300">Dinner
+                                        (7:30 - 9:00)</h4>
+                                    <ul class="space-y-1 text-gray-700 dark:text-gray-300">
+                                        <li>• Roti</li>
+                                        <li>• Rice</li>
+                                        <li>• Rajma</li>
+                                        <li>• Kadhai Paneer</li>
+                                        <li>• Kheer</li>
+                                    </ul>
+                                </div>
+                                <div class="bg-indigo-50 dark:bg-indigo-900/30 rounded-lg p-4">
+                                    <h4 class="font-semibold text-lg mb-2 text-indigo-600 dark:text-indigo-300">Dinner
+                                        (7:30 - 9:00)</h4>
+                                    <ul class="space-y-1 text-gray-700 dark:text-gray-300">
+                                        <li>• Roti</li>
+                                        <li>• Rice</li>
+                                        <li>• Dal Tadka</li>
+                                        <li>• Paneer Butter Masala</li>
+                                        <li>• Sweet</li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div id="friday-menu" class="day-menu hidden">
+                            <!-- Friday menu content -->
+                            <!-- Similar structure -->
+                            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                                <div class="bg-indigo-50 dark:bg-indigo-900/30 rounded-lg p-4">
+                                    <h4 class="font-semibold text-lg mb-2 text-indigo-600 dark:text-indigo-300">
+                                        Breakfast (7:30 - 9:00)</h4>
+                                    <ul class="space-y-1 text-gray-700 dark:text-gray-300">
+                                        <li>• Puri</li>
+                                        <li>• Aloo Sabzi</li>
+                                        <li>• Fruit</li>
+                                        <li>• Tea/Coffee</li>
+                                    </ul>
+                                </div>
+                                <div class="bg-indigo-50 dark:bg-indigo-900/30 rounded-lg p-4">
+                                    <h4 class="font-semibold text-lg mb-2 text-indigo-600 dark:text-indigo-300">Lunch
+                                        (12:30 - 2:00)</h4>
+                                    <ul class="space-y-1 text-gray-700 dark:text-gray-300">
+                                        <li>• Rice</li>
+                                        <li>• Chana Dal</li>
+                                        <li>• Palak Paneer</li>
+                                        <li>• Egg Curry</li>
+                                        <li>• Salad & Papad</li>
+                                    </ul>
+                                </div>
+                                <div class="bg-indigo-50 dark:bg-indigo-900/30 rounded-lg p-4">
+                                    <h4 class="font-semibold text-lg mb-2 text-indigo-600 dark:text-indigo-300">Dinner
+                                        (7:30 - 9:00)</h4>
+                                    <ul class="space-y-1 text-gray-700 dark:text-gray-300">
+                                        <li>• Roti</li>
+                                        <li>• Rice</li>
+                                        <li>• Dal Fry</li>
+                                        <li>• Chilli Chicken</li>
+                                        <li>• Jalebi</li>
+                                    </ul>
+                                </div>
+                                <div class="bg-indigo-50 dark:bg-indigo-900/30 rounded-lg p-4">
+                                    <h4 class="font-semibold text-lg mb-2 text-indigo-600 dark:text-indigo-300">Dinner
+                                        (7:30 - 9:00)</h4>
+                                    <ul class="space-y-1 text-gray-700 dark:text-gray-300">
+                                        <li>• Roti</li>
+                                        <li>• Rice</li>
+                                        <li>• Dal Tadka</li>
+                                        <li>• Paneer Butter Masala</li>
+                                        <li>• Sweet</li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div id="saturday-menu" class="day-menu hidden">
+                            <!-- Saturday menu content -->
+                            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                                <div class="bg-indigo-50 dark:bg-indigo-900/30 rounded-lg p-4">
+                                    <h4 class="font-semibold text-lg mb-2 text-indigo-600 dark:text-indigo-300">
+                                        Breakfast (7:30 - 9:00)</h4>
+                                    <ul class="space-y-1 text-gray-700 dark:text-gray-300">
+                                        <li>• Dosa</li>
+                                        <li>• Sambhar</li>
+                                        <li>• Coconut Chutney</li>
+                                        <li>• Tea/Coffee</li>
+                                    </ul>
+                                </div>
+                                <div class="bg-indigo-50 dark:bg-indigo-900/30 rounded-lg p-4">
+                                    <h4 class="font-semibold text-lg mb-2 text-indigo-600 dark:text-indigo-300">Lunch
+                                        (12:30 - 2:00)</h4>
+                                    <ul class="space-y-1 text-gray-700 dark:text-gray-300">
+                                        <li>• Pulao</li>
+                                        <li>• Raita</li>
+                                        <li>• Veg Korma</li>
+                                        <li>• Mutton Curry</li>
+                                        <li>• Salad & Papad</li>
+                                    </ul>
+                                </div>
+                                <div class="bg-indigo-50 dark:bg-indigo-900/30 rounded-lg p-4">
+                                    <h4 class="font-semibold text-lg mb-2 text-indigo-600 dark:text-indigo-300">Dinner
+                                        (7:30 - 9:00)</h4>
+                                    <ul class="space-y-1 text-gray-700 dark:text-gray-300">
+                                        <li>• Roti</li>
+                                        <li>• Rice</li>
+                                        <li>• Dal Makhani</li>
+                                        <li>• Matar Paneer</li>
+                                        <li>• Fruit Custard</li>
+                                    </ul>
+                                </div>
+                                <div class="bg-indigo-50 dark:bg-indigo-900/30 rounded-lg p-4">
+                                    <h4 class="font-semibold text-lg mb-2 text-indigo-600 dark:text-indigo-300">Dinner
+                                        (7:30 - 9:00)</h4>
+                                    <ul class="space-y-1 text-gray-700 dark:text-gray-300">
+                                        <li>• Roti</li>
+                                        <li>• Rice</li>
+                                        <li>• Dal Tadka</li>
+                                        <li>• Paneer Butter Masala</li>
+                                        <li>• Sweet</li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div id="sunday-menu" class="day-menu hidden">
+                            <!-- Sunday menu content -->
+                            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                                <div class="bg-indigo-50 dark:bg-indigo-900/30 rounded-lg p-4">
+                                    <h4 class="font-semibold text-lg mb-2 text-indigo-600 dark:text-indigo-300">
+                                        Breakfast (7:30 - 9:00)</h4>
+                                    <ul class="space-y-1 text-gray-700 dark:text-gray-300">
+                                        <li>• Dosa</li>
+                                        <li>• Sambhar</li>
+                                        <li>• Coconut Chutney</li>
+                                        <li>• Tea/Coffee</li>
+                                    </ul>
+                                </div>
+                                <div class="bg-indigo-50 dark:bg-indigo-900/30 rounded-lg p-4">
+                                    <h4 class="font-semibold text-lg mb-2 text-indigo-600 dark:text-indigo-300">Lunch
+                                        (12:30 - 2:00)</h4>
+                                    <ul class="space-y-1 text-gray-700 dark:text-gray-300">
+                                        <li>• Pulao</li>
+                                        <li>• Raita</li>
+                                        <li>• Veg Korma</li>
+                                        <li>• Mutton Curry</li>
+                                        <li>• Salad & Papad</li>
+                                    </ul>
+                                </div>
+                                <div class="bg-indigo-50 dark:bg-indigo-900/30 rounded-lg p-4">
+                                    <h4 class="font-semibold text-lg mb-2 text-indigo-600 dark:text-indigo-300">Dinner
+                                        (7:30 - 9:00)</h4>
+                                    <ul class="space-y-1 text-gray-700 dark:text-gray-300">
+                                        <li>• Roti</li>
+                                        <li>• Rice</li>
+                                        <li>• Dal Makhani</li>
+                                        <li>• Matar Paneer</li>
+                                        <li>• Fruit Custard</li>
+                                    </ul>
+                                </div>
+                                <div class="bg-indigo-50 dark:bg-indigo-900/30 rounded-lg p-4">
+                                    <h4 class="font-semibold text-lg mb-2 text-indigo-600 dark:text-indigo-300">Dinner
+                                        (7:30 - 9:00)</h4>
+                                    <ul class="space-y-1 text-gray-700 dark:text-gray-300">
+                                        <li>• Roti</li>
+                                        <li>• Rice</li>
+                                        <li>• Dal Tadka</li>
+                                        <li>• Paneer Butter Masala</li>
+                                        <li>• Sweet</li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Canteen Menu Section -->
+            <div id="canteenMenu" class="menu-section hidden">
+                <div class="mb-6">
+                    <h3 class="text-lg font-semibold mb-4 text-gray-700 dark:text-gray-300">Canteen Food Items</h3>
+
+                    <!-- Category selection -->
+                    <div class="flex flex-wrap gap-2 mb-6">
+                        <button
+                            class="menu-category active px-4 py-2 bg-indigo-100 dark:bg-indigo-900 rounded-lg text-indigo-600 dark:text-indigo-300 font-medium"
+                            onclick="showCategory('snacks')">Snacks</button>
+                        <button
+                            class="menu-category px-4 py-2 bg-indigo-100 dark:bg-indigo-900 rounded-lg text-indigo-600 dark:text-indigo-300 font-medium"
+                            onclick="showCategory('beverages')">Beverages</button>
+                        <button
+                            class="menu-category px-4 py-2 bg-indigo-100 dark:bg-indigo-900 rounded-lg text-indigo-600 dark:text-indigo-300 font-medium"
+                            onclick="showCategory('meals')">Meals</button>
+                        <button
+                            class="menu-category px-4 py-2 bg-indigo-100 dark:bg-indigo-900 rounded-lg text-indigo-600 dark:text-indigo-300 font-medium"
+                            onclick="showCategory('desserts')">Desserts</button>
+                    </div>
+
+                    <!-- Menu Items by Category -->
+                    <div id="categoryContainer">
+                        <!-- Snacks -->
+                        <div id="snacks-menu" class="category-menu">
+                            <div class="bg-white dark:bg-gray-800 rounded-lg shadow overflow-hidden">
+                                <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
+                                    <thead class="bg-gray-50 dark:bg-gray-700">
+                                        <tr>
+                                            <th scope="col"
+                                                class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
+                                                Item</th>
+                                            <th scope="col"
+                                                class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
+                                                Price</th>
+                                            <th scope="col"
+                                                class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
+                                                Availability</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody
+                                        class="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
+                                        <tr>
+                                            <td
+                                                class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white">
+                                                Samosa</td>
+                                            <td
+                                                class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-300">
+                                                ₹15</td>
+                                            <td class="px-6 py-4 whitespace-nowrap text-sm text-green-500">Available
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td
+                                                class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white">
+                                                Bread Pakora</td>
+                                            <td
+                                                class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-300">
+                                                ₹20</td>
+                                            <td class="px-6 py-4 whitespace-nowrap text-sm text-green-500">Available
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td
+                                                class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white">
+                                                Veg Sandwich</td>
+                                            <td
+                                                class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-300">
+                                                ₹35</td>
+                                            <td class="px-6 py-4 whitespace-nowrap text-sm text-green-500">Available
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td
+                                                class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white">
+                                                Cheese Sandwich</td>
+                                            <td
+                                                class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-300">
+                                                ₹50</td>
+                                            <td class="px-6 py-4 whitespace-nowrap text-sm text-green-500">Available
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td
+                                                class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white">
+                                                French Fries</td>
+                                            <td
+                                                class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-300">
+                                                ₹45</td>
+                                            <td class="px-6 py-4 whitespace-nowrap text-sm text-green-500">Available
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td
+                                                class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white">
+                                                Vada Pav</td>
+                                            <td
+                                                class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-300">
+                                                ₹25</td>
+                                            <td class="px-6 py-4 whitespace-nowrap text-sm text-green-500">Available
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+
+                        <!-- Beverages -->
+                        <div id="beverages-menu" class="category-menu hidden">
+                            <div class="bg-white dark:bg-gray-800 rounded-lg shadow overflow-hidden">
+                                <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
+                                    <thead class="bg-gray-50 dark:bg-gray-700">
+                                        <tr>
+                                            <th scope="col"
+                                                class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
+                                                Item</th>
+                                            <th scope="col"
+                                                class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
+                                                Price</th>
+                                            <th scope="col"
+                                                class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
+                                                Availability</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody
+                                        class="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
+                                        <tr>
+                                            <td
+                                                class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white">
+                                                Tea</td>
+                                            <td
+                                                class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-300">
+                                                ₹10</td>
+                                            <td class="px-6 py-4 whitespace-nowrap text-sm text-green-500">Available
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td
+                                                class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white">
+                                                Coffee</td>
+                                            <td
+                                                class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-300">
+                                                ₹15</td>
+                                            <td class="px-6 py-4 whitespace-nowrap text-sm text-green-500">Available
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td
+                                                class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white">
+                                                Cold Coffee</td>
+                                            <td
+                                                class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-300">
+                                                ₹40</td>
+                                            <td class="px-6 py-4 whitespace-nowrap text-sm text-green-500">Available
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td
+                                                class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white">
+                                                Fresh Juice</td>
+                                            <td
+                                                class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-300">
+                                                ₹35</td>
+                                            <td class="px-6 py-4 whitespace-nowrap text-sm text-green-500">Available
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td
+                                                class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white">
+                                                Soft Drinks</td>
+                                            <td
+                                                class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-300">
+                                                ₹20</td>
+                                            <td class="px-6 py-4 whitespace-nowrap text-sm text-green-500">Available
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td
+                                                class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white">
+                                                Lassi</td>
+                                            <td
+                                                class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-300">
+                                                ₹30</td>
+                                            <td class="px-6 py-4 whitespace-nowrap text-sm text-green-500">Available
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+
+                        <!-- Meals -->
+                        <div id="meals-menu" class="category-menu hidden">
+                            <div class="bg-white dark:bg-gray-800 rounded-lg shadow overflow-hidden">
+                                <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
+                                    <thead class="bg-gray-50 dark:bg-gray-700">
+                                        <tr>
+                                            <th scope="col"
+                                                class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
+                                                Item</th>
+                                            <th scope="col"
+                                                class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
+                                                Price</th>
+                                            <th scope="col"
+                                                class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
+                                                Availability</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody
+                                        class="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
+                                        <tr>
+                                            <td
+                                                class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white">
+                                                Veg Thali</td>
+                                            <td
+                                                class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-300">
+                                                ₹80</td>
+                                            <td class="px-6 py-4 whitespace-nowrap text-sm text-green-500">Available
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td
+                                                class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white">
+                                                Special Thali</td>
+                                            <td
+                                                class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-300">
+                                                ₹120</td>
+                                            <td class="px-6 py-4 whitespace-nowrap text-sm text-green-500">Available
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td
+                                                class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white">
+                                                Chole Bhature</td>
+                                            <td
+                                                class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-300">
+                                                ₹70</td>
+                                            <td class="px-6 py-4 whitespace-nowrap text-sm text-green-500">Available
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td
+                                                class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white">
+                                                Rajma Rice</td>
+                                            <td
+                                                class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-300">
+                                                ₹60</td>
+                                            <td class="px-6 py-4 whitespace-nowrap text-sm text-green-500">Available
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td
+                                                class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white">
+                                                Paneer Butter Masala</td>
+                                            <td
+                                                class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-300">
+                                                ₹110</td>
+                                            <td class="px-6 py-4 whitespace-nowrap text-sm text-green-500">Available
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+
+                        <!-- Desserts -->
+                        <div id="desserts-menu" class="category-menu hidden">
+                            <div class="bg-white dark:bg-gray-800 rounded-lg shadow overflow-hidden">
+                                <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
+                                    <thead class="bg-gray-50 dark:bg-gray-700">
+                                        <tr>
+                                            <th scope="col"
+                                                class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
+                                                Item</th>
+                                            <th scope="col"
+                                                class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
+                                                Price</th>
+                                            <th scope="col"
+                                                class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
+                                                Availability</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody
+                                        class="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
+                                        <tr>
+                                            <td
+                                                class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white">
+                                                Ice Cream</td>
+                                            <td
+                                                class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-300">
+                                                ₹40</td>
+                                            <td class="px-6 py-4 whitespace-nowrap text-sm text-green-500">Available
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td
+                                                class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white">
+                                                Gulab Jamun</td>
+                                            <td
+                                                class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-300">
+                                                ₹15</td>
+                                            <td class="px-6 py-4 whitespace-nowrap text-sm text-green-500">Available
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td
+                                                class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white">
+                                                Pastry</td>
+                                            <td
+                                                class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-300">
+                                                ₹35</td>
+                                            <td class="px-6 py-4 whitespace-nowrap text-sm text-green-500">Available
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td
+                                                class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white">
+                                                Brownie</td>
+                                            <td
+                                                class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-300">
+                                                ₹45</td>
+                                            <td class="px-6 py-4 whitespace-nowrap text-sm text-red-500">Out of Stock
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td
+                                                class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white">
+                                                Fruit Custard</td>
+                                            <td
+                                                class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-300">
+                                                ₹40</td>
+                                            <td class="px-6 py-4 whitespace-nowrap text-sm text-green-500">Available
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Admin Controls Section -->
+            <div id="adminControls" class="menu-section hidden">
+                <div class="mb-6">
+                    <h3 class="text-lg font-semibold mb-4 text-gray-700 dark:text-gray-300">Menu Management</h3>
+                    <p class="text-gray-600 dark:text-gray-400 mb-6">Welcome Admin! Here you can update the mess and
+                        canteen menus.</p>
+
+                    <!-- Admin Tabs -->
+                    <div class="mb-6">
+                        <div class="flex flex-wrap gap-2 mb-6">
+                            <button
+                                class="admin-tab active px-4 py-2 bg-indigo-100 dark:bg-indigo-900 rounded-lg text-indigo-600 dark:text-indigo-300 font-medium"
+                                onclick="switchAdminTab('updateMessMenu')">Update Mess Menu</button>
+                            <button
+                                class="admin-tab px-4 py-2 bg-indigo-100 dark:bg-indigo-900 rounded-lg text-indigo-600 dark:text-indigo-300 font-medium"
+                                onclick="switchAdminTab('updateCanteenMenu')">Update Canteen Menu</button>
+                            <button
+                                class="admin-tab px-4 py-2 bg-indigo-100 dark:bg-indigo-900 rounded-lg text-indigo-600 dark:text-indigo-300 font-medium"
+                                onclick="switchAdminTab('specialAnnouncements')">Special Announcements</button>
+                        </div>
+
+                        <!-- Update Mess Menu -->
+                        <div id="updateMessMenu" class="admin-tab-content">
+                            <div class="bg-white dark:bg-gray-800 rounded-lg shadow p-6">
+                                <h4 class="text-lg font-medium mb-4 text-gray-800 dark:text-white">Update Weekly Mess
+                                    Menu</h4>
+
+                                <form id="messMenuForm">
+                                    <div class="mb-4">
+                                        <label class="block text-gray-700 dark:text-gray-300 mb-2">Select Day:</label>
+                                        <select id="menuDay"
+                                            class="w-full p-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-800 dark:text-white">
+                                            <option value="monday">Monday</option>
+                                            <option value="tuesday">Tuesday</option>
+                                            <option value="wednesday">Wednesday</option>
+                                            <option value="thursday">Thursday</option>
+                                            <option value="friday">Friday</option>
+                                            <option value="saturday">Saturday</option>
+                                            <option value="sunday">Sunday</option>
+                                        </select>
+                                    </div>
+
+                                    <div class="mb-4">
+                                        <label class="block text-gray-700 dark:text-gray-300 mb-2">Select Meal:</label>
+                                        <select id="mealType"
+                                            class="w-full p-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-800 dark:text-white">
+                                            <option value="breakfast">Breakfast</option>
+                                            <option value="lunch">Lunch</option>
+                                            <option value="dinner">Dinner</option>
+                                        </select>
+                                    </div>
+
+                                    <div class="mb-4">
+                                        <label class="block text-gray-700 dark:text-gray-300 mb-2">Menu Items (One per
+                                            line):</label>
+                                        <textarea id="menuItems" rows="6"
+                                            class="w-full p-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-800 dark:text-white"
+                                            placeholder="Enter menu items, one per line"></textarea>
+                                    </div>
+
+                                    <button type="submit"
+                                        class="px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition">Update
+                                        Menu</button>
+                                </form>
+                            </div>
+                        </div>
+
+                        <!-- Update Canteen Menu -->
+                        <div id="updateCanteenMenu" class="admin-tab-content hidden">
+                            <div class="bg-white dark:bg-gray-800 rounded-lg shadow p-6">
+                                <h4 class="text-lg font-medium mb-4 text-gray-800 dark:text-white">Update Canteen Menu
+                                </h4>
+
+                                <form id="canteenMenuForm">
+                                    <div class="mb-4">
+                                        <label class="block text-gray-700 dark:text-gray-300 mb-2">Select
+                                            Category:</label>
+                                        <select id="foodCategory"
+                                            class="w-full p-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-800 dark:text-white">
+                                            <option value="snacks">Snacks</option>
+                                            <option value="beverages">Beverages</option>
+                                            <option value="meals">Meals</option>
+                                            <option value="desserts">Desserts</option>
+                                        </select>
+                                    </div>
+
+                                    <div class="mb-4">
+                                        <label class="block text-gray-700 dark:text-gray-300 mb-2">Item Name:</label>
+                                        <input type="text" id="itemName"
+                                            class="w-full p-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-800 dark:text-white"
+                                            placeholder="Enter item name">
+                                    </div>
+
+                                    <div class="mb-4">
+                                        <label class="block text-gray-700 dark:text-gray-300 mb-2">Price (₹):</label>
+                                        <input type="number" id="itemPrice"
+                                            class="w-full p-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-800 dark:text-white"
+                                            placeholder="Enter price">
+                                    </div>
+
+                                    <div class="mb-4">
+                                        <label class="block text-gray-700 dark:text-gray-300 mb-2">Availability:</label>
+                                        <select id="itemAvailability"
+                                            class="w-full p-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-800 dark:text-white">
+                                            <option value="available">Available</option>
+                                            <option value="unavailable">Out of Stock</option>
+                                        </select>
+                                    </div>
+
+                                    <div class="flex space-x-2">
+                                        <button type="submit"
+                                            class="px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition">Add
+                                            / Update Item</button>
+                                        <button type="button" id="deleteItemBtn"
+                                            class="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition">Delete
+                                            Item</button>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+
+                        <!-- Special Announcements -->
+                        <div id="specialAnnouncements" class="admin-tab-content hidden">
+                            <div class="bg-white dark:bg-gray-800 rounded-lg shadow p-6">
+                                <h4 class="text-lg font-medium mb-4 text-gray-800 dark:text-white">Add Special
+                                    Announcements</h4>
+
+                                <form id="announcementForm">
+                                    <div class="mb-4">
+                                        <label class="block text-gray-700 dark:text-gray-300 mb-2">Announcement
+                                            Title:</label>
+                                        <input type="text" id="announcementTitle"
+                                            class="w-full p-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-800 dark:text-white"
+                                            placeholder="Enter announcement title">
+                                    </div>
+
+                                    <div class="mb-4">
+                                        <label class="block text-gray-700 dark:text-gray-300 mb-2">Announcement
+                                            Message:</label>
+                                        <textarea id="announcementMessage" rows="4"
+                                            class="w-full p-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-800 dark:text-white"
+                                            placeholder="Enter announcement details"></textarea>
+                                    </div>
+
+                                    <div class="mb-4">
+                                        <label class="block text-gray-700 dark:text-gray-300 mb-2">Valid Until:</label>
+                                        <input type="date" id="announcementValidity"
+                                            class="w-full p-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-800 dark:text-white">
+                                    </div>
+
+                                    <button type="submit"
+                                        class="px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition">Post
+                                        Announcement</button>
+                                </form>
+
+                                <div class="mt-6">
+                                    <h5 class="font-medium mb-2 text-gray-700 dark:text-gray-300">Current Announcements:
+                                    </h5>
+                                    <div class="space-y-2">
+                                        <div class="bg-indigo-50 dark:bg-indigo-900/30 p-3 rounded-lg">
+                                            <div class="flex justify-between">
+                                                <h6 class="font-medium text-indigo-600 dark:text-indigo-300">Special
+                                                    Mess Night - This Friday</h6>
+                                                <button class="text-red-500 hover:text-red-700"><i
+                                                        class="bi bi-trash"></i></button>
+                                            </div>
+                                            <p class="text-sm text-indigo-500 dark:text-indigo-400">Valid until:
+                                                05/04/2025</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    </div>
+    </div>
+    <script>
+        // Mess & Canteen Menu Logic
+        function switchMenu(menuType) {
+            document.querySelectorAll('.menu-section').forEach(section => {
+                section.classList.add('hidden');
+            });
+            document.getElementById(`${menuType}`).classList.remove('hidden');
+
+            // Update active button
+            document.querySelectorAll('.menu-button').forEach(btn => {
+                btn.classList.remove('bg-indigo-500', 'text-white');
+                btn.classList.add('bg-indigo-100', 'text-indigo-600', 'dark:bg-indigo-900', 'dark:text-indigo-300');
+            });
+            document.querySelector(`[onclick="switchMenu('${menuType}')"]`).classList.remove('bg-indigo-100', 'text-indigo-600', 'dark:bg-indigo-900', 'dark:text-indigo-300');
+            document.querySelector(`[onclick="switchMenu('${menuType}')"]`).classList.add('bg-indigo-500', 'text-white');
+        }
+
+        function showDayMenu(day) {
+            // Hide all day menus
+            document.querySelectorAll('.day-menu').forEach(menu => {
+                menu.classList.add('hidden');
+            });
+
+            // Show selected day menu
+            document.getElementById(`${day}-menu`).classList.remove('hidden');
+
+            // Update active day button
+            document.querySelectorAll('.day-button').forEach(btn => {
+                btn.classList.remove('active', 'bg-indigo-500', 'text-white');
+                btn.classList.add('bg-indigo-100', 'text-indigo-600', 'dark:bg-indigo-900', 'dark:text-indigo-300');
+            });
+            document.querySelector(`[onclick="showDayMenu('${day}')"]`).classList.remove('bg-indigo-100', 'text-indigo-600', 'dark:bg-indigo-900', 'dark:text-indigo-300');
+            document.querySelector(`[onclick="showDayMenu('${day}')"]`).classList.add('active', 'bg-indigo-500', 'text-white');
+        }
+
+        function showCategory(category) {
+            // Hide all category menus
+            document.querySelectorAll('.category-menu').forEach(menu => {
+                menu.classList.add('hidden');
+            });
+
+            // Show selected category menu
+            document.getElementById(`${category}-menu`).classList.remove('hidden');
+
+            // Update active category button
+            document.querySelectorAll('.menu-category').forEach(btn => {
+                btn.classList.remove('active', 'bg-indigo-500', 'text-white');
+                btn.classList.add('bg-indigo-100', 'text-indigo-600', 'dark:bg-indigo-900', 'dark:text-indigo-300');
+            });
+            document.querySelector(`[onclick="showCategory('${category}')"]`).classList.remove('bg-indigo-100', 'text-indigo-600', 'dark:bg-indigo-900', 'dark:text-indigo-300');
+            document.querySelector(`[onclick="showCategory('${category}')"]`).classList.add('active', 'bg-indigo-500', 'text-white');
+        }
+
+        // Theme Toggle
+        const themeToggle = document.getElementById('themeToggle');
+        if (themeToggle) {
+            themeToggle.addEventListener('click', () => {
+                document.documentElement.classList.toggle('dark');
+                const isDark = document.documentElement.classList.contains('dark');
+                localStorage.setItem('darkMode', isDark ? 'enabled' : 'disabled');
+
+                // Update icon
+                themeToggle.innerHTML = isDark
+                    ? '<i class="bi bi-sun-fill"></i>'
+                    : '<i class="bi bi-moon-fill"></i>';
+            });
+        }
+
+        // Initialize the application
+        document.addEventListener('DOMContentLoaded', () => {
+            // Display the user name from localStorage
+            const userData = sessionStorage.getItem('currentUserData');
+            if (userData) {
+                const user = JSON.parse(userData);
+                const userNameElement = document.getElementById('userName');
+                if (userNameElement) {
+                    userNameElement.textContent = user.isAdmin ? `Admin: ${user.name}` : user.name;
+                }
+                document.getElementById('welcomeMessage').classList.remove('hidden');
+
+                // Show admin controls if the user is an admin
+                if (user.isAdmin) {
+                    document.querySelectorAll('.admin-only').forEach(el => {
+                        el.classList.remove('hidden');
+                    });
+                    const adminControlsLink = document.getElementById('adminControlsLink');
+                    if (adminControlsLink) {
+                        adminControlsLink.classList.remove('hidden');
+                    }
+                }
+            }
+
+            // Get current day of the week
+            const days = ['sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday'];
+            const today = days[new Date().getDay()];
+
+            // Show today's menu by default
+            showDayMenu(today);
+
+            // Set default canteen category to snacks
+            showCategory('snacks');
+
+            // Make sure canteen menu section is visible
+            const canteenMenu = document.getElementById('canteenMenu');
+            if (canteenMenu) {
+                canteenMenu.classList.remove('hidden');
+            }
+
+            // Check for saved theme preference
+            const savedTheme = localStorage.getItem('darkMode');
+            if (themeToggle) {
+                if (savedTheme === 'enabled') {
+                    document.documentElement.classList.add('dark');
+                    themeToggle.innerHTML = '<i class="bi bi-sun-fill"></i>';
+                } else {
+                    themeToggle.innerHTML = '<i class="bi bi-moon-fill"></i>';
+                }
+            }
+        });
+
+        // Mobile menu toggle
+        function toggleMobileMenu() {
+            const mobileMenu = document.getElementById('mobileMenu');
+            if (mobileMenu) {
+                mobileMenu.classList.toggle('hidden');
+            }
+        }
+
+        // Sidebar toggle for smaller screens
+        function toggleSidebar() {
+            const sidebar = document.getElementById('sidebar');
+            if (sidebar) {
+                sidebar.classList.toggle('-translate-x-full');
+            }
+        }
+
+        // Logout function
+        function logout() {
+            localStorage.removeItem('currentUserData');
+            window.location.href = 'index.html';
+        }
+    </script>
+</body>
+
+</html>
