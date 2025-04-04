@@ -1,0 +1,585 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Study Materials | Student Companion</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css" rel="stylesheet">
+    <style>
+        * {
+            font-family: 'Poppins', sans-serif;
+        }
+        .auth-container {
+            background: linear-gradient(135deg, #6366f1 0%, #3b82f6 100%);
+        }
+        .glass-effect {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        :root {
+            color-scheme: light dark;
+        }
+        .nav-link {
+            transition: all 0.3s ease;
+        }
+        .nav-link:hover {
+            background-color: rgba(255, 255, 255, 0.1);
+            transform: translateY(-2px);
+        }
+    </style>
+</head>
+<body class="bg-gray-50 dark:bg-gray-900">
+    <div id="homepage" class="min-h-screen">
+        <!-- Navbar -->
+        <nav class="bg-indigo-600 text-white shadow-lg">
+            <div class="container mx-auto px-4">
+                <div class="flex justify-between items-center py-4">
+                    <div class="flex items-center space-x-4">
+                        <h1 class="text-2xl font-bold">Student Companion</h1>
+                        <span id="welcomeMessage" class="hidden md:inline text-sm">Welcome, <span id="userName">User</span>!</span>
+                    </div>
+                    
+                    <div class="flex items-center">
+                        <button id="logoutBtn" class="py-1 px-2 md:py-2 md:px-4 text-xs md:text-base rounded-lg bg-white bg-opacity-20 hover:bg-opacity-30 transition ml-2" onclick="logout()">Logout</button>
+                    </div>
+                </div>
+            </div>
+        </nav>
+
+        <!-- Flex Container for Sidebar and Content -->
+        <div class="flex flex-col md:flex-row">
+            <!-- Sidebar -->
+            <div id="sidebar" class="fixed md:relative w-64 bg-indigo-800 text-white h-screen z-40 transform -translate-x-full md:translate-x-0 transition-transform duration-300">
+                <div class="p-4">
+                    <h2 class="text-xl font-semibold mb-4">Features</h2>
+                    <ul class="space-y-2">
+                        <li><a href="index.html?page=notice" class="block py-2 px-4 rounded-lg nav-link" onclick="loadContent('notice')">Notice Board</a></li>
+                        <li><a href="taxi-search.html" class="block py-2 px-4 rounded-lg nav-link">Taxi Search</a></li>
+                        <li><a href="#" class="block py-2 px-4 rounded-lg nav-link active bg-indigo-700" onclick="loadContent('study')">Study Materials</a></li>
+                        <li><a href="index.html?page=mail" class="block py-2 px-4 rounded-lg nav-link" onclick="loadContent('mail')">Mail Formats</a></li>
+                        <li><a href="kyp.html" class="block py-2 px-4 rounded-lg nav-link">Know Your People</a></li>
+                        <li><a href="outings.html" class="block py-2 px-4 rounded-lg nav-link">Outings & Trips</a></li>
+                        <li><a href="messmenu.html" class="block py-2 px-4 rounded-lg nav-link">Mess & Canteen</a></li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- Mobile Sidebar Toggle Button -->
+            <div class="fixed bottom-4 left-4 z-40 md:hidden">
+                <button onclick="toggleSidebar()" class="bg-indigo-600 text-white p-3 rounded-full shadow-lg">
+                    <i class="bi bi-list text-xl"></i>
+                </button>
+            </div>
+
+            <!-- Main Content -->
+            <div class="flex-1 p-4 md:p-8">
+                <div class="bg-white dark:bg-gray-800 rounded-xl shadow-lg p-4 md:p-6">
+                    <!-- Study Materials Content -->
+                    <div class="mb-6 flex justify-between items-center">
+                        <div>
+                            <h1 class="text-2xl font-bold text-gray-800 dark:text-white">Study Materials</h1>
+                            <p class="text-gray-600 dark:text-gray-300 mt-2">Access study resources for your courses</p>
+                        </div>
+                        <!-- Admin-only Add Material Button -->
+                        <div id="adminControls" class="hidden">
+                            <button id="addMaterialBtn" class="bg-indigo-600 text-white py-2 px-4 rounded-lg hover:bg-indigo-700">
+                                <i class="bi bi-plus-lg mr-1"></i> Add Material
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Search and Filter -->
+                    <div class="flex flex-wrap gap-4 mb-6">
+                        <div class="flex-1">
+                            <input type="text" id="materialSearch" placeholder="Search materials..." class="w-full px-4 py-2 rounded-lg border focus:outline-none focus:ring-2 focus:ring-indigo-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white">
+                        </div>
+                        <select class="px-4 py-2 rounded-lg border focus:outline-none focus:ring-2 focus:ring-indigo-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white">
+                            <option value="">All Departments</option>
+                            <option value="cs">Computer Science</option>
+                            <option value="ee">Electrical Engineering</option>
+                            <option value="me">Mechanical Engineering</option>
+                        </select>
+                        <select class="px-4 py-2 rounded-lg border focus:outline-none focus:ring-2 focus:ring-indigo-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white">
+                            <option value="">All Semesters</option>
+                            <option value="1">Semester 1</option>
+                            <option value="2">Semester 2</option>
+                            <option value="3">Semester 3</option>
+                        </select>
+                    </div>
+
+                    <!-- Materials List -->
+                    <div class="space-y-4">
+                        <!-- Material Card -->
+                        <div class="bg-white dark:bg-gray-700 p-4 rounded-lg shadow-md hover:shadow-lg transition-shadow">
+                            <div class="flex justify-between items-start">
+                                <div>
+                                    <h3 class="font-medium text-gray-800 dark:text-white">Data Structures Notes</h3>
+                                    <p class="text-sm text-gray-600 dark:text-gray-300">Computer Science • Semester 3</p>
+                                </div>
+                                <div class="flex">
+                                    <!-- Admin Actions (Hidden by Default) -->
+                                    <div class="admin-actions hidden mr-2">
+                                        <button class="text-blue-600 hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300 mx-1">
+                                            <i class="bi bi-pencil"></i>
+                                        </button>
+                                        <button class="text-red-600 hover:text-red-700 dark:text-red-400 dark:hover:text-red-300 mx-1">
+                                            <i class="bi bi-trash"></i>
+                                        </button>
+                                    </div>
+                                    <!-- View Link Button -->
+                                    <a href="materials/data-structures.pdf" target="_blank" class="text-indigo-600 hover:text-indigo-700 dark:text-indigo-400 dark:hover:text-indigo-300 px-3 py-1 border border-indigo-600 dark:border-indigo-400 rounded-lg">
+                                        <i class="bi bi-eye mr-1"></i> View
+                                    </a>
+                                </div>
+                            </div>
+                            <p class="text-sm text-gray-500 dark:text-gray-400 mt-2">Uploaded by Prof. Smith • 2 days ago</p>
+                        </div>
+
+                        <!-- More Material Cards -->
+                        <div class="bg-white dark:bg-gray-700 p-4 rounded-lg shadow-md hover:shadow-lg transition-shadow">
+                            <div class="flex justify-between items-start">
+                                <div>
+                                    <h3 class="font-medium text-gray-800 dark:text-white">Circuit Theory Practice Problems</h3>
+                                    <p class="text-sm text-gray-600 dark:text-gray-300">Electrical Engineering • Semester 2</p>
+                                </div>
+                                <div class="flex">
+                                    <!-- Admin Actions (Hidden by Default) -->
+                                    <div class="admin-actions hidden mr-2">
+                                        <button class="text-blue-600 hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300 mx-1">
+                                            <i class="bi bi-pencil"></i>
+                                        </button>
+                                        <button class="text-red-600 hover:text-red-700 dark:text-red-400 dark:hover:text-red-300 mx-1">
+                                            <i class="bi bi-trash"></i>
+                                        </button>
+                                    </div>
+                                    <!-- View Link Button -->
+                                    <a href="materials/circuit-theory.pdf" target="_blank" class="text-indigo-600 hover:text-indigo-700 dark:text-indigo-400 dark:hover:text-indigo-300 px-3 py-1 border border-indigo-600 dark:border-indigo-400 rounded-lg">
+                                        <i class="bi bi-eye mr-1"></i> View
+                                    </a>
+                                </div>
+                            </div>
+                            <p class="text-sm text-gray-500 dark:text-gray-400 mt-2">Uploaded by Dr. Johnson • 5 days ago</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Add/Edit Material Modal (Admin Only) -->
+    <div id="materialModal" class="hidden fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50">
+        <div class="relative top-20 mx-auto p-5 border w-96 shadow-lg rounded-md bg-white dark:bg-gray-800 dark:border-gray-700">
+            <div class="mt-3">
+                <h3 id="modalTitle" class="text-lg font-medium leading-6 text-gray-900 dark:text-white mb-4">Add Study Material</h3>
+                <form id="materialForm">
+                    <input type="text" id="materialTitle" placeholder="Material Title" class="w-full px-3 py-2 border rounded-lg mb-3 dark:bg-gray-700 dark:border-gray-600 dark:text-white">
+                    
+                    <select id="materialDepartment" class="w-full px-3 py-2 border rounded-lg mb-3 dark:bg-gray-700 dark:border-gray-600 dark:text-white">
+                        <option value="">Select Department</option>
+                        <option value="cs">Computer Science</option>
+                        <option value="ee">Electrical Engineering</option>
+                        <option value="me">Mechanical Engineering</option>
+                    </select>
+                    
+                    <select id="materialSemester" class="w-full px-3 py-2 border rounded-lg mb-3 dark:bg-gray-700 dark:border-gray-600 dark:text-white">
+                        <option value="">Select Semester</option>
+                        <option value="1">Semester 1</option>
+                        <option value="2">Semester 2</option>
+                        <option value="3">Semester 3</option>
+                    </select>
+                    
+                    <input type="text" id="materialLink" placeholder="Material Link URL" class="w-full px-3 py-2 border rounded-lg mb-3 dark:bg-gray-700 dark:border-gray-600 dark:text-white">
+                    
+                    <input type="text" id="materialUploader" placeholder="Uploaded by" class="w-full px-3 py-2 border rounded-lg mb-3 dark:bg-gray-700 dark:border-gray-600 dark:text-white">
+                    
+                    <div class="flex justify-end space-x-3">
+                        <button type="button" id="cancelBtn" class="px-4 py-2 bg-gray-200 text-gray-800 rounded-lg hover:bg-gray-300 dark:bg-gray-700 dark:text-white dark:hover:bg-gray-600">Cancel</button>
+                        <button type="submit" class="px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700">Save</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Check for existing user session
+        document.addEventListener('DOMContentLoaded', function() {
+            const userData = sessionStorage.getItem('currentUserData');
+            if (userData) {
+                const user = JSON.parse(userData);
+                document.getElementById('userName').textContent = user.name;
+                document.getElementById('welcomeMessage').classList.remove('hidden');
+                
+                // Check if user is admin and show admin controls
+                if (user.name === 'Admin') {
+                    document.getElementById('adminControls').classList.remove('hidden');
+                    const adminActions = document.querySelectorAll('.admin-actions');
+                    adminActions.forEach(element => {
+                        element.classList.remove('hidden');
+                    });
+                }
+                
+                // Initialize materials from local storage
+                initializeMaterialsFromStorage();
+            } else {
+                // Redirect to login page if not logged in
+                window.location.href = 'index.html';
+            }
+        });
+    
+        // Toggle sidebar for mobile
+        function toggleSidebar() {
+            const sidebar = document.getElementById('sidebar');
+            sidebar.classList.toggle('-translate-x-full');
+        }
+    
+        // Logout function
+        function logout() {
+            sessionStorage.removeItem('currentUserData');
+            window.location.href = 'index.html';
+        }
+    
+        // Modal Functionality for Add/Edit Material (Admin Only)
+        const materialModal = document.getElementById('materialModal');
+        const addMaterialBtn = document.getElementById('addMaterialBtn');
+        const cancelBtn = document.getElementById('cancelBtn');
+        const materialForm = document.getElementById('materialForm');
+    
+        // Show modal when Add Material button is clicked
+        if (addMaterialBtn) {
+            addMaterialBtn.onclick = function() {
+                document.getElementById('modalTitle').textContent = 'Add Study Material';
+                document.getElementById('materialTitle').value = '';
+                document.getElementById('materialDepartment').value = '';
+                document.getElementById('materialSemester').value = '';
+                document.getElementById('materialLink').value = '';
+                document.getElementById('materialUploader').value = '';
+                delete materialForm.dataset.materialId; // Remove any stored ID when adding new
+                materialModal.classList.remove('hidden');
+            }
+        }
+    
+        // Cancel button closes modal
+        if (cancelBtn) {
+            cancelBtn.onclick = function() {
+                materialModal.classList.add('hidden');
+            }
+        }
+    
+        // Local Storage Functions
+        function initializeMaterialsFromStorage() {
+            const storedMaterials = localStorage.getItem('studyMaterials');
+            if (storedMaterials) {
+                const materials = JSON.parse(storedMaterials);
+                const materialsList = document.querySelector('.space-y-4');
+                
+                // Add each stored material to the list
+                materials.forEach(material => {
+                    const newMaterial = createMaterialCard(material);
+                    materialsList.prepend(newMaterial);
+                });
+            }
+        }
+    
+        function createMaterialCard(material) {
+            const newMaterial = document.createElement('div');
+            newMaterial.classList.add('bg-white', 'dark:bg-gray-700', 'p-4', 'rounded-lg', 'shadow-md', 'hover:shadow-lg', 'transition-shadow');
+            
+            const departmentText = material.departmentText || getDepartmentText(material.department);
+            const semesterText = material.semester ? `Semester ${material.semester}` : '';
+            const timeAgo = material.timeAdded ? material.timeAdded : 'Just now';
+            
+            newMaterial.innerHTML = `
+                <div class="flex justify-between items-start">
+                    <div>
+                        <h3 class="font-medium text-gray-800 dark:text-white">${material.title}</h3>
+                        <p class="text-sm text-gray-600 dark:text-gray-300">${departmentText} • ${semesterText}</p>
+                    </div>
+                    <div class="flex">
+                        <div class="admin-actions mr-2">
+                            <button class="text-blue-600 hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300 mx-1" data-id="${material.id}">
+                                <i class="bi bi-pencil"></i>
+                            </button>
+                            <button class="text-red-600 hover:text-red-700 dark:text-red-400 dark:hover:text-red-300 mx-1" data-id="${material.id}">
+                                <i class="bi bi-trash"></i>
+                            </button>
+                        </div>
+                        <a href="${material.link}" target="_blank" class="text-indigo-600 hover:text-indigo-700 dark:text-indigo-400 dark:hover:text-indigo-300 px-3 py-1 border border-indigo-600 dark:border-indigo-400 rounded-lg">
+                            <i class="bi bi-eye mr-1"></i> View
+                        </a>
+                    </div>
+                </div>
+                <p class="text-sm text-gray-500 dark:text-gray-400 mt-2">Uploaded by ${material.uploader} • ${timeAgo}</p>
+            `;
+            
+            // Hide admin actions if user is not admin
+            const userData = JSON.parse(sessionStorage.getItem('currentUserData') || '{"name": ""}');
+            if (userData.name !== 'Admin') {
+                const adminActions = newMaterial.querySelector('.admin-actions');
+                if (adminActions) {
+                    adminActions.classList.add('hidden');
+                }
+            }
+            
+            return newMaterial;
+        }
+    
+        function saveMaterialsToStorage(materials) {
+            localStorage.setItem('studyMaterials', JSON.stringify(materials));
+        }
+    
+        function getMaterialsFromStorage() {
+            const storedMaterials = localStorage.getItem('studyMaterials');
+            return storedMaterials ? JSON.parse(storedMaterials) : [];
+        }
+    
+        function addMaterial(material) {
+            const materials = getMaterialsFromStorage();
+            
+            // Generate a unique ID for the new material
+            material.id = Date.now().toString();
+            material.timeAdded = 'Just now';
+            
+            // Add the new material to the array
+            materials.unshift(material);
+            
+            // Save the updated array back to local storage
+            saveMaterialsToStorage(materials);
+            
+            return material;
+        }
+    
+        function updateMaterial(id, updatedMaterial) {
+            const materials = getMaterialsFromStorage();
+            const index = materials.findIndex(material => material.id === id);
+            
+            if (index !== -1) {
+                // Preserve the original ID and time added
+                updatedMaterial.id = id;
+                updatedMaterial.timeAdded = materials[index].timeAdded;
+                
+                // Update the material
+                materials[index] = updatedMaterial;
+                
+                // Save the updated array back to local storage
+                saveMaterialsToStorage(materials);
+                return true;
+            }
+            return false;
+        }
+    
+        function deleteMaterial(id) {
+            const materials = getMaterialsFromStorage();
+            const updatedMaterials = materials.filter(material => material.id !== id);
+            
+            saveMaterialsToStorage(updatedMaterials);
+            return materials.length !== updatedMaterials.length;
+        }
+    
+        // Form submission with local storage integration
+        if (materialForm) {
+            materialForm.onsubmit = function(e) {
+                e.preventDefault();
+                
+                // Get form values
+                const title = document.getElementById('materialTitle').value;
+                const department = document.getElementById('materialDepartment').value;
+                const semester = document.getElementById('materialSemester').value;
+                const link = document.getElementById('materialLink').value;
+                const uploader = document.getElementById('materialUploader').value;
+                
+                // Get the material ID (if editing)
+                const materialId = materialForm.dataset.materialId;
+    
+                // Create the material object
+                const materialData = {
+                    title: title,
+                    department: department,
+                    semester: semester,
+                    link: link,
+                    uploader: uploader,
+                    departmentText: getDepartmentText(department)
+                };
+                
+                // Add or update the material
+                if (materialId) {
+                    // Updating existing material
+                    updateMaterial(materialId, materialData);
+                    
+                    // Find and update the material card in the DOM
+                    const materialCard = document.querySelector(`button[data-id="${materialId}"]`).closest('.bg-white');
+                    const newCard = createMaterialCard({...materialData, id: materialId});
+                    materialCard.replaceWith(newCard);
+                } else {
+                    // Adding new material
+                    const savedMaterial = addMaterial(materialData);
+                    
+                    // Create and add the new material card to the DOM
+                    const newMaterial = createMaterialCard(savedMaterial);
+                    const materialsList = document.querySelector('.space-y-4');
+                    materialsList.prepend(newMaterial);
+                }
+                
+                // Close the modal
+                materialModal.classList.add('hidden');
+                
+                // Clear the form
+                materialForm.reset();
+                delete materialForm.dataset.materialId;
+            }
+        }
+    
+        // Search Functionality
+        const materialSearchInput = document.getElementById('materialSearch');
+        if (materialSearchInput) {
+            materialSearchInput.addEventListener('input', function() {
+                const searchTerm = materialSearchInput.value.toLowerCase();
+                const materialCards = document.querySelectorAll('.space-y-4 > div');
+    
+                materialCards.forEach(card => {
+                    const title = card.querySelector('h3').textContent.toLowerCase();
+                    const details = card.querySelector('p').textContent.toLowerCase();
+                    if (title.includes(searchTerm) || details.includes(searchTerm)) {
+                        card.style.display = '';
+                    } else {
+                        card.style.display = 'none';
+                    }
+                });
+            });
+        }
+    
+        // Close modal when clicking outside
+        window.onclick = function(event) {
+            if (event.target == materialModal) {
+                materialModal.classList.add('hidden');
+            }
+        }
+    
+        // Updated Edit and Delete functionality with local storage integration
+        document.addEventListener('click', function(e) {
+            if (e.target.closest('.bi-pencil')) {
+                // Handle edit button click
+                const editButton = e.target.closest('.bi-pencil').parentElement;
+                const materialId = editButton.dataset.id;
+                
+                // Get material data from local storage
+                const materials = getMaterialsFromStorage();
+                const material = materials.find(m => m.id === materialId);
+                
+                if (material) {
+                    // Fill the form with existing data
+                    document.getElementById('modalTitle').textContent = 'Edit Study Material';
+                    document.getElementById('materialTitle').value = material.title;
+                    document.getElementById('materialDepartment').value = material.department;
+                    document.getElementById('materialSemester').value = material.semester;
+                    document.getElementById('materialLink').value = material.link;
+                    document.getElementById('materialUploader').value = material.uploader;
+                    
+                    // Store the material ID in the form
+                    materialForm.dataset.materialId = materialId;
+                    
+                    materialModal.classList.remove('hidden');
+                } else {
+                    // Fallback for existing demo materials that aren't in local storage yet
+                    const card = editButton.closest('.bg-white');
+                    const title = card.querySelector('h3').textContent;
+                    const departmentSemester = card.querySelector('p').textContent.split(' • ');
+                    const department = departmentSemester[0];
+                    const semester = departmentSemester[1].replace('Semester ', '');
+                    const uploaderText = card.querySelector('.text-gray-500').textContent;
+                    const uploader = uploaderText.split(' • ')[0].replace('Uploaded by ', '');
+                    const link = card.querySelector('a').getAttribute('href');
+                    
+                    // Fill the form with existing data
+                    document.getElementById('modalTitle').textContent = 'Edit Study Material';
+                    document.getElementById('materialTitle').value = title;
+                    document.getElementById('materialDepartment').value = getDepartmentCode(department);
+                    document.getElementById('materialSemester').value = semester;
+                    document.getElementById('materialLink').value = link;
+                    document.getElementById('materialUploader').value = uploader;
+                    
+                    materialModal.classList.remove('hidden');
+                }
+            } else if (e.target.closest('.bi-trash')) {
+                // Handle delete button click
+                const deleteButton = e.target.closest('.bi-trash').parentElement;
+                const materialId = deleteButton?.dataset?.id;
+                
+                if (confirm('Are you sure you want to delete this material?')) {
+                    // Delete from local storage if ID exists
+                    if (materialId) {
+                        deleteMaterial(materialId);
+                    }
+                    
+                    // Remove from DOM
+                    const card = deleteButton.closest('.bg-white');
+                    card.remove();
+                }
+            }
+        });
+        
+        // Helper functions (maintained from original code)
+        function getDepartmentText(code) {
+            switch(code) {
+                case 'cs': return 'Computer Science';
+                case 'ee': return 'Electrical Engineering';
+                case 'me': return 'Mechanical Engineering';
+                default: return '';
+            }
+        }
+        
+        function getDepartmentCode(text) {
+            switch(text.trim()) {
+                case 'Computer Science': return 'cs';
+                case 'Electrical Engineering': return 'ee';
+                case 'Mechanical Engineering': return 'me';
+                default: return '';
+            }
+        }
+    
+        // Check for system dark mode preference
+        if (window.matchMedia('(prefers-color-scheme: dark)').matches) {
+            document.documentElement.classList.add('dark');
+        }
+    
+        // Function to store demo materials in local storage if it's empty
+        function initializeDemoMaterials() {
+            const existingMaterials = getMaterialsFromStorage();
+            
+            if (existingMaterials.length === 0) {
+                // Add demo materials to local storage for first-time users
+                const demoMaterials = [
+                    {
+                        id: "demo1",
+                        title: "Data Structures Notes",
+                        department: "cs",
+                        semester: "3",
+                        link: "materials/data-structures.pdf",
+                        uploader: "Prof. Smith",
+                        timeAdded: "2 days ago",
+                        departmentText: "Computer Science"
+                    },
+                    {
+                        id: "demo2",
+                        title: "Circuit Theory Practice Problems",
+                        department: "ee",
+                        semester: "2",
+                        link: "materials/circuit-theory.pdf",
+                        uploader: "Dr. Johnson",
+                        timeAdded: "5 days ago",
+                        departmentText: "Electrical Engineering"
+                    }
+                ];
+                
+                saveMaterialsToStorage(demoMaterials);
+            }
+        }
+        
+        // Call this function to ensure there's demo data when a user first visits
+        initializeDemoMaterials();
+    </script>
+</body>
+</html>
