@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Student Companion</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <style>
@@ -188,114 +189,265 @@
     </div>
 
     <script>
-        // Initialize local storage database if it doesn't exist
-        if (!localStorage.getItem('userDatabase')) {
-            localStorage.setItem('userDatabase', JSON.stringify([]));
-        }
-
-        function switchTab(tab) {
-            const forms = {
-                login: document.getElementById('loginForm'),
-                admin: document.getElementById('adminForm'),
-                register: document.getElementById('registerForm')
-            };
-            
-            // Hide all forms
-            Object.values(forms).forEach(form => form.classList.add('hidden'));
-            
-            // Show selected form
-            forms[tab].classList.remove('hidden');
-            
-            // Update active tab styling
-            document.querySelectorAll('button').forEach(btn => {
-                btn.classList.remove('bg-opacity-30');
-            });
-            document.getElementById(`${tab}Tab`).classList.add('bg-opacity-30');
-        }
-        function toggleSidebar() {
-    const sidebar = document.getElementById('sidebar');
-    sidebar.classList.toggle('-translate-x-full');
+ document.addEventListener('DOMContentLoaded', function() {
+    // Initialize Supabase
+    const supabaseUrl = 'https://cebomekzvltlaabcvjix.supabase.co';
+    const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImNlYm9tZWt6dmx0bGFhYmN2aml4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDM3NjUwNjQsImV4cCI6MjA1OTM0MTA2NH0.dtlBNgdctrv-txCEpNxjpfwzL02X0g7msUZIVuzG9J8';
     
-    // Icon changing code has been removed
+    // Create a proper client instance
+    window.supabaseClient = supabase.createClient(supabaseUrl, supabaseKey);
+    
+    // Make sure the auth handlers use the client
+    initializeAuthHandlers();
+    
+    // Check session on page load
+    checkSession();
+});
+
+function initializeAuthHandlers() {
+    // Login form handler
+    document.getElementById('loginForm').addEventListener('submit', handleLogin);
+    
+    // Admin form handler
+    document.getElementById('adminForm').addEventListener('submit', handleAdminLogin);
+    
+    // Register form handler
+    document.getElementById('registerForm').addEventListener('submit', handleRegister);
 }
 
-        function handleLogin(e) {
-            e.preventDefault();
-            const email = document.getElementById('loginEmail').value;
-            const password = document.getElementById('loginPassword').value;
-            
-            // Retrieve user database
-            const userDatabase = JSON.parse(localStorage.getItem('userDatabase'));
-            
-            // Find user
-            const user = userDatabase.find(user => user.email === email && user.password === password);
-            
-            if (user) {
-                // Login successful
-                showHomepage(user.name);
-            } else {
-                alert('Invalid email or password');
-            }
-        }
-
-        function handleAdminLogin(e) {
-            e.preventDefault();
-            const password = document.getElementById('adminPassword').value;
-            
-            // Check admin password
-            if (password === 'admin123') {
-                // Admin login successful
-                showHomepage('Admin');
-            } else {
-                alert('Invalid admin password');
-            }
-        }
-
-        function handleRegister(e) {
-            e.preventDefault();
-            const name = document.getElementById('registerName').value;
-            const email = document.getElementById('registerEmail').value;
-            const password = document.getElementById('registerPassword').value;
-            const confirmPassword = document.getElementById('confirmPassword').value;
-            
-            // Check if passwords match
-            if (password !== confirmPassword) {
-                alert('Passwords do not match');
+// Updated auth handlers to use window.supabaseClient
+async function handleLogin(e) {
+    e.preventDefault();
+    const email = document.getElementById('loginEmail').value;
+    const password = document.getElementById('loginPassword').value;
+    
+    try {
+        // First, authenticate the user
+        const { data, error } = await window.supabaseClient.auth.signInWithPassword({
+            email: email,
+            password: password,
+        });
+        
+        if (error) {
+            // Better error handling for email confirmation
+            if (error.message.includes('Email not confirmed')) {
+                alert('Please confirm your email address before logging in. Check your inbox for a confirmation email.');
                 return;
             }
+            throw error;
+        }
+        
+        // User authenticated successfully
+        console.log("User authenticated:", data.user.id);
+        
+        // Get user profile from the profiles table
+        const { data: profiles, error: profileError } = await window.supabaseClient
+            .from('profiles')
+            .select('name')
+            .eq('id', data.user.id);
             
-            // Retrieve user database
-            const userDatabase = JSON.parse(localStorage.getItem('userDatabase'));
-            
-            // Check if email already exists
-            if(name==="admin" || name==="Admin"){
-                alert('Username cannot be "admin" or "Admin"');
+        if (profileError) throw profileError;
+        
+        // Check if we got any profiles back
+        if (!profiles || profiles.length === 0) {
+            console.log("No profile found, creating one");
+            // No profile found, create one
+            const { error: insertError } = await window.supabaseClient
+                .from('profiles')
+                .insert([
+                    { 
+                        id: data.user.id, 
+                        name: email.split('@')[0], // Default name from email
+                        email: email 
+                    }
+                ]);
                 
-                return;
-            }
-            if (userDatabase.some(user => user.email === email)) {
-                alert('Email already registered');
-                return;
-            }
+            if (insertError) throw insertError;
             
-            // Add new user
-            userDatabase.push({
-                name,
-                email,
-                password
-            });
-            
-            // Save updated database
-            localStorage.setItem('userDatabase', JSON.stringify(userDatabase));
-            
-            // Registration successful
-            alert('Registration successful! You can now log in.');
-            
-            // Redirect to login
-            switchTab('login');
+            // Use email username as default name
+            showHomepage(email.split('@')[0]);
+        } else {
+            // Use the first profile found
+            console.log("Profile found:", profiles[0]);
+            showHomepage(profiles[0].name);
         }
+    } catch (error) {
+        alert('Error logging in: ' + error.message);
+        console.error("Login error details:", error);
+    }
+}
 
-        function showHomepage(userName) {
+async function handleAdminLogin(e) {
+    e.preventDefault();
+    const password = document.getElementById('adminPassword').value;
+    
+    try {
+        // For admin login, you could use a special admin email or check roles
+        const { data, error } = await window.supabaseClient.auth.signInWithPassword({
+            email: 'admin@example.com', // Replace with your admin email
+            password: password,
+        });
+        
+        if (error) throw error;
+        
+        // Check if user has admin role
+        const { data: profile, error: profileError } = await window.supabaseClient
+            .from('profiles')
+            .select('is_admin')
+            .eq('id', data.user.id)
+            .single();
+            
+        if (profileError) throw profileError;
+        
+        if (!profile.is_admin) {
+            throw new Error('You do not have admin privileges');
+        }
+        
+        // Admin login successful
+        showHomepage('Admin');
+    } catch (error) {
+        alert('Invalid admin credentials: ' + error.message);
+    }
+}
+
+async function handleRegister(e) {
+    e.preventDefault();
+    const name = document.getElementById('registerName').value;
+    const email = document.getElementById('registerEmail').value;
+    const password = document.getElementById('registerPassword').value;
+    const confirmPassword = document.getElementById('confirmPassword').value;
+    
+    // Check if passwords match
+    if (password !== confirmPassword) {
+        alert('Passwords do not match');
+        return;
+    }
+    
+    // Check if username is not "admin" or "Admin"
+    if (name === "admin" || name === "Admin") {
+        alert('Username cannot be "admin" or "Admin"');
+        return;
+    }
+    
+    try {
+        // Register user in Supabase Auth
+        const { data, error } = await window.supabaseClient.auth.signUp({
+            email: email,
+            password: password,
+            options: {
+                emailRedirectTo: window.location.origin,
+                data: {
+                    name: name
+                }
+            }
+        });
+        
+        if (error) throw error;
+        
+        // Add user profile in profiles table
+        const { error: profileError } = await window.supabaseClient
+            .from('profiles')
+            .insert([
+                { id: data.user.id, name: name, email: email }
+            ]);
+            
+        if (profileError) throw profileError;
+        
+        // Check if email confirmation is needed
+        if (data.user && !data.user.confirmed_at) {
+            alert('Registration successful! Please check your email to confirm your account before logging in.');
+        } else {
+            alert('Registration successful! You can now log in.');
+        }
+        
+        switchTab('login');
+    } catch (error) {
+        alert('Error registering: ' + error.message);
+        console.error('Detailed error:', error);
+    }
+}
+
+async function logout() {
+    try {
+        const { error } = await window.supabaseClient.auth.signOut();
+        if (error) throw error;
+        
+        // Hide homepage
+        document.getElementById('homepage').style.display = 'none';
+        
+        // Show auth page
+        document.getElementById('authPage').style.display = 'flex';
+        
+        // Reset forms
+        document.getElementById('loginForm').reset();
+        document.getElementById('adminForm').reset();
+        document.getElementById('registerForm').reset();
+        
+        // Switch to login tab
+        switchTab('login');
+        
+        // Clear session storage
+        sessionStorage.removeItem('currentUserData');
+    } catch (error) {
+        alert('Error signing out: ' + error.message);
+    }
+}
+
+async function checkSession() {
+    try {
+        // Check if user is logged in with Supabase
+        const { data: { session } } = await window.supabaseClient.auth.getSession();
+        
+        if (session) {
+            // User is logged in, get profile
+            const { data: profile, error } = await window.supabaseClient
+                .from('profiles')
+                .select('name')
+                .eq('id', session.user.id)
+                .single();
+                
+            if (!error && profile) {
+                showHomepage(profile.name);
+                
+                // Check for page parameter in URL
+                const urlParams = new URLSearchParams(window.location.search);
+                const page = urlParams.get('page');
+                if (page) {
+                    loadContent(page);
+                }
+            }
+        }
+    } catch (error) {
+        console.error('Error checking session:', error);
+    }
+}
+
+function switchTab(tab) {
+    const forms = {
+        login: document.getElementById('loginForm'),
+        admin: document.getElementById('adminForm'),
+        register: document.getElementById('registerForm')
+    };
+    
+    // Hide all forms
+    Object.values(forms).forEach(form => form.classList.add('hidden'));
+    
+    // Show selected form
+    forms[tab].classList.remove('hidden');
+    
+    // Update active tab styling
+    document.querySelectorAll('button').forEach(btn => {
+        btn.classList.remove('bg-opacity-30');
+    });
+    document.getElementById(`${tab}Tab`).classList.add('bg-opacity-30');
+}
+
+function toggleSidebar() {
+    const sidebar = document.getElementById('sidebar');
+    sidebar.classList.toggle('-translate-x-full');
+}
+
+function showHomepage(userName) {
     // Hide auth page
     document.getElementById('authPage').style.display = 'none';
     
@@ -306,66 +458,20 @@
     document.getElementById('userName').textContent = userName;
     document.getElementById('welcomeMessage').classList.remove('hidden');
     
-    // Store user info in sessionStorage instead of localStorage
+    // Store user info in sessionStorage
     sessionStorage.setItem('currentUserData', JSON.stringify({
         name: userName,
         email: document.getElementById('loginEmail').value || 'admin@example.com'
+
+    
     }));
-
-    window.location.href = "notice.html"; // Redirect to notice page
+    
 }
 
-function logout() {
-    // Hide homepage
-    document.getElementById('homepage').style.display = 'none';
-    
-    // Show auth page
-    document.getElementById('authPage').style.display = 'flex';
-    
-    // Reset forms
-    document.getElementById('loginForm').reset();
-    document.getElementById('adminForm').reset();
-    document.getElementById('registerForm').reset();
-    
-    // Switch to login tab
-    switchTab('login');
-    
-    // Clear session storage
-    sessionStorage.removeItem('currentUserData');
+// Check for system dark mode preference
+if (window.matchMedia('(prefers-color-scheme: dark)').matches) {
+    document.documentElement.classList.add('dark');
 }
-
-        function loadContent(section) {
-            // Hide all content sections
-            document.querySelectorAll('.content-section').forEach(section => {
-                section.classList.add('hidden');
-            });
-            
-            // Show selected section
-            document.getElementById(section).classList.remove('hidden');
-        }
-
-        
-
-        // Check for system dark mode preference
-        if (window.matchMedia('(prefers-color-scheme: dark)').matches) {
-            document.documentElement.classList.add('dark');
-        }
-        // Handle page parameters (for navigation from other pages)
-        document.addEventListener('DOMContentLoaded', function() {
-    // Check if user is logged in
-    const userData = sessionStorage.getItem('currentUserData');
-    if (userData) {
-        const user = JSON.parse(userData);
-        showHomepage(user.name);
-        
-        // Check for page parameter in URL
-        const urlParams = new URLSearchParams(window.location.search);
-        const page = urlParams.get('page');
-        if (page) {
-            loadContent(page);
-        }
-    }
-});
     </script>
 </body>
 </html>
