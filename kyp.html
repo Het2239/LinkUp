@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Student Companion - Know Your People</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <style>
@@ -223,409 +224,544 @@
     </div>
 
     <script>
-        // Check if user is logged in on page load
-        document.addEventListener('DOMContentLoaded', function() {
-            checkLoginStatus();
-            loadPeopleData();
-            renderPeople();
-            
-            // Mobile menu toggle
-            document.getElementById('mobileMenuBtn').addEventListener('click', () => {
-                const mobileMenu = document.getElementById('mobileMenu');
-                mobileMenu.classList.toggle('hidden');  
-            });
-            
-            // Sidebar toggle button
-            document.getElementById('sidebarToggleBtn').addEventListener('click', toggleSidebar);
-        });
+        // Supabase integration for Know Your People functionality
 
-        let isAdmin = true;
-        let currentPersonId = null;
-        let currentFilter = 'all';
-        let searchTerm = '';
-        let peopleData = [];
-        
-        // Toggle sidebar visibility for mobile
-        function toggleSidebar() {
+document.addEventListener('DOMContentLoaded', function() {
+    // Initialize Supabase
+    const supabaseUrl = 'https://cebomekzvltlaabcvjix.supabase.co';
+    const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImNlYm9tZWt6dmx0bGFhYmN2aml4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDM3NjUwNjQsImV4cCI6MjA1OTM0MTA2NH0.dtlBNgdctrv-txCEpNxjpfwzL02X0g7msUZIVuzG9J8';
+    
+    // Create a proper client instance
+    window.supabaseClient = supabase.createClient(supabaseUrl, supabaseKey);
+    // let isAdmin = false;
+    // Set up page functionality
+    checkLoginStatus();
+    loadPeopleData();
+    
+    // Mobile menu toggle
+    // document.getElementById('mobileMenuBtn').addEventListener('click', () => {
+    //     const mobileMenu = document.getElementById('mobileMenu');
+    //     mobileMenu.classList.toggle('hidden');  
+    // });
+    
+    // Sidebar toggle button
+    // document.getElementById('sidebarToggleBtn').addEventListener('click', toggleSidebar);
+    
+    // Search functionality
+    document.getElementById('searchInput').addEventListener('input', function(e) {
+        searchTerm = e.target.value.trim();
+        renderPeople();
+    });
+    
+    // Handle file input for profile photo
+    document.getElementById('photoInput').addEventListener('change', handlePhotoUpload);
+    
+    // Form submission handler
+    document.getElementById('personForm').addEventListener('submit', handlePersonFormSubmit);
+});
+
+// Global variables
+let isAdmin = false;
+let currentPersonId = null;
+let currentFilter = 'all';
+let searchTerm = '';
+let peopleData = [];
+
+// Toggle sidebar visibility for mobile
+function toggleSidebar() {
     const sidebar = document.getElementById('sidebar');
     sidebar.classList.toggle('-translate-x-full');
-    
-    // Icon changing code has been removed
 }
 
-        // Check if the user is logged in and if they are an admin
-        function checkLoginStatus() {
-            const userData = sessionStorage.getItem('currentUserData');
-            if (!userData) {
-                // Redirect to login page if not logged in
-                window.location.href = 'index.html';
-                return;
-            }
-            
-            const user = JSON.parse(userData);
-            document.getElementById('userName').textContent = user.name;
-            document.getElementById('welcomeMessage').classList.remove('hidden');
-            
-            // Check if user is admin
-            isAdmin =  user.name !== 'Admin';
-            
-            // Show admin controls if the user is an admin
-            if (!isAdmin) {
-                document.querySelectorAll('.admin-only').forEach(el => {
-                    el.classList.remove('hidden');
-                });
-            }
-        }
-
-        // Logout function
-        function logout() {
-            localStorage.removeItem('currentUserData');
+// Check if the user is logged in and if they are an admin
+async function checkLoginStatus() {
+    try {
+        // Check if user is logged in with Supabase
+        const { data: { session } } = await window.supabaseClient.auth.getSession();
+        
+        if (!session) {
+            // Redirect to login page if not logged in
             window.location.href = 'index.html';
+            return;
         }
-
-        // Load people data from localStorage
-        function loadPeopleData() {
-            const storedPeople = localStorage.getItem('peopleDatabase');
-            if (storedPeople) {
-                peopleData = JSON.parse(storedPeople);
-            } else {
-                // Initialize with sample data
-                peopleData = [
-                    {
-                        id: 1,
-                        name: "Dr. Sarah Johnson",
-                        role: "Head of Computer Science Department",
-                        rollNo: "",
-                        email: "sarah.johnson@university.edu",
-                        phone: "123-456-7890",
-                        photoData: "",
-                        category: "faculty",
-                        bio: "Dr. Johnson has been teaching Computer Science for over 15 years. Her research focuses on artificial intelligence and machine learning applications."
-                    },
-                    {
-                        id: 2,
-                        name: "Michael Rodriguez",
-                        role: "President, Photography Club",
-                        rollNo: "20CS045",
-                        email: "michael.r@university.edu",
-                        phone: "234-567-8901",
-                        photoData: "",
-                        category: "club",
-                        bio: "Michael has been passionate about photography since high school and leads the Photography Club with enthusiasm and creativity."
-                    },
-                    {
-                        id: 3,
-                        name: "Jessica Chen",
-                        role: "Student Body President",
-                        rollNo: "21ME078",
-                        email: "jessica.chen@university.edu",
-                        phone: "345-678-9012",
-                        photoData: "",
-                        category: "student",
-                        bio: "Jessica is a senior studying Political Science. She is committed to improving campus life and representing student interests."
-                    }
-                ];
-                savePeopleData();
-            }
-        }
-
-        // Save people data to localStorage
-        function savePeopleData() {
-            localStorage.setItem('peopleDatabase', JSON.stringify(peopleData));
-        }
-
-        // Render people cards
-        function renderPeople() {
-            const peopleGrid = document.getElementById('peopleGrid');
+        
+        // Get user profile from the profiles table
+        const { data: profile, error } = await window.supabaseClient
+            .from('profiles')
+            .select('name, is_admin')
+            .eq('id', session.user.id)
+            .single();
             
-            // Filter people based on category and search term
-            const filteredPeople = peopleData.filter(person => {
-                const matchesCategory = currentFilter === 'all' || person.category === currentFilter;
-                const matchesSearch = searchTerm === '' || 
-                    person.name.toLowerCase().includes(searchTerm.toLowerCase()) || 
-                    person.role.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                    (person.rollNo && person.rollNo.toLowerCase().includes(searchTerm.toLowerCase()));
-                return matchesCategory && matchesSearch;
+        if (error) throw error;
+        
+        // Set user name in UI
+        document.getElementById('userName').textContent = profile.name;
+        document.getElementById('welcomeMessage').classList.remove('hidden');
+        
+        // Set isAdmin to the actual admin status
+        isAdmin = profile.is_admin;
+        
+        // Show admin controls if the user is an admin
+        if (isAdmin) {
+            document.querySelectorAll('.admin-only').forEach(el => {
+                el.classList.remove('hidden');
             });
-            
-            // Sort alphabetically by name
-            filteredPeople.sort((a, b) => a.name.localeCompare(b.name));
-            
-            if (filteredPeople.length === 0) {
-                peopleGrid.innerHTML = `
-                    <div class="col-span-full text-center py-10">
-                        <i class="bi bi-search text-4xl text-gray-400 dark:text-gray-600"></i>
-                        <p class="text-gray-500 dark:text-gray-400 mt-2">No people found matching your criteria.</p>
-                    </div>
-                `;
-                return;
-            }
-
-            peopleGrid.innerHTML = filteredPeople.map(person => `
-                <div class="bg-white dark:bg-gray-700 rounded-lg shadow-md overflow-hidden person-card">
-                    <div class="relative">
-                        <img src="${person.photoData || 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?ixlib=rb-1.2.1&auto=format&fit=crop&w=300&q=80'}" 
-                            alt="${person.name}" class="w-full h-48 profile-img">
-                        <div class="absolute bottom-0 left-0 w-full bg-gradient-to-t from-black to-transparent p-3">
-                            <span class="text-xs text-white font-medium px-2 py-1 rounded bg-indigo-600">${getCategoryLabel(person.category)}</span>
-                        </div>
-                    </div>
-                    <div class="p-4 dark:text-white">
-                        <h3 class="font-semibold text-lg">${person.name}</h3>
-                        <p class="text-gray-600 dark:text-gray-300 text-sm">${person.role}</p>
-                        ${person.rollNo ? `<p class="text-indigo-600 dark:text-indigo-400 text-xs font-medium mt-1">Roll No: ${person.rollNo}</p>` : ''}
-                        <div class="flex mt-3 space-x-2">
-                            <button onclick="viewPerson(${person.id})" class="flex-1 px-3 py-1.5 bg-indigo-100 dark:bg-indigo-800 text-indigo-600 dark:text-indigo-200 rounded hover:bg-indigo-200 dark:hover:bg-indigo-700 transition">
-                                <i class="bi bi-info-circle mr-1"></i> Details
-                            </button>
-                            ${!isAdmin ? `
-                            <button onclick="editPerson(${person.id})" class="px-3 py-1.5 bg-gray-100 dark:bg-gray-600 text-gray-600 dark:text-gray-300 rounded hover:bg-gray-200 dark:hover:bg-gray-500 transition">
-                                <i class="bi bi-pencil"></i>
-                            </button>
-                            <button onclick="confirmDelete(${person.id})" class="px-3 py-1.5 bg-red-100 dark:bg-red-900 text-red-600 dark:text-red-300 rounded hover:bg-red-200 dark:hover:bg-red-800 transition">
-                                <i class="bi bi-trash"></i>
-                            </button>
-                            ` : ''}
-                        </div>
-                    </div>
-                </div>
-            `).join('');
         }
+        
+    } catch (error) {
+        console.error('Error checking login status:', error);
+        window.location.href = 'index.html';
+    }
+}
 
-        // Filter people by category
-        function filterPeople(category) {
-            currentFilter = category;
+
+// Logout function
+async function logout() {
+    try {
+        const { error } = await window.supabaseClient.auth.signOut();
+        if (error) throw error;
+        window.location.href = 'index.html';
+    } catch (error) {
+        console.error('Error signing out:', error);
+        alert('Error signing out: ' + error.message);
+    }
+}
+
+// Load people data from Supabase
+async function loadPeopleData() {
+    try {
+        // Fetch people data from the 'people' table
+        const { data, error } = await window.supabaseClient
+            .from('people')
+            .select('*');
             
-            // Update active button styling
-            document.querySelectorAll('.category-btn').forEach(btn => {
-                btn.classList.remove('active', 'bg-indigo-600', 'text-white');
-                btn.classList.add('bg-gray-200', 'dark:bg-gray-700');
-            });
-            
-            const activeBtn = document.querySelector(`.category-btn[onclick="filterPeople('${category}')"]`);
-            activeBtn.classList.add('active', 'bg-indigo-600', 'text-white');
-            activeBtn.classList.remove('bg-gray-200', 'dark:bg-gray-700');
-            
-            renderPeople();
+        if (error) throw error;
+        
+        if (data && data.length > 0) {
+            peopleData = data;
+        } else {
+            // Initialize with sample data if no data exists
+            await initializeSampleData();
         }
+        
+        renderPeople();
+    } catch (error) {
+        console.error('Error loading people data:', error);
+        alert('Error loading data: ' + error.message);
+    }
+}
 
-        // Get category label for display
-        function getCategoryLabel(category) {
-            switch (category) {
-                case 'faculty': return 'Faculty';
-                case 'club': return 'Club Rep';
-                case 'student': return 'Student Body';
-                default: return category;
-            }
+// Initialize with sample data if the table is empty
+async function initializeSampleData() {
+    const sampleData = [
+        {
+            name: "Dr. Sarah Johnson",
+            role: "Head of Computer Science Department",
+            roll_no: "",
+            email: "sarah.johnson@university.edu",
+            phone: "123-456-7890",
+            photo_url: "",
+            category: "faculty",
+            bio: "Dr. Johnson has been teaching Computer Science for over 15 years. Her research focuses on artificial intelligence and machine learning applications."
+        },
+        {
+            name: "Michael Rodriguez",
+            role: "President, Photography Club",
+            roll_no: "20CS045",
+            email: "michael.r@university.edu",
+            phone: "234-567-8901",
+            photo_url: "",
+            category: "club",
+            bio: "Michael has been passionate about photography since high school and leads the Photography Club with enthusiasm and creativity."
+        },
+        {
+            name: "Jessica Chen",
+            role: "Student Body President",
+            roll_no: "21ME078",
+            email: "jessica.chen@university.edu",
+            phone: "345-678-9012",
+            photo_url: "",
+            category: "student",
+            bio: "Jessica is a senior studying Political Science. She is committed to improving campus life and representing student interests."
         }
+    ];
+    
+    try {
+        // Insert sample data into the people table
+        const { error } = await window.supabaseClient
+            .from('people')
+            .insert(sampleData);
+            
+        if (error) throw error;
+        
+        // Fetch the inserted data
+        const { data, error: fetchError } = await window.supabaseClient
+            .from('people')
+            .select('*');
+            
+        if (fetchError) throw fetchError;
+        
+        peopleData = data || [];
+    } catch (error) {
+        console.error('Error initializing sample data:', error);
+        alert('Error initializing data: ' + error.message);
+    }
+}
 
-        // View person details
-        function viewPerson(id) {
-            const person = peopleData.find(p => p.id === id);
-            if (!person) return;
+// Render people cards
+function renderPeople() {
+    const peopleGrid = document.getElementById('peopleGrid');
+    
+    // Filter people based on category and search term
+    const filteredPeople = peopleData.filter(person => {
+        const matchesCategory = currentFilter === 'all' || person.category === currentFilter;
+        const matchesSearch = searchTerm === '' || 
+            person.name.toLowerCase().includes(searchTerm.toLowerCase()) || 
+            person.role.toLowerCase().includes(searchTerm.toLowerCase()) ||
+            (person.roll_no && person.roll_no.toLowerCase().includes(searchTerm.toLowerCase()));
+        return matchesCategory && matchesSearch;
+    });
+    
+    // Sort alphabetically by name
+    filteredPeople.sort((a, b) => a.name.localeCompare(b.name));
+    
+    if (filteredPeople.length === 0) {
+        peopleGrid.innerHTML = `
+            <div class="col-span-full text-center py-10">
+                <i class="bi bi-search text-4xl text-gray-400 dark:text-gray-600"></i>
+                <p class="text-gray-500 dark:text-gray-400 mt-2">No people found matching your criteria.</p>
+            </div>
+        `;
+        return;
+    }
 
-            const personDetails = document.getElementById('personDetails');
-            personDetails.innerHTML = `
-                <div class="flex justify-center mb-4">
-                    <img src="${person.photoData || 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?ixlib=rb-1.2.1&auto=format&fit=crop&w=300&q=80'}" 
-                        alt="${person.name}" class="w-32 h-32 rounded-full object-cover border-4 border-indigo-100 dark:border-indigo-800">
+    peopleGrid.innerHTML = filteredPeople.map(person => `
+        <div class="bg-white dark:bg-gray-700 rounded-lg shadow-md overflow-hidden person-card">
+            <div class="relative">
+                <img src="${person.photo_url || 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?ixlib=rb-1.2.1&auto=format&fit=crop&w=300&q=80'}" 
+                    alt="${person.name}" class="w-full h-48 profile-img">
+                <div class="absolute bottom-0 left-0 w-full bg-gradient-to-t from-black to-transparent p-3">
+                    <span class="text-xs text-white font-medium px-2 py-1 rounded bg-indigo-600">${getCategoryLabel(person.category)}</span>
                 </div>
-                <h3 class="text-xl font-semibold text-center dark:text-white">${person.name}</h3>
-                <p class="text-indigo-600 dark:text-indigo-400 font-medium text-center">${person.role}</p>
-                ${person.rollNo ? `<p class="text-center text-gray-500 dark:text-gray-400">Roll No: ${person.rollNo}</p>` : ''}
-                <div class="mt-4 space-y-3 dark:text-gray-300">
-                    <div class="flex items-center">
-                        <i class="bi bi-envelope text-gray-500 dark:text-gray-400 mr-3"></i>
-                        <span>${person.email}</span>
-                    </div>
-                    ${person.phone ? `
-                    <div class="flex items-center">
-                        <i class="bi bi-telephone text-gray-500 dark:text-gray-400 mr-3"></i>
-                        <span>${person.phone}</span>
-                    </div>
-                    ` : ''}
-                    <div class="flex items-start">
-                        <i class="bi bi-person-badge text-gray-500 dark:text-gray-400 mr-3 mt-1"></i>
-                        <span>${getCategoryLabel(person.category)}</span>
-                    </div>
-                    ${person.bio ? `
-                    <div class="pt-2">
-                        <h4 class="text-sm font-medium text-gray-600 dark:text-gray-400 mb-1">Bio</h4>
-                        <p class="text-gray-700 dark:text-gray-300">${person.bio}</p>
-                    </div>
-                    ` : ''}
-                </div>
-                ${!isAdmin ? `
-                <div class="flex justify-center space-x-3 mt-6">
-                    <button onclick="editPerson(${person.id})" class="px-4 py-2 bg-indigo-600 text-white rounded hover:bg-indigo-700 transition">
-                        <i class="bi bi-pencil mr-1"></i> Edit
+            </div>
+            <div class="p-4 dark:text-white">
+                <h3 class="font-semibold text-lg">${person.name}</h3>
+                <p class="text-gray-600 dark:text-gray-300 text-sm">${person.role}</p>
+                ${person.roll_no ? `<p class="text-indigo-600 dark:text-indigo-400 text-xs font-medium mt-1">Roll No: ${person.roll_no}</p>` : ''}
+                <div class="flex mt-3 space-x-2">
+                    <button onclick="viewPerson(${person.id})" class="flex-1 px-3 py-1.5 bg-indigo-100 dark:bg-indigo-800 text-indigo-600 dark:text-indigo-200 rounded hover:bg-indigo-200 dark:hover:bg-indigo-700 transition">
+                        <i class="bi bi-info-circle mr-1"></i> Details
                     </button>
-                    <button onclick="confirmDelete(${person.id})" class="px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700 transition">
-                        <i class="bi bi-trash mr-1"></i> Delete
+                    ${isAdmin ? `
+                    <button onclick="editPerson(${person.id})" class="px-3 py-1.5 bg-gray-100 dark:bg-gray-600 text-gray-600 dark:text-gray-300 rounded hover:bg-gray-200 dark:hover:bg-gray-500 transition">
+                        <i class="bi bi-pencil"></i>
                     </button>
+                    <button onclick="confirmDelete(${person.id})" class="px-3 py-1.5 bg-red-100 dark:bg-red-900 text-red-600 dark:text-red-300 rounded hover:bg-red-200 dark:hover:bg-red-800 transition">
+                        <i class="bi bi-trash"></i>
+                    </button>
+                    ` : ''}
+                </div>
+            </div>
+        </div>
+    `).join('');
+}
+
+// Filter people by category
+function filterPeople(category) {
+    currentFilter = category;
+    
+    // Update active button styling
+    document.querySelectorAll('.category-btn').forEach(btn => {
+        btn.classList.remove('active', 'bg-indigo-600', 'text-white');
+        btn.classList.add('bg-gray-200', 'dark:bg-gray-700');
+    });
+    
+    const activeBtn = document.querySelector(`.category-btn[onclick="filterPeople('${category}')"]`);
+    activeBtn.classList.add('active', 'bg-indigo-600', 'text-white');
+    activeBtn.classList.remove('bg-gray-200', 'dark:bg-gray-700');
+    
+    renderPeople();
+}
+
+// Get category label for display
+function getCategoryLabel(category) {
+    switch (category) {
+        case 'faculty': return 'Faculty';
+        case 'club': return 'Club Rep';
+        case 'student': return 'Student Body';
+        default: return category;
+    }
+}
+
+// View person details
+async function viewPerson(id) {
+    try {
+        // Get person details from Supabase
+        const { data: person, error } = await window.supabaseClient
+            .from('people')
+            .select('*')
+            .eq('id', id)
+            .single();
+            
+        if (error) throw error;
+        if (!person) return;
+
+        const personDetails = document.getElementById('personDetails');
+        personDetails.innerHTML = `
+            <div class="flex justify-center mb-4">
+                <img src="${person.photo_url || 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?ixlib=rb-1.2.1&auto=format&fit=crop&w=300&q=80'}" 
+                    alt="${person.name}" class="w-32 h-32 rounded-full object-cover border-4 border-indigo-100 dark:border-indigo-800">
+            </div>
+            <h3 class="text-xl font-semibold text-center dark:text-white">${person.name}</h3>
+            <p class="text-indigo-600 dark:text-indigo-400 font-medium text-center">${person.role}</p>
+            ${person.roll_no ? `<p class="text-center text-gray-500 dark:text-gray-400">Roll No: ${person.roll_no}</p>` : ''}
+            <div class="mt-4 space-y-3 dark:text-gray-300">
+                <div class="flex items-center">
+                    <i class="bi bi-envelope text-gray-500 dark:text-gray-400 mr-3"></i>
+                    <span>${person.email}</span>
+                </div>
+                ${person.phone ? `
+                <div class="flex items-center">
+                    <i class="bi bi-telephone text-gray-500 dark:text-gray-400 mr-3"></i>
+                    <span>${person.phone}</span>
                 </div>
                 ` : ''}
-            `;
+                <div class="flex items-start">
+                    <i class="bi bi-person-badge text-gray-500 dark:text-gray-400 mr-3 mt-1"></i>
+                    <span>${getCategoryLabel(person.category)}</span>
+                </div>
+                ${person.bio ? `
+                <div class="pt-2">
+                    <h4 class="text-sm font-medium text-gray-600 dark:text-gray-400 mb-1">Bio</h4>
+                    <p class="text-gray-700 dark:text-gray-300">${person.bio}</p>
+                </div>
+                ` : ''}
+            </div>
+            ${isAdmin ? `
+            <div class="flex justify-center space-x-3 mt-6">
+                <button onclick="editPerson(${person.id})" class="px-4 py-2 bg-indigo-600 text-white rounded hover:bg-indigo-700 transition">
+                    <i class="bi bi-pencil mr-1"></i> Edit
+                </button>
+                <button onclick="confirmDelete(${person.id})" class="px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700 transition">
+                    <i class="bi bi-trash mr-1"></i> Delete
+                </button>
+            </div>
+            ` : ''}
+        `;
+        
+        openModal('personModal');
+    } catch (error) {
+        console.error('Error fetching person details:', error);
+        alert('Error fetching details: ' + error.message);
+    }
+}
+
+
+// Open add person modal
+function openAddModal() {
+    // Remove restriction or only allow admins
+    if (!isAdmin) return;
+    
+    document.getElementById('modalTitle').textContent = 'Add New Person';
+    document.getElementById('personForm').reset();
+    document.getElementById('personId').value = '';
+    openModal('addEditModal');
+}
+// Edit person
+async function editPerson(id) {
+    // Remove restriction or only allow admins
+    if (!isAdmin) return;
+    
+    try {
+        // Get person details from Supabase
+        const { data: person, error } = await window.supabaseClient
+            .from('people')
+            .select('*')
+            .eq('id', id)
+            .single();
             
-            openModal('personModal');
-        }
+        if (error) throw error;
+        if (!person) return;
 
-        // Open add person modal
-        function openAddModal() {
-            if (isAdmin) return;
+        document.getElementById('modalTitle').textContent = 'Edit Person';
+        document.getElementById('personId').value = person.id;
+        document.getElementById('nameInput').value = person.name;
+        document.getElementById('roleInput').value = person.role;
+        document.getElementById('rollNoInput').value = person.roll_no || '';
+        document.getElementById('emailInput').value = person.email;
+        document.getElementById('phoneInput').value = person.phone || '';
+        document.getElementById('bioInput').value = person.bio || '';
+        document.getElementById('categoryInput').value = person.category;
+
+        closeModal('personModal');
+        openModal('addEditModal');
+    } catch (error) {
+        console.error('Error fetching person details for editing:', error);
+        alert('Error fetching details: ' + error.message);
+    }
+}
+
+
+// Confirm delete
+function confirmDelete(id) {
+    if (!isAdmin) return;
+    
+    currentPersonId = id;
+    closeModal('personModal');
+    openModal('deleteModal');
+}
+
+// Delete person
+async function deletePerson() {
+    if (!isAdmin || currentPersonId === null) return;
+    
+    try {
+        // Delete person from Supabase
+        const { error } = await window.supabaseClient
+            .from('people')
+            .delete()
+            .eq('id', currentPersonId);
             
-            document.getElementById('modalTitle').textContent = 'Add New Person';
-            document.getElementById('personForm').reset();
-            document.getElementById('personId').value = '';
-            openModal('addEditModal');
-        }
+        if (error) throw error;
+        
+        // Remove from local array for UI update
+        peopleData = peopleData.filter(p => p.id !== currentPersonId);
+        closeModal('deleteModal');
+        renderPeople();
+    } catch (error) {
+        console.error('Error deleting person:', error);
+        alert('Error deleting person: ' + error.message);
+    }
+}
 
-        // Edit person
-        function editPerson(id) {
-            if (isAdmin) return;
+// Handle file upload for profile photo
+async function handlePhotoUpload(e) {
+    const file = e.target.files[0];
+    if (!file) return;
+    
+    try {
+        // Generate a unique file name
+        const fileExt = file.name.split('.').pop();
+        const fileName = `${Date.now()}.${fileExt}`;
+        const filePath = `people-photos/${fileName}`;
+        
+        // Upload file to Supabase Storage
+        const { error: uploadError } = await window.supabaseClient
+            .storage
+            .from('people-photos')
+            .upload(filePath, file);
             
-            const person = peopleData.find(p => p.id === id);
-            if (!person) return;
-
-            document.getElementById('modalTitle').textContent = 'Edit Person';
-            document.getElementById('personId').value = person.id;
-            document.getElementById('nameInput').value = person.name;
-            document.getElementById('roleInput').value = person.role;
-            document.getElementById('rollNoInput').value = person.rollNo || '';
-            document.getElementById('emailInput').value = person.email;
-            document.getElementById('phoneInput').value = person.phone || '';
-            document.getElementById('bioInput').value = person.bio || '';
-            document.getElementById('categoryInput').value = person.category;
-
-            closeModal('personModal');
-            openModal('addEditModal');
-        }
-
-        // Confirm delete
-        function confirmDelete(id) {
-            if (isAdmin) return;
+        if (uploadError) throw uploadError;
+        
+        // Get public URL
+        const { data } = window.supabaseClient
+            .storage
+            .from('people-photos')
+            .getPublicUrl(filePath);
             
-            currentPersonId = id;
-            closeModal('personModal');
-            openModal('deleteModal');
-        }
+        // Store the URL for form submission
+        document.getElementById('photoInput').dataset.photoUrl = data.publicUrl;
+    } catch (error) {
+        console.error('Error uploading photo:', error);
+        alert('Error uploading photo: ' + error.message);
+    }
+}
 
-        // Delete person
-        function deletePerson() {
-            if (isAdmin || currentPersonId === null) return;
-            
-            peopleData = peopleData.filter(p => p.id !== currentPersonId);
-            savePeopleData();
-            closeModal('deleteModal');
-            renderPeople();
-        }
-
-        // Handle file input for profile photo
-        document.getElementById('photoInput').addEventListener('change', function(e) {
-            const file = e.target.files[0];
-            if (!file) return;
-            
-            const reader = new FileReader();
-            reader.onload = function(event) {
-                // Store the data URL in a global variable
-                document.getElementById('photoInput').dataset.photoData = event.target.result;
+// Form submission handler
+async function handlePersonFormSubmit(e) {
+    e.preventDefault();
+    
+    // Remove restriction or only allow admins
+    if (!isAdmin) return;
+    
+    const personIdElement = document.getElementById('personId');
+    const personId = personIdElement.value ? parseInt(personIdElement.value) : null;
+    const name = document.getElementById('nameInput').value;
+    const role = document.getElementById('roleInput').value;
+    const roll_no = document.getElementById('rollNoInput').value;
+    const email = document.getElementById('emailInput').value;
+    const phone = document.getElementById('phoneInput').value;
+    const photoInput = document.getElementById('photoInput');
+    const photo_url = photoInput.dataset.photoUrl || '';
+    const category = document.getElementById('categoryInput').value;
+    const bio = document.getElementById('bioInput').value;
+    
+    try {
+        if (personId) {
+            // Update existing person
+            const personData = {
+                name,
+                role,
+                roll_no,
+                email,
+                phone,
+                category,
+                bio
             };
-            reader.readAsDataURL(file);
-        });
-
-        // Form submission handler
-        document.getElementById('personForm').addEventListener('submit', function(e) {
-            e.preventDefault();
             
-            if (isAdmin) return;
-            
-            const personIdElement = document.getElementById('personId');
-            const personId = personIdElement.value ? parseInt(personIdElement.value) : null;
-            const name = document.getElementById('nameInput').value;
-            const role = document.getElementById('roleInput').value;
-            const rollNo = document.getElementById('rollNoInput').value;
-            const email = document.getElementById('emailInput').value;
-            const phone = document.getElementById('phoneInput').value;
-            const photoInput = document.getElementById('photoInput');
-            const photoData = photoInput.dataset.photoData || '';
-            const category = document.getElementById('categoryInput').value;
-            const bio = document.getElementById('bioInput').value;
-            
-            if (personId) {
-                // Update existing person
-                const index = peopleData.findIndex(p => p.id === personId);
-                if (index !== -1) {
-                    // Only update the photo if a new one was selected
-                    const updatedPerson = {
-                        ...peopleData[index],
-                        name,
-                        role,
-                        rollNo,
-                        email,
-                        phone,
-                        category,
-                        bio
-                    };
-                    
-                    if (photoData) {
-                        updatedPerson.photoData = photoData;
-                    }
-                    
-                    peopleData[index] = updatedPerson;
-                }
-            } else {
-                // Add new person
-                const newId = peopleData.length > 0 ? Math.max(...peopleData.map(p => p.id)) + 1 : 1;
-                peopleData.push({
-                    id: newId,
-                    name,
-                    role,
-                    rollNo,
-                    email,
-                    phone,
-                    photoData,
-                    category,
-                    bio
-                });
+            // Only update photo if a new one was uploaded
+            if (photo_url) {
+                personData.photo_url = photo_url;
             }
             
-            // Reset the photo data attribute
-            photoInput.dataset.photoData = '';
-            
-            // Save to localStorage
-            savePeopleData();
-            
-            closeModal('addEditModal');
-            renderPeople();
-        });
-
-        // Search functionality
-        document.getElementById('searchInput').addEventListener('input', function(e) {
-            searchTerm = e.target.value.trim();
-            renderPeople();
-        });
-
-        // Modal functions
-        function openModal(modalId) {
-            document.getElementById(modalId).style.display = 'flex';
-            // Prevent background scrolling
-            document.body.style.overflow = 'hidden';
+            const { error } = await window.supabaseClient
+                .from('people')
+                .update(personData)
+                .eq('id', personId);
+                
+            if (error) throw error;
+        } else {
+            // Add new person
+            const { error } = await window.supabaseClient
+                .from('people')
+                .insert([{
+                    name,
+                    role,
+                    roll_no,
+                    email,
+                    phone,
+                    photo_url,
+                    category,
+                    bio
+                }]);
+                
+            if (error) throw error;
         }
+        
+        // Reset the photo URL attribute
+        photoInput.dataset.photoUrl = '';
+        
+        // Reload people data
+        await loadPeopleData();
+        
+        closeModal('addEditModal');
+    } catch (error) {
+        console.error('Error saving person data:', error);
+        alert('Error saving data: ' + error.message);
+    }
+}
 
-        function closeModal(modalId) {
-            document.getElementById(modalId).style.display = 'none';
-            // Re-enable background scrolling
-            document.body.style.overflow = 'auto';
+// Modal functions
+function openModal(modalId) {
+    document.getElementById(modalId).style.display = 'flex';
+    // Prevent background scrolling
+    document.body.style.overflow = 'hidden';
+}
+
+function closeModal(modalId) {
+    document.getElementById(modalId).style.display = 'none';
+    // Re-enable background scrolling
+    document.body.style.overflow = 'auto';
+}
+
+// Close modals when clicking outside
+document.querySelectorAll('[id$="Modal"]').forEach(modal => {
+    modal.addEventListener('click', (e) => {
+        if (e.target === modal) {
+            closeModal(modal.id);
         }
-
-        // Close modals when clicking outside
-        document.querySelectorAll('[id$="Modal"]').forEach(modal => {
-            modal.addEventListener('click', (e) => {
-                if (e.target === modal) {
-                    closeModal(modal.id);
-                }
-            });
-        });
+    });
+});
     </script>
 
 </body>
