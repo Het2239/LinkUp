@@ -218,7 +218,7 @@ document.addEventListener('DOMContentLoaded', function() {
         document.getElementById('userName').textContent = user.name;
         
         // Check if user is admin
-        if (user.name === 'Admin') {
+        if (user.name === 'hetchavadiya') {
             document.getElementById('adminControls').classList.remove('hidden');
         }
         
@@ -436,7 +436,9 @@ async function deleteNotice(noticeId) {
                 
             if (error) throw error;
             
+            // Reload notices after successful deletion
             loadNotices();
+            alert('Notice deleted successfully');
         } catch (error) {
             console.error('Error deleting notice:', error);
             alert('Error deleting notice: ' + error.message);
@@ -530,8 +532,8 @@ function createNoticeCard(notice) {
     
     const hasImages = notice.images && notice.images.length > 0;
     
-    // Change this line in your createNoticeCard function
-const authorName = "Admin";
+    // Use the author name from the notice, or fallback to "Unknown"
+    const authorName = notice.authorName || "Unknown";
     
     // Create card header
     const cardHeader = document.createElement('div');
@@ -599,10 +601,11 @@ const authorName = "Admin";
     content.textContent = notice.content;
     noticeCard.appendChild(content);
     
-    // Check if user is admin to show controls
+    // Check if user is admin to show controls - fix admin check
     setTimeout(() => {
         const userData = JSON.parse(sessionStorage.getItem('currentUserData') || '{}');
-        if (userData.name === 'Admin') {
+        // Use consistent admin check with the one used in DOMContentLoaded
+        if (userData.name === 'hetchavadiya') {
             document.getElementById(`adminNoticeControls-${notice.id}`).classList.remove('hidden');
         }
     }, 0);
@@ -629,10 +632,10 @@ function changeSlide(container, direction) {
 
 async function cleanupExpiredNotices() {
     try {
-        const now = new Date().toISOString();
+        // Use timestamp in milliseconds instead of ISO string
+        const now = new Date().getTime();
         
         // Update expired notices in Supabase to mark them as expired
-        // Note: Instead of deletion, we're updating their status
         const { error } = await window.supabaseClient
             .from('notices')
             .update({ is_expired: true })

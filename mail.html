@@ -3,8 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Mail Formats - Student Companion</title>
+    <title>Student Companion - Mail Formats</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <style>
@@ -29,850 +30,974 @@
             background-color: rgba(255, 255, 255, 0.1);
             transform: translateY(-2px);
         }
-        .mail-template-card {
-            transition: all 0.3s ease;
-        }
-        .mail-template-card:hover {
-            transform: translateY(-3px);
-            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
-        }
-        .template-category {
-            transition: all 0.2s ease;
-        }
-        .template-category:hover {
-            background-color: rgba(99, 102, 241, 0.1);
-        }
-        .template-category.active {
-            border-color: #6366f1;
-            background-color: rgba(99, 102, 241, 0.1);
-        }
-        #homepage {
-            display: none;
+        .tag {
+            background-color: #4f46e5;
+            color: white;
+            padding: 2px 8px;
+            border-radius: 9999px;
+            font-size: 0.75rem;
+            font-weight: 500;
         }
     </style>
 </head>
 <body class="bg-gray-50 dark:bg-gray-900">
-    <!-- Auth Container -->
-    <div id="authPage" class="auth-container min-h-screen flex items-center justify-center p-4">
-        <div class="glass-effect w-full max-w-md p-8 rounded-2xl shadow-xl">
-            <div class="text-center mb-8">
-                <h1 class="text-3xl font-bold text-white mb-2">Student Companion</h1>
-                <p class="text-gray-200">Your college life, simplified.</p>
+    <!-- Navbar -->
+    <nav class="bg-indigo-600 text-white shadow-lg sticky top-0 z-50">
+        <div class="container mx-auto px-4">
+            <div class="flex justify-between items-center py-4">
+                <div class="flex items-center space-x-4">
+                    <h1 class="text-2xl font-bold">Student Companion</h1>
+                    <span id="welcomeMessage" class="hidden md:inline text-sm">Welcome, <span id="userName">User</span>!</span>
+                </div>
+                
+                <div class="flex items-center">
+                    <button id="logoutBtn" class="py-1 px-2 md:py-2 md:px-4 text-xs md:text-base rounded-lg bg-white bg-opacity-20 hover:bg-opacity-30 transition" onclick="logout()">Logout</button>
+                </div>
             </div>
+        </div>
+    </nav>
 
-            <!-- Auth Tabs -->
-            <div class="mb-6">
-                <div class="flex space-x-2 mb-6">
-                    <button onclick="switchTab('login')" class="flex-1 py-2 px-4 rounded-lg bg-white bg-opacity-20 text-white hover:bg-opacity-30 transition" id="loginTab">Student Login</button>
-                    <button onclick="switchTab('admin')" class="flex-1 py-2 px-4 rounded-lg bg-white bg-opacity-20 text-white hover:bg-opacity-30 transition" id="adminTab">Admin Login</button>
-                    <button onclick="switchTab('register')" class="flex-1 py-2 px-4 rounded-lg bg-white bg-opacity-20 text-white hover:bg-opacity-30 transition" id="registerTab">Register</button>
+    <!-- Main Content -->
+    <div class="flex flex-col md:flex-row">
+        <!-- Sidebar -->
+        <div id="sidebar" class="fixed md:relative w-64 bg-indigo-800 text-white h-screen z-40 transform -translate-x-full md:translate-x-0 transition-transform duration-300">
+            <div class="p-4">
+                <h2 class="text-xl font-semibold mb-4">Features</h2>
+                <ul class="space-y-2">
+                    <li><a href="notice.html" class="block py-2 px-4 rounded-lg nav-link">Notice Board</a></li>
+                    <li><a href="taxi-search.html" class="block py-2 px-4 rounded-lg nav-link">Taxi Search</a></li>
+                    <li><a href="study.html" class="block py-2 px-4 rounded-lg nav-link">Study Materials</a></li>
+                    <li><a href="mail.html" class="block py-2 px-4 rounded-lg nav-link active bg-indigo-700">Mail Formats</a></li>
+                    <li><a href="kyp.html" class="block py-2 px-4 rounded-lg nav-link">Know Your People</a></li>
+                    <li><a href="outings.html" class="block py-2 px-4 rounded-lg nav-link">Outings & Trips</a></li>
+                    <li><a href="messmenu.html" class="block py-2 px-4 rounded-lg nav-link">Mess & Canteen</a></li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="fixed bottom-4 left-4 z-40 md:hidden">
+            <button onclick="toggleSidebar()" class="bg-indigo-600 text-white p-3 rounded-full shadow-lg">
+                <i class="bi bi-list text-xl"></i>
+            </button>
+        </div>
+
+        <!-- Main Content Area -->
+        <div class="flex-1 p-4 md:p-8">
+            <div class="bg-white dark:bg-gray-800 rounded-xl shadow-lg">
+                <!-- Header -->
+                <div class="p-6 border-b border-gray-200 dark:border-gray-700">
+                    <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
+                        <h2 class="text-2xl font-bold text-gray-800 dark:text-white">Mail Formats & Contact List</h2>
+                        
+                        <!-- Search box -->
+                        <div class="relative">
+                            <input type="text" id="searchInput" placeholder="Search templates..." 
+                                class="py-2 pl-10 pr-4 w-full md:w-64 rounded-lg bg-gray-100 dark:bg-gray-700 text-gray-800 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                            <i class="bi bi-search absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-500 dark:text-gray-400"></i>
+                        </div>
+                    </div>
+                    <p class="mt-2 text-gray-600 dark:text-gray-300">Ready-to-use email templates for common student queries and important contacts.</p>
                 </div>
 
-                <!-- Login Form -->
-                <form id="loginForm" class="space-y-4" onsubmit="handleLogin(event)">
-                    <div>
-                        <input type="email" id="loginEmail" placeholder="Email" class="w-full p-3 rounded-lg bg-white bg-opacity-20 text-white placeholder-gray-300 outline-none" required>
+                <!-- Tabs -->
+                <div class="px-6 pt-4 border-b border-gray-200 dark:border-gray-700">
+                    <div class="flex space-x-4">
+                        <button id="templatesTab" class="px-4 py-2 text-indigo-600 dark:text-indigo-400 border-b-2 border-indigo-600 dark:border-indigo-400 font-medium" onclick="showTab('templates')">Email Templates</button>
+                        <button id="contactsTab" class="px-4 py-2 text-gray-600 dark:text-gray-400 font-medium" onclick="showTab('contacts')">Important Contacts</button>
                     </div>
-                    <div>
-                        <input type="password" id="loginPassword" placeholder="Password" class="w-full p-3 rounded-lg bg-white bg-opacity-20 text-white placeholder-gray-300 outline-none" required>
-                    </div>
-                    <button type="submit" class="w-full py-3 rounded-lg bg-white text-indigo-600 font-semibold hover:bg-opacity-90 transition">Login</button>
-                </form>
+                </div>
 
-                <!-- Admin Form -->
-                <form id="adminForm" class="space-y-4 hidden" onsubmit="handleAdminLogin(event)">
-                    <div>
-                        <input type="password" id="adminPassword" placeholder="Admin Password" class="w-full p-3 rounded-lg bg-white bg-opacity-20 text-white placeholder-gray-300 outline-none" required>
+                <!-- Templates Section -->
+                <div id="templatesSection" class="p-6">
+                    <!-- Template Cards List -->
+                    <div id="templatesList" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                        <!-- Templates will be loaded here dynamically -->
+                        <div class="animate-pulse bg-gray-100 dark:bg-gray-700 rounded-lg p-4 h-48"></div>
+                        <div class="animate-pulse bg-gray-100 dark:bg-gray-700 rounded-lg p-4 h-48"></div>
+                        <div class="animate-pulse bg-gray-100 dark:bg-gray-700 rounded-lg p-4 h-48"></div>
                     </div>
-                    <button type="submit" class="w-full py-3 rounded-lg bg-white text-indigo-600 font-semibold hover:bg-opacity-90 transition">Admin Login</button>
-                </form>
+                    
+                    <!-- Admin Add Button (Only visible to admins) -->
+                    <div id="adminControls" class="mt-8 hidden">
+                        <button id="addTemplateBtn" class="flex items-center px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg transition">
+                            <i class="bi bi-plus-circle mr-2"></i>
+                            Add New Template
+                        </button>
+                    </div>
+                </div>
 
-                <!-- Register Form -->
-                <form id="registerForm" class="space-y-4 hidden" onsubmit="handleRegister(event)">
-                    <div>
-                        <input type="text" id="registerName" placeholder="Full Name" class="w-full p-3 rounded-lg bg-white bg-opacity-20 text-white placeholder-gray-300 outline-none" required>
+                <!-- Contacts Section (Hidden by default) -->
+                <div id="contactsSection" class="p-6 hidden">
+                    <!-- Contacts List -->
+                    <div id="contactsList" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                        <!-- Contacts will be loaded here dynamically -->
+                        <div class="animate-pulse bg-gray-100 dark:bg-gray-700 rounded-lg p-4 h-32"></div>
+                        <div class="animate-pulse bg-gray-100 dark:bg-gray-700 rounded-lg p-4 h-32"></div>
+                        <div class="animate-pulse bg-gray-100 dark:bg-gray-700 rounded-lg p-4 h-32"></div>
                     </div>
-                    <div>
-                        <input type="email" id="registerEmail" placeholder="College Email" class="w-full p-3 rounded-lg bg-white bg-opacity-20 text-white placeholder-gray-300 outline-none" required>
+                    
+                    <!-- Admin Add Button (Only visible to admins) -->
+                    <div id="adminContactControls" class="mt-8 hidden">
+                        <button id="addContactBtn" class="flex items-center px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg transition">
+                            <i class="bi bi-plus-circle mr-2"></i>
+                            Add New Contact
+                        </button>
                     </div>
-                    <div>
-                        <input type="password" id="registerPassword" placeholder="Create Password" class="w-full p-3 rounded-lg bg-white bg-opacity-20 text-white placeholder-gray-300 outline-none" required>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Template Modal -->
+    <div id="templateModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 hidden">
+        <div class="bg-white dark:bg-gray-800 rounded-xl shadow-lg w-full max-w-3xl max-h-[90vh] overflow-y-auto">
+            <div class="p-6 border-b border-gray-200 dark:border-gray-700">
+                <div class="flex justify-between items-center">
+                    <h3 id="templateModalTitle" class="text-xl font-bold text-gray-800 dark:text-white">View Email Template</h3>
+                    <button id="closeTemplateModal" class="text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200">
+                        <i class="bi bi-x-lg"></i>
+                    </button>
+                </div>
+            </div>
+            <div class="p-6">
+                <form id="templateForm">
+                    <div class="space-y-6">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Title</label>
+                            <input type="text" id="templateTitle" class="w-full px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-800 dark:text-white" placeholder="Template Title" required>
+                        </div>
+                        
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Category</label>
+                            <select id="templateCategory" class="w-full px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-800 dark:text-white">
+                                <option value="academic">Academic</option>
+                                <option value="leave">Leave Application</option>
+                                <option value="event">Event</option>
+                                <option value="feedback">Feedback</option>
+                                <option value="other">Other</option>
+                            </select>
+                        </div>
+                        
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Subject Line</label>
+                            <input type="text" id="templateSubject" class="w-full px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-800 dark:text-white" placeholder="Email Subject Line" required>
+                        </div>
+                        
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Email Body</label>
+                            <textarea id="templateBody" rows="10" class="w-full px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-800 dark:text-white" placeholder="Write your email template here..." required></textarea>
+                            <p class="text-sm text-gray-500 dark:text-gray-400 mt-1">Use {placeholders} for dynamic content like {student_name}, {date}, etc.</p>
+                        </div>
+                        
+                        <div id="templateFormControls" class="flex justify-end space-x-4">
+                            <button type="button" id="cancelTemplateBtn" class="px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 transition">Cancel</button>
+                            <button type="submit" id="saveTemplateBtn" class="px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg transition">Save Template</button>
+                        </div>
+                        
+                        <div id="templateViewControls" class="flex justify-between">
+                            <button type="button" id="copyTemplateBtn" class="px-4 py-2 bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600 rounded-lg transition">
+                                <i class="bi bi-clipboard mr-1"></i> Copy to Clipboard
+                            </button>
+                            <div class="space-x-2">
+                                <button type="button" id="editTemplateBtn" class="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition">
+                                    <i class="bi bi-pencil mr-1"></i> Edit
+                                </button>
+                                <button type="button" id="deleteTemplateBtn" class="px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded-lg transition">
+                                    <i class="bi bi-trash mr-1"></i> Delete
+                                </button>
+                            </div>
+                        </div>
                     </div>
-                    <div>
-                        <input type="password" id="confirmPassword" placeholder="Confirm Password" class="w-full p-3 rounded-lg bg-white bg-opacity-20 text-white placeholder-gray-300 outline-none" required>
-                    </div>
-                    <button type="submit" class="w-full py-3 rounded-lg bg-white text-indigo-600 font-semibold hover:bg-opacity-90 transition">Register</button>
                 </form>
             </div>
         </div>
     </div>
 
-    <!-- Homepage with Navbar -->
-    <div id="homepage" class="min-h-screen bg-gray-50 dark:bg-gray-900">
-        <!-- Navbar -->
-        <nav class="bg-indigo-600 text-white shadow-lg sticky top-0 z-50">
-            <div class="container mx-auto px-4">
-                <div class="flex justify-between items-center py-4">
-                    <div class="flex items-center space-x-4">
-                        <h1 class="text-2xl font-bold">Student Companion</h1>
-                        <span id="welcomeMessage" class="hidden md:inline text-sm">Welcome, <span id="userName">User</span>!</span>
-                    </div>
-                    
-                    <div class="flex items-center">
-                        <button id="logoutBtn" class="py-1 px-2 md:py-2 md:px-4 text-xs md:text-base rounded-lg bg-white bg-opacity-20 hover:bg-opacity-30 transition" onclick="logout()">Logout</button>
-                    </div>
+    <!-- Contact Modal -->
+    <div id="contactModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 hidden">
+        <div class="bg-white dark:bg-gray-800 rounded-xl shadow-lg w-full max-w-lg">
+            <div class="p-6 border-b border-gray-200 dark:border-gray-700">
+                <div class="flex justify-between items-center">
+                    <h3 id="contactModalTitle" class="text-xl font-bold text-gray-800 dark:text-white">Add New Contact</h3>
+                    <button id="closeContactModal" class="text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200">
+                        <i class="bi bi-x-lg"></i>
+                    </button>
                 </div>
             </div>
-        </nav>
-
-        <!-- Mobile Menu -->
-        <div id="mobileMenu" class="hidden md:hidden bg-indigo-700 text-white">
-            <div class="container mx-auto px-4 py-2">
-                <button class="w-full text-left py-2 px-4 hover:bg-indigo-600 rounded-lg" onclick="logout()">Logout</button>
-            </div>
-        </div>
-
-        <!-- Sidebar Navigation -->
-        <div class="flex flex-col md:flex-row">
-            <!-- Sidebar -->
-            <div id="sidebar" class="fixed md:relative w-64 bg-indigo-800 text-white h-screen z-40 transform -translate-x-full md:translate-x-0 transition-transform duration-300">
-                <div class="p-4">
-                    <h2 class="text-xl font-semibold mb-4">Features</h2>
-                    <ul class="space-y-2">
-                        <li><a href="notice.html" class="block py-2 px-4 rounded-lg nav-link">Notice Board</a></li>
-                        <li><a href="taxi-search.html" class="block py-2 px-4 rounded-lg nav-link">Taxi Search</a></li>
-                        <li><a href="study.html" class="block py-2 px-4 rounded-lg nav-link">Study Materials</a></li>
-                        <li><a href="#" class="block py-2 px-4 rounded-lg nav-link bg-white bg-opacity-20">Mail Formats</a></li>
-                        <li><a href="kyp.html" class="block py-2 px-4 rounded-lg nav-link">Know Your People</a></li>
-                        <li><a href="outings.html" class="block py-2 px-4 rounded-lg nav-link">Outings & Trips</a></li>
-                        <li><a href="messmenu.html" class="block py-2 px-4 rounded-lg nav-link">Mess & Canteen</a></li>
-                    </ul>
-                </div>
-            </div>
-
-            <div class="fixed bottom-4 left-4 z-40 md:hidden">
-                <button onclick="toggleSidebar()" class="bg-indigo-600 text-white p-3 rounded-full shadow-lg">
-                    <i class="bi bi-list text-xl"></i>
-                </button>
-            </div>
-
-            <!-- Main Content -->
-            <div class="flex-1 p-4 md:p-8">
-                <div class="bg-white dark:bg-gray-800 rounded-xl shadow-lg p-4 md:p-6">
-                    <div class="flex justify-between items-center mb-6">
-                        <h2 class="text-2xl font-bold text-gray-800 dark:text-white">Mail Formats</h2>
-                        <div id="adminControls" class="hidden">
-                            <button onclick="showAddTemplateModal()" class="bg-indigo-600 hover:bg-indigo-700 text-white py-2 px-4 rounded-lg transition flex items-center">
-                                <i class="bi bi-plus-lg mr-2"></i> Add New Template
+            <div class="p-6">
+                <form id="contactForm">
+                    <div class="space-y-6">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Name</label>
+                            <input type="text" id="contactName" class="w-full px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-800 dark:text-white" placeholder="Contact Name" required>
+                        </div>
+                        
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Position</label>
+                            <input type="text" id="contactPosition" class="w-full px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-800 dark:text-white" placeholder="Position or Role" required>
+                        </div>
+                        
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Department</label>
+                            <input type="text" id="contactDepartment" class="w-full px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-800 dark:text-white" placeholder="Department" required>
+                        </div>
+                        
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Email</label>
+                            <input type="email" id="contactEmail" class="w-full px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-800 dark:text-white" placeholder="Email Address" required>
+                        </div>
+                        
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Phone (Optional)</label>
+                            <input type="tel" id="contactPhone" class="w-full px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-800 dark:text-white" placeholder="Phone Number">
+                        </div>
+                        
+                        <div id="contactFormControls" class="flex justify-end space-x-4">
+                            <button type="button" id="cancelContactBtn" class="px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 transition">Cancel</button>
+                            <button type="submit" id="saveContactBtn" class="px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg transition">Save Contact</button>
+                        </div>
+                        
+                        <div id="contactViewControls" class="flex justify-end space-x-2 hidden">
+                            <button type="button" id="editContactBtn" class="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition">
+                                <i class="bi bi-pencil mr-1"></i> Edit
+                            </button>
+                            <button type="button" id="deleteContactBtn" class="px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded-lg transition">
+                                <i class="bi bi-trash mr-1"></i> Delete
                             </button>
                         </div>
                     </div>
-
-                    <!-- Categories Section -->
-                    <div class="mb-6">
-                        <h3 class="text-lg font-semibold mb-3 text-gray-700 dark:text-gray-300">Categories</h3>
-                        <div class="flex flex-wrap gap-2" id="categoriesContainer">
-                            <button onclick="filterTemplates('all')" class="template-category active px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-600 text-sm font-medium">All</button>
-                            <!-- Categories will be dynamically added here -->
-                        </div>
-                    </div>
-
-                    <!-- Searc bar -->
-                    <div class="mb-6">
-                        <div class="relative">
-                            <input type="text" id="searchInput" placeholder="Search templates..." class="w-full p-3 pr-10 rounded-lg bg-gray-100 dark:bg-gray-700 text-gray-800 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 outline-none border border-gray-300 dark:border-gray-600" oninput="searchTemplates()">
-                            <i class="bi bi-search absolute right-3 top-3 text-gray-500 dark:text-gray-400"></i>
-                        </div>
-                    </div>
-
-                    <!-- Mail Templates Grid -->
-                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4" id="mailTemplatesContainer">
-                        <!-- Templates will be dynamically added here -->
-                    </div>
-
-                    <!-- Empty State -->
-                    <div id="emptyState" class="hidden text-center py-10">
-                        <i class="bi bi-envelope-x text-5xl text-gray-400 dark:text-gray-600 mb-3"></i>
-                        <h3 class="text-xl font-medium text-gray-700 dark:text-gray-300">No templates found</h3>
-                        <p class="text-gray-500 dark:text-gray-400 mt-1">Try adjusting your search or category filter</p>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- Template View Modal -->
-    <div id="viewTemplateModal" class="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center hidden">
-        <div class="bg-white dark:bg-gray-800 rounded-xl w-full max-w-2xl mx-4 max-h-screen overflow-y-auto">
-            <div class="p-6">
-                <div class="flex justify-between items-center mb-4">
-                    <h3 class="text-xl font-bold text-gray-800 dark:text-white" id="viewTemplateTitle">Template Title</h3>
-                    <button onclick="closeViewModal()" class="text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200">
-                        <i class="bi bi-x-lg"></i>
-                    </button>
-                </div>
-                <div class="mb-3">
-                    <span class="inline-block bg-indigo-100 dark:bg-indigo-900 text-indigo-800 dark:text-indigo-300 text-xs px-2 py-1 rounded-full" id="viewTemplateCategory">Category</span>
-                </div>
-                <div class="mb-6">
-                    <p class="text-sm text-gray-500 dark:text-gray-400" id="viewTemplateDescription">Description</p>
-                </div>
-                <div class="bg-gray-100 dark:bg-gray-700 p-4 rounded-lg mb-6">
-                    <pre class="text-gray-800 dark:text-white whitespace-pre-wrap font-sans" id="viewTemplateContent">Email content will be displayed here</pre>
-                </div>
-                <div id="viewTemplateAdminControls" class="flex justify-end gap-3 hidden">
-                    <button onclick="showEditModal()" class="bg-blue-600 hover:bg-blue-700 text-white py-2 px-4 rounded-lg transition">
-                        <i class="bi bi-pencil mr-1"></i> Edit
-                    </button>
-                    <button onclick="confirmDelete()" class="bg-red-600 hover:bg-red-700 text-white py-2 px-4 rounded-lg transition">
-                        <i class="bi bi-trash mr-1"></i> Delete
-                    </button>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- Add/Edit Template Modal -->
-    <div id="editTemplateModal" class="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center hidden">
-        <div class="bg-white dark:bg-gray-800 rounded-xl w-full max-w-2xl mx-4 max-h-screen overflow-y-auto">
-            <div class="p-6">
-                <div class="flex justify-between items-center mb-6">
-                    <h3 class="text-xl font-bold text-gray-800 dark:text-white" id="editModalTitle">Add New Template</h3>
-                    <button onclick="closeEditModal()" class="text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200">
-                        <i class="bi bi-x-lg"></i>
-                    </button>
-                </div>
-                <form id="templateForm" onsubmit="saveTemplate(event)">
-                    <input type="hidden" id="templateId">
-                    <div class="mb-4">
-                        <label for="templateTitle" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Title</label>
-                        <input type="text" id="templateTitle" class="w-full p-3 rounded-lg bg-gray-100 dark:bg-gray-700 text-gray-800 dark:text-white border border-gray-300 dark:border-gray-600 outline-none" required>
-                    </div>
-                    <div class="mb-4">
-                        <label for="templateCategory" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Category</label>
-                        <div class="flex gap-2">
-                            <input type="text" id="templateCategory" class="flex-1 p-3 rounded-lg bg-gray-100 dark:bg-gray-700 text-gray-800 dark:text-white border border-gray-300 dark:border-gray-600 outline-none" required>
-                            <select id="categoryDropdown" class="p-3 rounded-lg bg-gray-100 dark:bg-gray-700 text-gray-800 dark:text-white border border-gray-300 dark:border-gray-600 outline-none" onchange="selectExistingCategory()">
-                                <option value="">Select existing</option>
-                                <!-- Existing categories will be added here -->
-                            </select>
-                        </div>
-                    </div>
-                    <div class="mb-4">
-                        <label for="templateDescription" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Description</label>
-                        <textarea id="templateDescription" rows="2" class="w-full p-3 rounded-lg bg-gray-100 dark:bg-gray-700 text-gray-800 dark:text-white border border-gray-300 dark:border-gray-600 outline-none" required></textarea>
-                    </div>
-                    <div class="mb-6">
-                        <label for="templateContent" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Email Content</label>
-                        <textarea id="templateContent" rows="8" class="w-full p-3 rounded-lg bg-gray-100 dark:bg-gray-700 text-gray-800 dark:text-white border border-gray-300 dark:border-gray-600 outline-none font-mono" required></textarea>
-                    </div>
-                    <div class="flex justify-end gap-3">
-                        <button type="button" onclick="closeEditModal()" class="bg-gray-300 hover:bg-gray-400 dark:bg-gray-700 dark:hover:bg-gray-600 text-gray-800 dark:text-white py-2 px-4 rounded-lg transition">Cancel</button>
-                        <button type="submit" class="bg-indigo-600 hover:bg-indigo-700 text-white py-2 px-4 rounded-lg transition">Save Template</button>
-                    </div>
                 </form>
             </div>
         </div>
     </div>
 
-    <!-- Delete Confirmation Modal -->
-    <div id="deleteConfirmModal" class="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center hidden">
-        <div class="bg-white dark:bg-gray-800 rounded-xl w-full max-w-md mx-4">
-            <div class="p-6">
-                <div class="mb-4 text-center">
-                    <i class="bi bi-exclamation-triangle text-red-500 text-4xl"></i>
-                    <h3 class="text-xl font-bold text-gray-800 dark:text-white mt-2">Delete Template?</h3>
-                    <p class="text-gray-600 dark:text-gray-400 mt-1">Are you sure you want to delete this template? This action cannot be undone.</p>
-                </div>
-                <div class="flex justify-center gap-3">
-                    <button onclick="closeDeleteModal()" class="bg-gray-300 hover:bg-gray-400 dark:bg-gray-700 dark:hover:bg-gray-600 text-gray-800 dark:text-white py-2 px-6 rounded-lg transition">Cancel</button>
-                    <button onclick="deleteTemplate()" class="bg-red-600 hover:bg-red-700 text-white py-2 px-6 rounded-lg transition">Delete</button>
-                </div>
+    <!-- Confirmation Modal -->
+    <div id="confirmationModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 hidden">
+        <div class="bg-white dark:bg-gray-800 rounded-xl shadow-lg w-full max-w-md p-6">
+            <h3 class="text-xl font-bold text-gray-800 dark:text-white mb-4">Confirm Delete</h3>
+            <p id="confirmationMessage" class="text-gray-600 dark:text-gray-300 mb-6">Are you sure you want to delete this item? This action cannot be undone.</p>
+            <div class="flex justify-end space-x-4">
+                <button id="cancelDeleteBtn" class="px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 transition">Cancel</button>
+                <button id="confirmDeleteBtn" class="px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded-lg transition">Delete</button>
             </div>
         </div>
     </div>
 
     <script>
-        // Initialize templates in localStorage if they don't exist
-        if (!localStorage.getItem('mailTemplates')) {
-            // Sample template data
-            const sampleTemplates = [
-                {
-                    id: '1',
-                    title: 'Leave Application',
-                    category: 'Academic',
-                    description: 'Request for leave from classes or exams',
-                    content: `Subject: Application for Leave
+        // Initialize Supabase client
+        const supabaseUrl = 'https://cebomekzvltlaabcvjix.supabase.co';
+        const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImNlYm9tZWt6dmx0bGFhYmN2aml4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDM3NjUwNjQsImV4cCI6MjA1OTM0MTA2NH0.dtlBNgdctrv-txCEpNxjpfwzL02X0g7msUZIVuzG9J8';
+        const supabase = window.supabase.createClient(supabaseUrl, supabaseKey);
 
-Dear [Professor/Department Head],
-
-I hope this email finds you well. I am writing to request leave from [class/exam] scheduled on [date] due to [reason for absence].
-
-I understand the importance of regular attendance and will ensure that I catch up on any missed work or assignments. If there are any specific materials or tasks I should focus on during my absence, I would greatly appreciate your guidance.
-
-Thank you for your understanding and consideration.
-
-Sincerely,
-[Your Name]
-[Your Student ID]
-[Your Course/Department]`
-                },
-                {
-                    id: '2',
-                    title: 'Request for Recommendation Letter',
-                    category: 'Academic',
-                    description: 'Email format for requesting recommendation letters from professors',
-                    content: `Subject: Request for Letter of Recommendation - [Your Name]
-
-Dear Professor [Name],
-
-I hope this email finds you well. I am writing to request a letter of recommendation for my application to [program/scholarship/job].
-
-I was a student in your [course name] class during [semester/year], where I received a [grade]. I particularly enjoyed [specific topic or project] and believe that my performance in your class demonstrates my abilities in [relevant skills].
-
-The deadline for submission is [date], and I would be grateful if you could submit the letter by [date - at least 2 weeks before deadline]. I have attached my resume, statement of purpose, and [any other relevant documents] to assist you.
-
-Please let me know if you need any additional information from me. Thank you for considering my request.
-
-Sincerely,
-[Your Name]
-[Your Student ID]
-[Your Contact Information]`
-                },
-                {
-                    id: '3',
-                    title: 'Fee Payment Extension',
-                    category: 'Administrative',
-                    description: 'Request for extension of fee payment deadline',
-                    content: `Subject: Request for Fee Payment Extension
-
-Dear Accounts Department,
-
-I am [Your Name], a [year] year student in the [Department] with ID number [Your ID]. I am writing to request an extension for my fee payment which is currently due on [current deadline].
-
-Due to [brief explanation of circumstances], I would like to request an extension until [proposed new deadline]. I assure you that I will be able to complete the payment by this date.
-
-I have attached [any relevant supporting documents] for your reference. I understand that this is an exception to the regular payment schedule, and I appreciate your consideration of my request.
-
-Thank you for your understanding.
-
-Sincerely,
-[Your Name]
-[Your Student ID]
-[Your Contact Information]`
-                },
-                {
-                    id: '4',
-                    title: 'Technical Issue Report',
-                    category: 'IT Support',
-                    description: 'Report technical issues with campus facilities',
-                    content: `Subject: Technical Issue Report - [Brief Description of Issue]
-
-Dear IT Support Team,
-
-I am writing to report a technical issue that I am experiencing with [specific campus technology/service].
-
-Issue Details:
-- Device/Service: [Name of device or service]
-- Location: [Where the issue is occurring]
-- Time of Occurrence: [When the issue was first noticed]
-- Description: [Detailed description of the problem]
-- Steps Already Taken: [Any troubleshooting steps you've already tried]
-
-This issue is affecting [explain the impact on your academic work]. I would greatly appreciate your assistance in resolving this matter at your earliest convenience.
-
-I am available for further clarification or assistance in troubleshooting. You can reach me at [your contact information].
-
-Thank you for your prompt attention to this matter.
-
-Sincerely,
-[Your Name]
-[Your Student ID]`
-                },
-                {
-                    id: '5',
-                    title: 'Internship Inquiry',
-                    category: 'Career',
-                    description: 'Email format for inquiring about internship opportunities',
-                    content: `Subject: Internship Opportunity Inquiry - [Your Name], [Your Major]
-
-Dear [Recipient's Name],
-
-I hope this email finds you well. My name is [Your Name], and I am currently a [year] year student pursuing [Your Degree] in [Your Major] at [Your College/University].
-
-I am writing to inquire about potential internship opportunities at [Company/Organization Name]. I am particularly interested in [specific department or role] and believe that my academic background and skills in [relevant skills] align well with the work done at your organization.
-
-I have attached my resume and [any other relevant documents] for your consideration. I would be grateful for the opportunity to discuss how my skills and interests could contribute to your team.
-
-Thank you for your time and consideration. I look forward to hearing from you.
-
-Sincerely,
-[Your Name]
-[Your Contact Information]
-[Your LinkedIn Profile (optional)]`
-                }
-            ];
-            
-            localStorage.setItem('mailTemplates', JSON.stringify(sampleTemplates));
-        }
-
-        // Initialize local storage database if it doesn't exist
-        if (!localStorage.getItem('userDatabase')) {
-            localStorage.setItem('userDatabase', JSON.stringify([]));
-        }
-
-        // Load templates and check user status on page load
+        // DOM Content Loaded
         document.addEventListener('DOMContentLoaded', function() {
-            // Check if user is logged in
-            const userData = sessionStorage.getItem('currentUserData');
-            if (userData) {
-                const user = JSON.parse(userData);
-                showHomepage(user.name);
-                loadTemplates();
-                loadCategories();
-                checkIfAdmin(user.name);
-            }
+            // Check user session and load data
+            checkUserSession();
+            
+            // Load templates and contacts
+            loadTemplates();
+            loadContacts();
+            
+            // Event listeners for tabs
+            document.getElementById('templatesTab').addEventListener('click', () => showTab('templates'));
+            document.getElementById('contactsTab').addEventListener('click', () => showTab('contacts'));
+            
+            // Admin action buttons
+            document.getElementById('addTemplateBtn').addEventListener('click', () => openTemplateModal('add'));
+            document.getElementById('addContactBtn').addEventListener('click', () => openContactModal('add'));
+            
+            // Modal close buttons
+            document.getElementById('closeTemplateModal').addEventListener('click', closeTemplateModal);
+            document.getElementById('closeContactModal').addEventListener('click', closeContactModal);
+            document.getElementById('cancelTemplateBtn').addEventListener('click', closeTemplateModal);
+            document.getElementById('cancelContactBtn').addEventListener('click', closeContactModal);
+            
+            // Form submissions
+            document.getElementById('templateForm').addEventListener('submit', handleTemplateSubmit);
+            document.getElementById('contactForm').addEventListener('submit', handleContactSubmit);
+            
+            // Copy template button
+            document.getElementById('copyTemplateBtn').addEventListener('click', copyTemplateToClipboard);
+            
+            // Confirmation modal
+            document.getElementById('cancelDeleteBtn').addEventListener('click', closeConfirmationModal);
+            document.getElementById('confirmDeleteBtn').addEventListener('click', confirmDelete);
+            
+            // Search functionality
+            document.getElementById('searchInput').addEventListener('input', handleSearch);
         });
 
-        function checkIfAdmin(userName) {
-            if (userName === 'Admin') {
-                document.getElementById('adminControls').classList.remove('hidden');
+        // Current state variables
+        let currentMode = 'view'; // 'view', 'add', 'edit'
+        let currentItemId = null;
+        let currentItemType = null; // 'template' or 'contact'
+        let isAdmin = false;
+
+        // Check if user is logged in and if they are an admin
+        async function checkUserSession() {
+            try {
+                const { data: { session } } = await supabase.auth.getSession();
+                
+                if (session) {
+                    // Get user profile
+                    const { data: profile, error } = await supabase
+                        .from('profiles')
+                        .select('name, is_admin')
+                        .eq('id', session.user.id)
+                        .single();
+                    
+                    if (!error && profile) {
+                        // Set user name in UI
+                        document.getElementById('userName').textContent = profile.name;
+                        document.getElementById('welcomeMessage').classList.remove('hidden');
+                        
+                        // Check if admin
+                        isAdmin = profile.is_admin || false;
+                        
+                        // Show admin controls if admin
+                        if (isAdmin) {
+                            document.getElementById('adminControls').classList.remove('hidden');
+                            document.getElementById('adminContactControls').classList.remove('hidden');
+                        }
+                    }
+                } else {
+                    // Redirect to home/login page if not logged in
+                    window.location.href = 'index.html';
+                }
+            } catch (error) {
+                console.error('Error checking session:', error);
             }
         }
 
-        // Authentication functions
-        function switchTab(tab) {
-            const forms = {
-                login: document.getElementById('loginForm'),
-                admin: document.getElementById('adminForm'),
-                register: document.getElementById('registerForm')
+        // Load email templates from Supabase
+        async function loadTemplates() {
+            try {
+                const { data: templates, error } = await supabase
+                    .from('email_templates')
+                    .select('*')
+                    .order('created_at', { ascending: false });
+                
+                if (error) throw error;
+                
+                // Clear loading indicators
+                document.getElementById('templatesList').innerHTML = '';
+                
+                if (templates.length === 0) {
+                    document.getElementById('templatesList').innerHTML = `
+                        <div class="col-span-full text-center py-12">
+                            <i class="bi bi-envelope-x text-4xl text-gray-400 dark:text-gray-500 mb-4"></i>
+                            <p class="text-gray-500 dark:text-gray-400">No email templates found</p>
+                        </div>
+                    `;
+                    return;
+                }
+                
+                // Render templates
+                templates.forEach(template => {
+                    const card = createTemplateCard(template);
+                    document.getElementById('templatesList').appendChild(card);
+                });
+            } catch (error) {
+                console.error('Error loading templates:', error);
+                document.getElementById('templatesList').innerHTML = `
+                    <div class="col-span-full text-center py-12">
+                        <i class="bi bi-exclamation-circle text-4xl text-red-500 mb-4"></i>
+                        <p class="text-gray-500 dark:text-gray-400">Error loading templates. Please try again later.</p>
+                    </div>
+                `;
+            }
+        }
+
+        // Load contacts from Supabase
+        async function loadContacts() {
+            try {
+                const { data: contacts, error } = await supabase
+                    .from('contacts')
+                    .select('*')
+                    .order('department', { ascending: true });
+                
+                if (error) throw error;
+                
+                // Clear loading indicators
+                document.getElementById('contactsList').innerHTML = '';
+                
+                if (contacts.length === 0) {
+                    document.getElementById('contactsList').innerHTML = `
+                        <div class="col-span-full text-center py-12">
+                            <i class="bi bi-person-x text-4xl text-gray-400 dark:text-gray-500 mb-4"></i>
+                            <p class="text-gray-500 dark:text-gray-400">No contacts found</p>
+                        </div>
+                    `;
+                    return;
+                }
+                
+                // Group contacts by department
+                const departments = {};
+                contacts.forEach(contact => {
+                    if (!departments[contact.department]) {
+                        departments[contact.department] = [];
+                    }
+                    departments[contact.department].push(contact);
+                });
+                
+                // Render contacts by department
+                Object.keys(departments).sort().forEach(department => {
+                    // Department header
+                    const header = document.createElement('div');
+                    header.className = 'col-span-full mt-4 mb-2';
+                    header.innerHTML = `<h3 class="text-lg font-semibold text-gray-800 dark:text-white">${department}</h3>`;
+                    document.getElementById('contactsList').appendChild(header);
+                    
+                    // Department contacts
+                    departments[department].forEach(contact => {
+                        const card = createContactCard(contact);
+                        document.getElementById('contactsList').appendChild(card);
+                    });
+                });
+            } catch (error) {
+                console.error('Error loading contacts:', error);
+                document.getElementById('contactsList').innerHTML = `
+                    <div class="col-span-full text-center py-12">
+                        <i class="bi bi-exclamation-circle text-4xl text-red-500 mb-4"></i>
+                        <p class="text-gray-500 dark:text-gray-400">Error loading contacts. Please try again later.</p>
+                    </div>
+                `;
+            }
+        }
+
+        // Create template card element
+        function createTemplateCard(template) {
+            const card = document.createElement('div');
+            card.className = 'bg-gray-50 dark:bg-gray-700 rounded-lg shadow-md hover:shadow-lg transition p-5';
+            card.dataset.id = template.id;
+            card.dataset.type = 'template';
+            card.dataset.searchTerms = `${template.title} ${template.category} ${template.subject}`.toLowerCase();
+            
+            // Category tag
+            const categoryLabel = {
+                'academic': 'Academic',
+                'leave': 'Leave',
+                'event': 'Event',
+                'feedback': 'Feedback',
+                'other': 'Other'
             };
             
-            // Hide all forms
-            Object.values(forms).forEach(form => form.classList.add('hidden'));
+            card.innerHTML = `
+                <div class="flex justify-between items-start mb-3">
+                    <span class="tag">${categoryLabel[template.category] || 'Other'}</span>
+                </div>
+                <h3 class="text-lg font-semibold text-gray-800 dark:text-white mb-2">${template.title}</h3>
+                <p class="text-sm text-gray-600 dark:text-gray-300 mb-4">Subject: ${template.subject}</p>
+                <p class="text-sm text-gray-500 dark:text-gray-400 line-clamp-2">${template.body.substring(0, 100)}${template.body.length > 100 ? '...' : ''}</p>
+                <div class="mt-4 flex justify-end">
+                    <button class="view-template-btn text-indigo-600 hover:text-indigo-800 dark:text-indigo-400 dark:hover:text-indigo-300 font-medium">
+                        View Template →
+                    </button>
+                </div>
+            `;
             
-            // Show selected form
-            forms[tab].classList.remove('hidden');
-            
-            // Update active tab styling
-            document.querySelectorAll('button').forEach(btn => {
-                btn.classList.remove('bg-opacity-30');
-            });
-            document.getElementById(`${tab}Tab`).classList.add('bg-opacity-30');
-        }
-
-        function toggleSidebar() {
-            const sidebar = document.getElementById('sidebar');
-            sidebar.classList.toggle('-translate-x-full');
-        }
-
-        function handleLogin(e) {
-            e.preventDefault();
-            const email = document.getElementById('loginEmail').value;
-            const password = document.getElementById('loginPassword').value;
-            
-            // Retrieve user database
-            const userDatabase = JSON.parse(localStorage.getItem('userDatabase'));
-            
-            // Find user
-            const user = userDatabase.find(user => user.email === email && user.password === password);
-            
-            if (user) {
-                // Login successful
-                showHomepage(user.name);
-                loadTemplates();
-                loadCategories();
-                checkIfAdmin(user.name);
-            } else {
-                alert('Invalid email or password');
-            }
-        }
-
-        function handleAdminLogin(e) {
-            e.preventDefault();
-            const password = document.getElementById('adminPassword').value;
-            
-            // Check admin password
-            if (password === 'admin123') {
-                // Admin login successful
-                showHomepage('Admin');
-                loadTemplates();
-                loadCategories();
-                document.getElementById('adminControls').classList.remove('hidden');
-            } else {
-                alert('Invalid admin password');
-            }
-        }
-
-        function handleRegister(e) {
-            e.preventDefault();
-            const name = document.getElementById('registerName').value;
-            const email = document.getElementById('registerEmail').value;
-            const password = document.getElementById('registerPassword').value;
-            const confirmPassword = document.getElementById('confirmPassword').value;
-            
-            // Check if passwords match
-            if (password !== confirmPassword) {
-                alert('Passwords do not match');
-                return;
-            }
-            
-            // Retrieve user database
-            const userDatabase = JSON.parse(localStorage.getItem('userDatabase'));
-            
-            // Check if email already exists
-            if(name==="admin" || name==="Admin"){
-                alert('Username cannot be "admin" or "Admin"');
-                
-                return;
-            }
-            if (userDatabase.some(user => user.email === email)) {
-                alert('Email already registered');
-                return;
-            }
-            
-            // Add new user
-            userDatabase.push({
-                name,
-                email,
-                password
+            // Add event listener
+            card.querySelector('.view-template-btn').addEventListener('click', () => {
+                viewTemplate(template.id);
             });
             
-            // Save updated database
-            localStorage.setItem('userDatabase', JSON.stringify(userDatabase));
-            
-            // Registration successful
-            alert('Registration successful! You can now log in.');
-            
-            // Redirect to login
-            switchTab('login');
+            return card;
         }
 
-        function showHomepage(userName) {
-            // Hide auth page
-            document.getElementById('authPage').style.display = 'none';
-            
-            // Show homepage
-            document.getElementById('homepage').style.display = 'block';
-            
-            // Set welcome message
-            document.getElementById('userName').textContent = userName;
-            document.getElementById('welcomeMessage').classList.remove('hidden');
-            
-            // Store user info in sessionStorage
-            sessionStorage.setItem('currentUserData', JSON.stringify({
-                name: userName,
-                email: document.getElementById('loginEmail').value || 'admin@example.com'
-            }));
-        }
-
-        function logout() {
-            // Hide homepage
-            document.getElementById('homepage').style.display = 'none';
-            
-            // Show auth page
-            document.getElementById('authPage').style.display = 'flex';
-            
-            // Reset forms
-            document.getElementById('loginForm').reset();
-            document.getElementById('adminForm').reset();
-            document.getElementById('registerForm').reset();
-            
-            // Switch to login tab
-            switchTab('login');
-            
-            // Clear session storage
-            sessionStorage.removeItem('currentUserData');
-        }
-
-        // Mail Templates Functions
-        let currentTemplateId = null;
-        let activeCategory = 'all';
-
-        // Load templates from localStorage
-function loadTemplates() {
-    const templates = JSON.parse(localStorage.getItem('mailTemplates')) || [];
-    const container = document.getElementById('mailTemplatesContainer');
-    const emptyState = document.getElementById('emptyState');
-    
-    // Filter templates based on active category
-    const filteredTemplates = activeCategory === 'all' 
-        ? templates 
-        : templates.filter(template => template.category === activeCategory);
-    
-    // Clear container
-    container.innerHTML = '';
-    
-    // Show empty state if no templates
-    if (filteredTemplates.length === 0) {
-        emptyState.classList.remove('hidden');
-    } else {
-        emptyState.classList.add('hidden');
-        
-        // Create template cards
-        filteredTemplates.forEach(template => {
-            const card = createTemplateCard(template);
-            container.appendChild(card);
-        });
-    }
-}
-
-// Create template card element
-function createTemplateCard(template) {
+        // Create contact card element
+        // Create contact card element
+function createContactCard(contact) {
     const card = document.createElement('div');
-    card.className = 'mail-template-card bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl shadow-sm overflow-hidden';
+    card.className = 'bg-gray-50 dark:bg-gray-700 rounded-lg shadow-md hover:shadow-lg transition p-5';
+    card.dataset.id = contact.id;
+    card.dataset.type = 'contact';
+    card.dataset.searchTerms = `${contact.name} ${contact.position} ${contact.department} ${contact.email}`.toLowerCase();
+    
     card.innerHTML = `
-        <div class="p-4">
-            <div class="flex justify-between items-start">
-                <h3 class="text-lg font-semibold text-gray-800 dark:text-white">${template.title}</h3>
-                <span class="inline-block bg-indigo-100 dark:bg-indigo-900 text-indigo-800 dark:text-indigo-300 text-xs px-2 py-1 rounded-full">${template.category}</span>
-            </div>
-            <p class="text-sm text-gray-500 dark:text-gray-400 mt-2 line-clamp-2">${template.description}</p>
-            <div class="mt-4">
-                <button onclick="viewTemplate('${template.id}')" class="bg-indigo-600 hover:bg-indigo-700 text-white py-2 px-4 rounded-lg transition text-sm">
-                    <i class="bi bi-envelope mr-1"></i> View Template
-                </button>
+        <div class="flex flex-col">
+            <h3 class="text-lg font-semibold text-gray-800 dark:text-white">${contact.name}</h3>
+            <p class="text-sm text-gray-600 dark:text-gray-300">${contact.position}</p>
+            <div class="mt-3 space-y-1">
+                <div class="flex items-center">
+                    <i class="bi bi-envelope text-indigo-500 mr-2"></i>
+                    <a href="mailto:${contact.email}" class="text-sm text-indigo-600 dark:text-indigo-400 hover:underline">${contact.email}</a>
+                </div>
+                ${contact.phone ? `
+                <div class="flex items-center">
+                    <i class="bi bi-telephone text-indigo-500 mr-2"></i>
+                    <a href="tel:${contact.phone}" class="text-sm text-indigo-600 dark:text-indigo-400 hover:underline">${contact.phone}</a>
+                </div>` : ''}
             </div>
         </div>
+        ${isAdmin ? `
+        <div class="mt-3 flex justify-end">
+            <button class="view-contact-btn text-indigo-600 hover:text-indigo-800 dark:text-indigo-400 dark:hover:text-indigo-300 font-medium">
+                Edit →
+            </button>
+        </div>` : ''}
     `;
+    
+    // Add event listener for admins
+    if (isAdmin) {
+        card.querySelector('.view-contact-btn').addEventListener('click', () => {
+            viewContact(contact.id);
+        });
+    }
+    
     return card;
 }
 
-// Load categories for filter buttons
-function loadCategories() {
-    const templates = JSON.parse(localStorage.getItem('mailTemplates')) || [];
-    const container = document.getElementById('categoriesContainer');
-    const categoryDropdown = document.getElementById('categoryDropdown');
+// Toggle between tabs
+function showTab(tabName) {
+    // Update tab buttons
+    document.getElementById('templatesTab').className = tabName === 'templates' 
+        ? 'px-4 py-2 text-indigo-600 dark:text-indigo-400 border-b-2 border-indigo-600 dark:border-indigo-400 font-medium'
+        : 'px-4 py-2 text-gray-600 dark:text-gray-400 font-medium';
     
-    // Extract unique categories
-    const categories = [...new Set(templates.map(template => template.category))];
+    document.getElementById('contactsTab').className = tabName === 'contacts'
+        ? 'px-4 py-2 text-indigo-600 dark:text-indigo-400 border-b-2 border-indigo-600 dark:border-indigo-400 font-medium'
+        : 'px-4 py-2 text-gray-600 dark:text-gray-400 font-medium';
     
-    // Clear container (except "All" button)
-    const allButton = container.firstChild;
-    container.innerHTML = '';
-    container.appendChild(allButton);
-    
-    // Clear dropdown (except default option)
-    categoryDropdown.innerHTML = '<option value="">Select existing</option>';
-    
-    // Add category buttons
-    categories.forEach(category => {
-        // Add to filter buttons
-        const button = document.createElement('button');
-        button.className = `template-category px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-600 text-sm font-medium ${activeCategory === category ? 'active' : ''}`;
-        button.textContent = category;
-        button.onclick = () => filterTemplates(category);
-        container.appendChild(button);
-        
-        // Add to dropdown
-        const option = document.createElement('option');
-        option.value = category;
-        option.textContent = category;
-        categoryDropdown.appendChild(option);
-    });
+    // Show/hide content sections
+    document.getElementById('templatesSection').className = tabName === 'templates' ? 'p-6' : 'p-6 hidden';
+    document.getElementById('contactsSection').className = tabName === 'contacts' ? 'p-6' : 'p-6 hidden';
 }
 
-// Filter templates by category
-function filterTemplates(category) {
-    activeCategory = category;
-    
-    // Update active category button
-    document.querySelectorAll('.template-category').forEach(button => {
-        button.classList.remove('active');
-    });
-    
-    event.target.classList.add('active');
-    
-    // Reload templates with filter
-    loadTemplates();
+// Toggle sidebar on mobile
+function toggleSidebar() {
+    const sidebar = document.getElementById('sidebar');
+    sidebar.classList.toggle('-translate-x-full');
 }
 
-// Search templates by title, category, or description
-function searchTemplates() {
-    const searchQuery = document.getElementById('searchInput').value.toLowerCase();
-    const templates = JSON.parse(localStorage.getItem('mailTemplates')) || [];
-    const container = document.getElementById('mailTemplatesContainer');
-    const emptyState = document.getElementById('emptyState');
+// Open template modal in different modes
+function openTemplateModal(mode, templateId = null) {
+    currentMode = mode;
+    currentItemType = 'template';
+    currentItemId = templateId;
     
-    // Filter templates based on search and active category
-    const filteredTemplates = templates.filter(template => {
-        const matchesCategory = activeCategory === 'all' || template.category === activeCategory;
-        const matchesSearch = 
-            template.title.toLowerCase().includes(searchQuery) || 
-            template.category.toLowerCase().includes(searchQuery) || 
-            template.description.toLowerCase().includes(searchQuery);
+    const modal = document.getElementById('templateModal');
+    const title = document.getElementById('templateModalTitle');
+    const form = document.getElementById('templateForm');
+    const formControls = document.getElementById('templateFormControls');
+    const viewControls = document.getElementById('templateViewControls');
+    
+    // Reset form
+    form.reset();
+    
+    // Set up modal based on mode
+    if (mode === 'add') {
+        title.textContent = 'Add New Template';
+        formControls.classList.remove('hidden');
+        viewControls.classList.add('hidden');
         
-        return matchesCategory && matchesSearch;
-    });
-    
-    // Clear container
-    container.innerHTML = '';
-    
-    // Show empty state if no templates
-    if (filteredTemplates.length === 0) {
-        emptyState.classList.remove('hidden');
-    } else {
-        emptyState.classList.add('hidden');
+        // Enable form fields
+        enableFormFields('template', true);
+    } else if (mode === 'edit') {
+        title.textContent = 'Edit Template';
+        formControls.classList.remove('hidden');
+        viewControls.classList.add('hidden');
         
-        // Create template cards
-        filteredTemplates.forEach(template => {
-            const card = createTemplateCard(template);
-            container.appendChild(card);
-        });
+        // Enable form fields
+        enableFormFields('template', true);
+        
+        // Load template data
+        loadTemplateData(templateId);
+    } else { // view mode
+        title.textContent = 'View Email Template';
+        formControls.classList.add('hidden');
+        viewControls.classList.remove('hidden');
+        
+        // Disable form fields
+        enableFormFields('template', false);
+        
+        // Load template data
+        loadTemplateData(templateId);
+        
+        // Set up edit and delete buttons
+        document.getElementById('editTemplateBtn').onclick = () => openTemplateModal('edit', templateId);
+        document.getElementById('deleteTemplateBtn').onclick = () => openDeleteConfirmation('template', templateId);
+    }
+    
+    // Show modal
+    modal.classList.remove('hidden');
+}
+
+// Load template data for viewing or editing
+async function loadTemplateData(templateId) {
+    try {
+        const { data: template, error } = await supabase
+            .from('email_templates')
+            .select('*')
+            .eq('id', templateId)
+            .single();
+        
+        if (error) throw error;
+        
+        // Populate form fields
+        document.getElementById('templateTitle').value = template.title;
+        document.getElementById('templateCategory').value = template.category;
+        document.getElementById('templateSubject').value = template.subject;
+        document.getElementById('templateBody').value = template.body;
+    } catch (error) {
+        console.error('Error loading template:', error);
+        closeTemplateModal();
+        // Show error notification
     }
 }
 
 // View template details
-function viewTemplate(id) {
-    const templates = JSON.parse(localStorage.getItem('mailTemplates')) || [];
-    const template = templates.find(template => template.id === id);
+function viewTemplate(templateId) {
+    openTemplateModal('view', templateId);
+}
+
+// Open contact modal in different modes
+function openContactModal(mode, contactId = null) {
+    currentMode = mode;
+    currentItemType = 'contact';
+    currentItemId = contactId;
     
-    if (template) {
-        currentTemplateId = id;
-        
-        // Set modal content
-        document.getElementById('viewTemplateTitle').textContent = template.title;
-        document.getElementById('viewTemplateCategory').textContent = template.category;
-        document.getElementById('viewTemplateDescription').textContent = template.description;
-        document.getElementById('viewTemplateContent').textContent = template.content;
-        
-        // Show admin controls if user is admin
-        const userData = JSON.parse(sessionStorage.getItem('currentUserData') || '{}');
-        if (userData.name === 'Admin') {
-            document.getElementById('viewTemplateAdminControls').classList.remove('hidden');
-        } else {
-            document.getElementById('viewTemplateAdminControls').classList.add('hidden');
-        }
-        
-        // Show modal
-        document.getElementById('viewTemplateModal').classList.remove('hidden');
-    }
-}
-
-// Close view modal
-function closeViewModal() {
-    document.getElementById('viewTemplateModal').classList.add('hidden');
-}
-
-// Show add template modal
-function showAddTemplateModal() {
+    const modal = document.getElementById('contactModal');
+    const title = document.getElementById('contactModalTitle');
+    const form = document.getElementById('contactForm');
+    const formControls = document.getElementById('contactFormControls');
+    const viewControls = document.getElementById('contactViewControls');
+    
     // Reset form
-    document.getElementById('templateForm').reset();
-    document.getElementById('templateId').value = '';
-    document.getElementById('editModalTitle').textContent = 'Add New Template';
+    form.reset();
+    
+    // Set up modal based on mode
+    if (mode === 'add') {
+        title.textContent = 'Add New Contact';
+        formControls.classList.remove('hidden');
+        viewControls.classList.add('hidden');
+        
+        // Enable form fields
+        enableFormFields('contact', true);
+    } else if (mode === 'edit') {
+        title.textContent = 'Edit Contact';
+        formControls.classList.remove('hidden');
+        viewControls.classList.add('hidden');
+        
+        // Enable form fields
+        enableFormFields('contact', true);
+        
+        // Load contact data
+        loadContactData(contactId);
+    } else { // view mode
+        title.textContent = 'Contact Details';
+        formControls.classList.add('hidden');
+        viewControls.classList.remove('hidden');
+        
+        // Disable form fields
+        enableFormFields('contact', false);
+        
+        // Load contact data
+        loadContactData(contactId);
+        
+        // Set up edit and delete buttons
+        document.getElementById('editContactBtn').onclick = () => openContactModal('edit', contactId);
+        document.getElementById('deleteContactBtn').onclick = () => openDeleteConfirmation('contact', contactId);
+    }
     
     // Show modal
-    document.getElementById('editTemplateModal').classList.remove('hidden');
+    modal.classList.remove('hidden');
 }
 
-// Show edit template modal
-function showEditModal() {
-    const templates = JSON.parse(localStorage.getItem('mailTemplates')) || [];
-    const template = templates.find(template => template.id === currentTemplateId);
-    
-    if (template) {
-        // Set form values
-        document.getElementById('templateId').value = template.id;
-        document.getElementById('templateTitle').value = template.title;
-        document.getElementById('templateCategory').value = template.category;
-        document.getElementById('templateDescription').value = template.description;
-        document.getElementById('templateContent').value = template.content;
+// Load contact data for viewing or editing
+async function loadContactData(contactId) {
+    try {
+        const { data: contact, error } = await supabase
+            .from('contacts')
+            .select('*')
+            .eq('id', contactId)
+            .single();
         
-        // Set modal title
-        document.getElementById('editModalTitle').textContent = 'Edit Template';
+        if (error) throw error;
         
-        // Close view modal
-        closeViewModal();
-        
-        // Show edit modal
-        document.getElementById('editTemplateModal').classList.remove('hidden');
+        // Populate form fields
+        document.getElementById('contactName').value = contact.name;
+        document.getElementById('contactPosition').value = contact.position;
+        document.getElementById('contactDepartment').value = contact.department;
+        document.getElementById('contactEmail').value = contact.email;
+        document.getElementById('contactPhone').value = contact.phone || '';
+    } catch (error) {
+        console.error('Error loading contact:', error);
+        closeContactModal();
+        // Show error notification
     }
 }
 
-// Close edit modal
-function closeEditModal() {
-    document.getElementById('editTemplateModal').classList.add('hidden');
+// View contact details
+function viewContact(contactId) {
+    openContactModal('view', contactId);
 }
 
-// Save template (add or edit)
-function saveTemplate(event) {
-    event.preventDefault();
-    
-    const templates = JSON.parse(localStorage.getItem('mailTemplates')) || [];
-    const id = document.getElementById('templateId').value;
-    
-    const templateData = {
-        title: document.getElementById('templateTitle').value,
-        category: document.getElementById('templateCategory').value,
-        description: document.getElementById('templateDescription').value,
-        content: document.getElementById('templateContent').value
+// Enable or disable form fields
+function enableFormFields(formType, enabled) {
+    const formPrefixes = {
+        'template': 'template',
+        'contact': 'contact'
     };
     
-    if (id) {
-        // Edit existing template
-        const index = templates.findIndex(template => template.id === id);
-        if (index !== -1) {
-            templateData.id = id;
-            templates[index] = templateData;
+    const prefix = formPrefixes[formType];
+    
+    // Get all input, select, textarea elements
+    const formElements = document.querySelectorAll(`#${prefix}Form input, #${prefix}Form select, #${prefix}Form textarea`);
+    
+    // Set disabled attribute
+    formElements.forEach(element => {
+        element.disabled = !enabled;
+    });
+}
+
+// Handle template form submission
+async function handleTemplateSubmit(event) {
+    event.preventDefault();
+    
+    // Get form values
+    const title = document.getElementById('templateTitle').value;
+    const category = document.getElementById('templateCategory').value;
+    const subject = document.getElementById('templateSubject').value;
+    const body = document.getElementById('templateBody').value;
+    
+    try {
+        let result;
+        
+        if (currentMode === 'add') {
+            // Insert new template
+            result = await supabase
+                .from('email_templates')
+                .insert([{ 
+                    title, 
+                    category, 
+                    subject, 
+                    body 
+                }]);
+        } else if (currentMode === 'edit') {
+            // Update existing template
+            result = await supabase
+                .from('email_templates')
+                .update({ 
+                    title, 
+                    category, 
+                    subject, 
+                    body 
+                })
+                .eq('id', currentItemId);
         }
-    } else {
-        // Add new template
-        templateData.id = Date.now().toString();
-        templates.push(templateData);
-    }
-    
-    // Save to localStorage
-    localStorage.setItem('mailTemplates', JSON.stringify(templates));
-    
-    // Close modal
-    closeEditModal();
-    
-    // Reload templates
-    loadTemplates();
-    loadCategories();
-    
-    // Show success message
-    alert(id ? 'Template updated successfully!' : 'Template added successfully!');
-}
-
-// Select existing category from dropdown
-function selectExistingCategory() {
-    const selectedCategory = document.getElementById('categoryDropdown').value;
-    if (selectedCategory) {
-        document.getElementById('templateCategory').value = selectedCategory;
+        
+        if (result.error) throw result.error;
+        
+        // Close modal and refresh templates
+        closeTemplateModal();
+        loadTemplates();
+        
+    } catch (error) {
+        console.error('Error saving template:', error);
+        // Show error notification
     }
 }
 
-// Show delete confirmation modal
-function confirmDelete() {
-    document.getElementById('deleteConfirmModal').classList.remove('hidden');
+// Handle contact form submission
+async function handleContactSubmit(event) {
+    event.preventDefault();
+    
+    // Get form values
+    const name = document.getElementById('contactName').value;
+    const position = document.getElementById('contactPosition').value;
+    const department = document.getElementById('contactDepartment').value;
+    const email = document.getElementById('contactEmail').value;
+    const phone = document.getElementById('contactPhone').value;
+    
+    try {
+        let result;
+        
+        if (currentMode === 'add') {
+            // Insert new contact
+            result = await supabase
+                .from('contacts')
+                .insert([{ 
+                    name, 
+                    position, 
+                    department, 
+                    email, 
+                    phone: phone || null
+                }]);
+        } else if (currentMode === 'edit') {
+            // Update existing contact
+            result = await supabase
+                .from('contacts')
+                .update({ 
+                    name, 
+                    position, 
+                    department, 
+                    email, 
+                    phone: phone || null
+                })
+                .eq('id', currentItemId);
+        }
+        
+        if (result.error) throw result.error;
+        
+        // Close modal and refresh contacts
+        closeContactModal();
+        loadContacts();
+        
+    } catch (error) {
+        console.error('Error saving contact:', error);
+        // Show error notification
+    }
 }
 
-// Close delete modal
-function closeDeleteModal() {
-    document.getElementById('deleteConfirmModal').classList.add('hidden');
+// Close template modal
+function closeTemplateModal() {
+    document.getElementById('templateModal').classList.add('hidden');
+    currentMode = 'view';
+    currentItemId = null;
 }
 
-// Delete template
-function deleteTemplate() {
-    const templates = JSON.parse(localStorage.getItem('mailTemplates')) || [];
-    const updatedTemplates = templates.filter(template => template.id !== currentTemplateId);
-    
-    // Save to localStorage
-    localStorage.setItem('mailTemplates', JSON.stringify(updatedTemplates));
-    
-    // Close modals
-    closeDeleteModal();
-    closeViewModal();
-    
-    // Reload templates
-    loadTemplates();
-    loadCategories();
-    
-    // Show success message
-    alert('Template deleted successfully!');
+// Close contact modal
+function closeContactModal() {
+    document.getElementById('contactModal').classList.add('hidden');
+    currentMode = 'view';
+    currentItemId = null;
 }
+
+// Open delete confirmation modal
+function openDeleteConfirmation(itemType, itemId) {
+    currentItemType = itemType;
+    currentItemId = itemId;
     
-        </script>
-        </body>
-        </html>
+    // Set confirmation message
+    const itemLabel = itemType === 'template' ? 'email template' : 'contact';
+    document.getElementById('confirmationMessage').textContent = `Are you sure you want to delete this ${itemLabel}? This action cannot be undone.`;
+    
+    // Show confirmation modal
+    document.getElementById('confirmationModal').classList.remove('hidden');
+}
+
+// Close confirmation modal
+function closeConfirmationModal() {
+    document.getElementById('confirmationModal').classList.add('hidden');
+}
+
+// Confirm delete action
+async function confirmDelete() {
+    try {
+        // Determine table to delete from
+        const table = currentItemType === 'template' ? 'email_templates' : 'contacts';
+        
+        // Delete item
+        const { error } = await supabase
+            .from(table)
+            .delete()
+            .eq('id', currentItemId);
+        
+        if (error) throw error;
+        
+        // Close all modals
+        closeConfirmationModal();
+        if (currentItemType === 'template') {
+            closeTemplateModal();
+            loadTemplates();
+        } else {
+            closeContactModal();
+            loadContacts();
+        }
+        
+    } catch (error) {
+        console.error('Error deleting item:', error);
+        closeConfirmationModal();
+        // Show error notification
+    }
+}
+
+// Copy template to clipboard
+function copyTemplateToClipboard() {
+    const subject = document.getElementById('templateSubject').value;
+    const body = document.getElementById('templateBody').value;
+    
+    // Format for clipboard
+    const textToCopy = `Subject: ${subject}\n\n${body}`;
+    
+    // Copy to clipboard
+    navigator.clipboard.writeText(textToCopy)
+        .then(() => {
+            // Show success notification
+            const copyBtn = document.getElementById('copyTemplateBtn');
+            const originalText = copyBtn.innerHTML;
+            
+            copyBtn.innerHTML = '<i class="bi bi-check-circle mr-1"></i> Copied!';
+            copyBtn.classList.add('bg-green-100', 'text-green-700', 'dark:bg-green-800', 'dark:text-green-200');
+            
+            setTimeout(() => {
+                copyBtn.innerHTML = originalText;
+                copyBtn.classList.remove('bg-green-100', 'text-green-700', 'dark:bg-green-800', 'dark:text-green-200');
+            }, 2000);
+        })
+        .catch(err => {
+            console.error('Failed to copy: ', err);
+        });
+}
+
+// Handle search functionality
+function handleSearch(event) {
+    const searchTerm = event.target.value.toLowerCase();
+    
+    // Determine which list is visible
+    const activeTab = document.getElementById('templatesSection').classList.contains('hidden') ? 'contacts' : 'templates';
+    const itemSelector = activeTab === 'templates' ? '#templatesList [data-type="template"]' : '#contactsList [data-type="contact"]';
+    
+    // Get all items
+    const items = document.querySelectorAll(itemSelector);
+    
+    // Filter items based on search term
+    items.forEach(item => {
+        const searchableText = item.dataset.searchTerms;
+        
+        if (searchTerm === '' || searchableText.includes(searchTerm)) {
+            item.classList.remove('hidden');
+        } else {
+            item.classList.add('hidden');
+        }
+    });
+    
+    // Check if there are visible items
+    const visibleItems = document.querySelectorAll(`${itemSelector}:not(.hidden)`);
+    const emptyMessage = activeTab === 'templates' ? 'No templates match your search' : 'No contacts match your search';
+    
+    // Show/hide empty message
+    const listId = activeTab === 'templates' ? 'templatesList' : 'contactsList';
+    const listElement = document.getElementById(listId);
+    
+    // Remove any existing empty message
+    const existingEmptyMessage = listElement.querySelector('.empty-search-message');
+    if (existingEmptyMessage) {
+        existingEmptyMessage.remove();
+    }
+    
+    // Add empty message if needed
+    if (visibleItems.length === 0 && searchTerm !== '') {
+        const emptyDiv = document.createElement('div');
+        emptyDiv.className = 'col-span-full text-center py-12 empty-search-message';
+        emptyDiv.innerHTML = `
+            <i class="bi bi-search text-4xl text-gray-400 dark:text-gray-500 mb-4"></i>
+            <p class="text-gray-500 dark:text-gray-400">${emptyMessage}</p>
+        `;
+        listElement.appendChild(emptyDiv);
+    }
+}
+
+// Logout function
+async function logout() {
+    try {
+        const { error } = await supabase.auth.signOut();
+        if (error) throw error;
+        window.location.href = 'index.html';
+    } catch (error) {
+        console.error('Error signing out:', error);
+    }
+}
+</script>
+</body>
+</html>
