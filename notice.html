@@ -90,9 +90,10 @@
             <div class="flex justify-between items-center py-4">
                 <div class="flex items-center space-x-4">
                     <h1 class="text-2xl font-bold">Student Companion</h1>
-                    <span id="welcomeMessage" class="hidden md:inline text-sm">Welcome, <span id="userName">User</span>!</span>
+                    <!-- Fixed: Always show welcome message but adjust font size -->
+                    <span id="welcomeMessage" class="text-xs md:text-sm">Welcome, <span id="userName">User</span>!</span>
                 </div>
-                
+                <!-- Fixed: Always show logout button but make it compact on small screens -->
                 <div class="flex items-center">
                     <button id="logoutBtn" class="py-1 px-2 md:py-2 md:px-4 text-xs md:text-base rounded-lg bg-white bg-opacity-20 hover:bg-opacity-30 transition" onclick="logout()">Logout</button>
                 </div>
@@ -216,6 +217,7 @@ document.addEventListener('DOMContentLoaded', function() {
         document.getElementById('authCheck').classList.add('hidden');
         const user = JSON.parse(userData);
         document.getElementById('userName').textContent = user.name;
+        // document.getElementById('userName').textContent = currentUser.name;
         
         // Check if user is admin
         if (user.name === 'hetchavadiya') {

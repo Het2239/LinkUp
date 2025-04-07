@@ -49,36 +49,41 @@
     </nav>
 
     <!-- Main Content -->
-    <div class="flex flex-col lg:flex-row relative">
+    <div class="flex flex-col md:flex-row">
         <!-- Sidebar -->
-        <div id="sidebar" class="fixed lg:relative w-64 bg-indigo-800 text-white h-screen z-40 transform -translate-x-full lg:translate-x-0 sidebar-transition">
+        <div id="sidebar" class="fixed md:relative w-64 bg-indigo-800 text-white h-screen z-40 transform -translate-x-full md:translate-x-0 transition-transform duration-300">
             <div class="p-4">
                 <h2 class="text-xl font-semibold mb-4">Features</h2>
                 <ul class="space-y-2">
                     <li><a href="notice.html" class="block py-2 px-4 rounded-lg nav-link">Notice Board</a></li>
-                    <li><a href="#" class="block py-2 px-4 rounded-lg nav-link bg-white bg-opacity-20">Taxi Search</a></li>
+                    <li><a href="#" class="block py-2 px-4 rounded-lg nav-link">Taxi Search</a></li>
                     <li><a href="study.html" class="block py-2 px-4 rounded-lg nav-link">Study Materials</a></li>
                     <li><a href="mail.html" class="block py-2 px-4 rounded-lg nav-link">Mail Formats</a></li>
-                    <li><a href="kyp.html" class="block py-2 px-4 rounded-lg nav-link">Know Your People</a></li>
-                    <li><a href="outings.html" class="block py-2 px-4 rounded-lg nav-link">Outings & Trips</a></li>
-                    <li><a href="messmenu.html" class="block py-2 px-4 rounded-lg nav-link">Mess & Canteen</a></li>
+                    <li><a href="kyp.html" class="block py-2 px-4 rounded-lg nav-link" >Know Your People</a></li>
+                    <li><a href="outings.html" class="block py-2 px-4 rounded-lg nav-link" >Outings & Trips</a></li>
+                    <li><a href="messmenu.html" class="block py-2 px-4 rounded-lg nav-link" >Mess & Canteen</a></li>
                 </ul>
             </div>
         </div>
 
         <!-- Overlay for sidebar -->
-        <div id="sidebarOverlay" class="fixed inset-0 bg-black bg-opacity-50 z-20 hidden" onclick="toggleSidebar()"></div>
+        <!-- <div id="sidebarOverlay" class="fixed inset-0 bg-black bg-opacity-50 z-20 hidden" onclick="toggleSidebar()"></div> -->
 
         <!-- Mobile sidebar button (floating) -->
         <!-- Fixed: Always show sidebar button on small screens -->
-        <div>
+        <!-- <div>
             <button id="showSidebarBtn" class="fixed bottom-6 left-6 lg:hidden bg-indigo-600 text-white p-3 rounded-full shadow-lg z-30">
+                <i class="bi bi-list text-xl"></i>
+            </button>
+        </div> -->
+        <div id="showSidebarBtn" class="fixed bottom-4 left-4 z-40 md:hidden">
+            <button onclick="toggleSidebar()" class="bg-indigo-600 text-white p-3 rounded-full shadow-lg">
                 <i class="bi bi-list text-xl"></i>
             </button>
         </div>
         
         <!-- Main Content Area -->
-        <div class="flex-1 p-4 md:p-8">
+        <div class="flex-1 p-8">
             <div class="bg-white dark:bg-gray-800 rounded-xl shadow-lg p-4 md:p-6">
                 <h2 class="text-2xl font-bold mb-6 text-gray-800 dark:text-white">Taxi Search</h2>
                 <p class="text-gray-600 dark:text-gray-300 mb-6">Find and join taxi groups for shared rides to save money and reduce carbon footprint.</p>
@@ -170,110 +175,467 @@
     </div>
 <script>
     document.addEventListener('DOMContentLoaded', function() {
-        // Initialize Supabase
-        const supabaseUrl = 'https://cebomekzvltlaabcvjix.supabase.co';
-        const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImNlYm9tZWt6dmx0bGFhYmN2aml4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDM3NjUwNjQsImV4cCI6MjA1OTM0MTA2NH0.dtlBNgdctrv-txCEpNxjpfwzL02X0g7msUZIVuzG9J8';
-        
-        // Create a proper client instance
-        window.supabaseClient = supabase.createClient(supabaseUrl, supabaseKey);
-        
-        // Initialize user data from session storage
-        let currentUser = { name: 'User', email: 'user@example.com', phone: '' };
-        
-        // Check if we're in a logged-in session
-        checkSession();
+    // Initialize Supabase
+    const supabaseUrl = 'https://cebomekzvltlaabcvjix.supabase.co';
+    const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImNlYm9tZWt6dmx0bGFhYmN2aml4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDM3NjUwNjQsImV4cCI6MjA1OTM0MTA2NH0.dtlBNgdctrv-txCEpNxjpfwzL02X0g7msUZIVuzG9J8';
     
-        // Initialize trips
-        let trips = [];
+    // Create a proper client instance
+    window.supabaseClient = supabase.createClient(supabaseUrl, supabaseKey);
+    
+    // Initialize user data from session storage
+    let currentUser = { name: 'User', email: 'user@example.com', phone: '' };
+    
+    // Check if we're in a logged-in session
+    checkSession();
+
+    // Initialize trips
+    let trips = [];
+    
+    function toggleSidebar() {
+        const sidebar = document.getElementById('sidebar');
+        sidebar.classList.toggle('-translate-x-full');
+    }
+
+    // Add event listener for the sidebar button
+    document.getElementById('showSidebarBtn').addEventListener('click', toggleSidebar);
+
+    // Form submission handler
+    document.getElementById('tripForm').addEventListener('submit', async function(e) {
+        e.preventDefault();
         
-        // Fixed toggle sidebar functionality
-        function toggleSidebar() {
-            const sidebar = document.getElementById('sidebar');
-            const overlay = document.getElementById('sidebarOverlay');
-            
-            if (sidebar.classList.contains('-translate-x-full')) {
-                sidebar.classList.remove('-translate-x-full');
-                overlay.classList.remove('hidden');
-            } else {
-                sidebar.classList.add('-translate-x-full');
-                overlay.classList.add('hidden');
-            }
+        const destination = document.getElementById('destination').value;
+        const date = document.getElementById('date').value;
+        const time = document.getElementById('time').value;
+        const members = parseInt(document.getElementById('members').value);
+        const phone = document.getElementById('phone').value;
+        
+        // Validate date
+        const tripDate = new Date(date);
+        const today = new Date();
+        today.setHours(0, 0, 0, 0);
+        
+        if (tripDate < today) {
+            alert('Please select a future date.');
+            return;
         }
-    
-        // Add event listener for the sidebar button
-        document.getElementById('showSidebarBtn').addEventListener('click', toggleSidebar);
-    
-        // Form submission handler
-        document.getElementById('tripForm').addEventListener('submit', async function(e) {
-            e.preventDefault();
+        
+        // Update current user's phone
+        currentUser.phone = phone;
+        
+        // Create joined members array with current user
+        const joinedMembers = [{
+            name: currentUser.name,
+            email: currentUser.email,
+            phone: phone
+        }];
+        
+        try {
+            // Insert trip into Supabase
+            const { data, error } = await window.supabaseClient
+                .from('taxi_trips')
+                .insert([{
+                    destination: destination,
+                    date: date,
+                    time: time,
+                    max_members: members,
+                    creator: currentUser.name,
+                    creator_email: currentUser.email,
+                    creator_phone: phone,
+                    joined_members: joinedMembers,
+                    comments: []
+                }])
+                .select();
+                
+            if (error) throw error;
             
-            const destination = document.getElementById('destination').value;
-            const date = document.getElementById('date').value;
-            const time = document.getElementById('time').value;
-            const members = parseInt(document.getElementById('members').value);
-            const phone = document.getElementById('phone').value;
+            // Refresh trips list
+            fetchTrips();
+            this.reset();
+        } catch (error) {
+            alert('Error creating trip: ' + error.message);
+            console.error('Detailed error:', error);
+        }
+    });
+
+    // Function to delete expired trips
+    async function deletePastTrips() {
+        try {
+            // Get yesterday's date (to ensure we're not deleting trips scheduled for today)
+            const yesterday = new Date();
+            yesterday.setDate(yesterday.getDate() - 1);
+            const yesterdayStr = yesterday.toISOString().split('T')[0];
             
-            // Validate date
-            const tripDate = new Date(date);
+            // console.log('Deleting trips older than:', yesterdayStr);
+            
+            // Delete trips with dates in the past
+            const { data, error } = await window.supabaseClient
+                .from('taxi_trips')
+                .delete()
+                .lt('date', yesterdayStr);
+                
+            if (error) throw error;
+            
+            // console.log('Deleted past trips:', data);
+            
+            // No need to return anything as we're just cleaning up
+        } catch (error) {
+            console.error('Error deleting past trips:', error);
+        }
+    }
+
+    // Fetch trips from Supabase
+    async function fetchTrips() {
+        try {
+            // First, delete past trips
+            await deletePastTrips();
+            
+            // Get today's date for filtering
             const today = new Date();
             today.setHours(0, 0, 0, 0);
+            const todayStr = today.toISOString().split('T')[0];
             
-            if (tripDate < today) {
-                alert('Please select a future date.');
-                return;
-            }
-            
-            // Update current user's phone
-            currentUser.phone = phone;
-            
-            // Create joined members array with current user
-            const joinedMembers = [{
-                name: currentUser.name,
-                email: currentUser.email,
-                phone: phone
-            }];
-            
-            try {
-                // Insert trip into Supabase
-                const { data, error } = await window.supabaseClient
-                    .from('taxi_trips')
-                    .insert([{
-                        destination: destination,
-                        date: date,
-                        time: time,
-                        max_members: members,
-                        creator: currentUser.name,
-                        creator_email: currentUser.email,
-                        creator_phone: phone,
-                        joined_members: joinedMembers,
-                        comments: []
-                    }])
-                    .select();
-                    
-                if (error) throw error;
+            // Fetch trips from Supabase
+            const { data, error } = await window.supabaseClient
+                .from('taxi_trips')
+                .select('*')
+                .gte('date', todayStr)
+                .order('created_at', { ascending: false });
                 
-                // Refresh trips list
-                fetchTrips();
-                this.reset();
-            } catch (error) {
-                alert('Error creating trip: ' + error.message);
-                console.error('Detailed error:', error);
-            }
+            if (error) throw error;
+            
+            trips = data || [];
+            renderTrips();
+        } catch (error) {
+            console.error('Error fetching trips:', error);
+        }
+    }
+
+    // Render trips
+    function renderTrips() {
+        const tripsContainer = document.getElementById('tripsList');
+        tripsContainer.innerHTML = '';
+        
+        if (trips.length === 0) {
+            tripsContainer.innerHTML = `
+                <div class="text-center text-gray-500 dark:text-gray-400 py-4">
+                    No trips available. Create one to get started!
+                </div>
+            `;
+            return;
+        }
+        
+        trips.forEach(trip => {
+            const joinedMembers = trip.joined_members || [];
+            
+            // Check if current user has already joined this trip
+            const isJoined = joinedMembers.some(member => member.email === currentUser.email);
+            const isFull = joinedMembers.length >= trip.max_members;
+            
+            const tripCard = document.createElement('div');
+            tripCard.className = 'taxi-card bg-white dark:bg-gray-900 p-4 rounded-lg border border-gray-200 dark:border-gray-700 hover:border-indigo-500 dark:hover:border-indigo-400';
+            
+            tripCard.innerHTML = `
+                <div class="flex flex-col md:flex-row justify-between md:items-center gap-4">
+                    <div>
+                        <h3 class="text-lg font-semibold text-gray-800 dark:text-white">${trip.destination}</h3>
+                        <p class="text-gray-600 dark:text-gray-400">Date: ${formatDate(trip.date)}</p>
+                        <p class="text-gray-600 dark:text-gray-400">Time: ${formatTime(trip.time)}</p>
+                        <p class="text-gray-600 dark:text-gray-400">Members: ${joinedMembers.length}/${trip.max_members}</p>
+                        <p class="text-sm text-gray-500 dark:text-gray-500">
+                            Created by: ${trip.creator} (${maskPhone(trip.creator_phone)})
+                        </p>
+                    </div>
+                    <div class="flex flex-col gap-2">
+                        ${isJoined ? 
+                            `<button 
+                                onclick="initiateLeaveTrip(${trip.id})" 
+                                class="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-lg transition">
+                                Leave
+                            </button>` : 
+                            `<button 
+                                onclick="initiateJoinTrip(${trip.id})" 
+                                class="${isFull ? 'bg-gray-400 cursor-not-allowed' : 'bg-indigo-600 hover:bg-indigo-700'} text-white px-4 py-2 rounded-lg transition"
+                                ${isFull ? 'disabled' : ''}>
+                                ${isFull ? 'Full' : 'Join'}
+                            </button>`
+                        }
+                    </div>
+                </div>
+                
+                <div class="mt-4">
+                    <h4 class="text-sm font-medium text-gray-700 dark:text-gray-300">Members:</h4>
+                    <ul class="mt-1 text-sm text-gray-600 dark:text-gray-400">
+                        ${joinedMembers.map(member => `
+                            <li>${member.name} (${member.email}) - Phone: ${maskPhone(member.phone)}</li>
+                        `).join('')}
+                    </ul>
+                </div>
+                
+                <div class="mt-4">
+                    <h4 class="text-sm font-medium text-gray-700 dark:text-gray-300">Comments:</h4>
+                    <div class="mt-2 space-y-2">
+                        ${(trip.comments || []).map(comment => `
+                            <div class="text-sm bg-gray-50 dark:bg-gray-800 p-2 rounded">
+                                <p class="font-medium">${comment.user}:</p>
+                                <p>${comment.text}</p>
+                            </div>
+                        `).join('')}
+                    </div>
+                    <div class="flex items-center space-x-2 mt-2">
+                        <input type="text" id="comment-${trip.id}" placeholder="Add a comment..." class="flex-1 text-sm rounded-lg border-gray-300 dark:border-gray-600 dark:bg-gray-800 dark:text-white">
+                        <button onclick="addComment(${trip.id})" class="bg-gray-200 dark:bg-gray-700 px-3 py-1 rounded-lg hover:bg-gray-300 dark:hover:bg-gray-600">
+                            <i class="bi bi-chat-dots"></i>
+                        </button>
+                    </div>
+                </div>
+            `;
+            tripsContainer.appendChild(tripCard);
         });
-    
-        // Fetch trips from Supabase
-        async function fetchTrips() {
+    }
+
+    // Mask phone number for privacy (show only last 4 digits)
+    function maskPhone(phone) {
+        if (!phone) return "Not provided";
+        return phone;
+    }
+
+    // Format date
+    function formatDate(dateStr) {
+        const options = { weekday: 'short', year: 'numeric', month: 'short', day: 'numeric' };
+        return new Date(dateStr).toLocaleDateString(undefined, options);
+    }
+
+    // Format time
+    function formatTime(timeStr) {
+        return timeStr;
+    }
+
+    // Make functions global for event handlers
+    window.initiateJoinTrip = function(tripId) {
+        const trip = trips.find(t => t.id === tripId);
+        const joinedMembers = trip.joined_members || [];
+        
+        // Check if current user has already joined this trip
+        const isJoined = joinedMembers.some(member => member.email === currentUser.email);
+        
+        if (trip && joinedMembers.length < trip.max_members && !isJoined) {
+            window.selectedTripId = tripId;
+            document.getElementById('joinModal').classList.remove('hidden');
+        }
+    };
+
+    window.initiateLeaveTrip = function(tripId) {
+        window.selectedTripId = tripId;
+        document.getElementById('leaveModal').classList.remove('hidden');
+    };
+
+    window.addComment = async function(tripId) {
+        const commentInput = document.getElementById(`comment-${tripId}`);
+        const commentText = commentInput.value.trim();
+        
+        if (commentText) {
             try {
+                // Get current trip
+                const { data: tripData, error: tripError } = await window.supabaseClient
+                    .from('taxi_trips')
+                    .select('comments')
+                    .eq('id', tripId)
+                    .single();
+                    
+                if (tripError) throw tripError;
+                
+                // Add new comment
+                const comments = tripData.comments || [];
+                comments.push({
+                    user: currentUser.name,
+                    text: commentText,
+                    timestamp: new Date().toISOString()
+                });
+                
+                // Update trip with new comment
+                const { error: updateError } = await window.supabaseClient
+                    .from('taxi_trips')
+                    .update({ comments: comments })
+                    .eq('id', tripId);
+                    
+                if (updateError) throw updateError;
+                
+                // Refresh trips
+                fetchTrips();
+            } catch (error) {
+                console.error('Error adding comment:', error);
+                alert('Failed to add comment: ' + error.message);
+            }
+        }
+        
+        commentInput.value = '';
+    };
+
+    // Close join modal
+    document.getElementById('cancelJoin').addEventListener('click', function() {
+        document.getElementById('joinModal').classList.add('hidden');
+        window.selectedTripId = null;
+    });
+
+    // Confirm join
+    document.getElementById('confirmJoin').addEventListener('click', async function() {
+        const phone = document.getElementById('joinPhone').value;
+        if (!phone) {
+            alert('Please enter your phone number.');
+            return;
+        }
+        
+        if (window.selectedTripId) {
+            await joinTrip(window.selectedTripId, phone);
+            document.getElementById('joinModal').classList.add('hidden');
+            window.selectedTripId = null;
+        }
+    });
+
+    // Join trip functionality
+    async function joinTrip(tripId, phone) {
+        try {
+            // Get current trip data
+            const { data: trip, error: tripError } = await window.supabaseClient
+                .from('taxi_trips')
+                .select('joined_members, max_members')
+                .eq('id', tripId)
+                .single();
+                
+            if (tripError) throw tripError;
+            
+            const joinedMembers = trip.joined_members || [];
+            
+            // Check if user has already joined
+            const isJoined = joinedMembers.some(member => member.email === currentUser.email);
+            
+            // Check if trip is full
+            const isFull = joinedMembers.length >= trip.max_members;
+            
+            // Only allow join if user hasn't joined and trip isn't full
+            if (!isJoined && !isFull) {
+                // Update current user's phone
+                currentUser.phone = phone;
+                
+                // Add user to joined members
+                joinedMembers.push({ 
+                    name: currentUser.name, 
+                    email: currentUser.email,
+                    phone: phone
+                });
+                
+                // Update trip in Supabase
+                const { error: updateError } = await window.supabaseClient
+                    .from('taxi_trips')
+                    .update({ joined_members: joinedMembers })
+                    .eq('id', tripId);
+                    
+                if (updateError) throw updateError;
+                
+                // Refresh trips
+                fetchTrips();
+            }
+        } catch (error) {
+            console.error('Error joining trip:', error);
+            alert('Failed to join trip: ' + error.message);
+        }
+    }
+
+    // Close leave modal
+    document.getElementById('cancelLeave').addEventListener('click', function() {
+        document.getElementById('leaveModal').classList.add('hidden');
+        window.selectedTripId = null;
+    });
+
+    // Confirm leave
+    document.getElementById('confirmLeave').addEventListener('click', async function() {
+        if (window.selectedTripId) {
+            await leaveTrip(window.selectedTripId);
+            document.getElementById('leaveModal').classList.add('hidden');
+            window.selectedTripId = null;
+        }
+    });
+
+    // Leave trip functionality
+    async function leaveTrip(tripId) {
+        try {
+            // Get current trip data
+            const { data: trip, error: tripError } = await window.supabaseClient
+                .from('taxi_trips')
+                .select('joined_members, creator_email')
+                .eq('id', tripId)
+                .single();
+                
+            if (tripError) throw tripError;
+            
+            const joinedMembers = trip.joined_members || [];
+            
+            // Check if user is the creator of the trip
+            const isCreator = trip.creator_email === currentUser.email;
+            
+            if (isCreator && joinedMembers.length === 1) {
+                // If creator is the only member, delete the entire trip
+                const { error: deleteError } = await window.supabaseClient
+                    .from('taxi_trips')
+                    .delete()
+                    .eq('id', tripId);
+                    
+                if (deleteError) throw deleteError;
+            } else {
+                // Remove the user from joined members
+                const updatedMembers = joinedMembers.filter(member => 
+                    member.email !== currentUser.email
+                );
+                
+                let updateData = { joined_members: updatedMembers };
+                
+                // If creator is leaving but there are other members
+                if (isCreator && updatedMembers.length > 0) {
+                    // Assign a new creator
+                    updateData.creator = updatedMembers[0].name;
+                    updateData.creator_email = updatedMembers[0].email;
+                    updateData.creator_phone = updatedMembers[0].phone;
+                }
+                
+                // Update trip in Supabase
+                const { error: updateError } = await window.supabaseClient
+                    .from('taxi_trips')
+                    .update(updateData)
+                    .eq('id', tripId);
+                    
+                if (updateError) throw updateError;
+            }
+            
+            // Refresh trips
+            fetchTrips();
+        } catch (error) {
+            console.error('Error leaving trip:', error);
+            alert('Failed to leave trip: ' + error.message);
+        }
+    }
+
+    // Search functionality
+    document.getElementById('searchTrip').addEventListener('input', async function(e) {
+        const searchTerm = e.target.value.toLowerCase();
+        if (searchTerm === '') {
+            // If search is empty, fetch all trips
+            fetchTrips();
+        } else {
+            try {
+                // Clean up past trips first
+                await deletePastTrips();
+                
                 // Get today's date for filtering expired trips
                 const today = new Date();
                 today.setHours(0, 0, 0, 0);
                 const todayStr = today.toISOString().split('T')[0];
                 
-                // Fetch trips from Supabase
+                // Search trips in Supabase
                 const { data, error } = await window.supabaseClient
                     .from('taxi_trips')
                     .select('*')
                     .gte('date', todayStr)
+                    .ilike('destination', `%${searchTerm}%`)
                     .order('created_at', { ascending: false });
                     
                 if (error) throw error;
@@ -281,485 +643,160 @@
                 trips = data || [];
                 renderTrips();
             } catch (error) {
-                console.error('Error fetching trips:', error);
+                console.error('Error searching trips:', error);
             }
         }
-    
-        // Render trips
-        function renderTrips() {
-            const tripsContainer = document.getElementById('tripsList');
-            tripsContainer.innerHTML = '';
+    });
+
+    // Sort functionality
+    document.getElementById('sortTrips').addEventListener('change', async function(e) {
+        const sortBy = e.target.value;
+        
+        try {
+            // Clean up past trips first
+            await deletePastTrips();
             
-            if (trips.length === 0) {
-                tripsContainer.innerHTML = `
-                    <div class="text-center text-gray-500 dark:text-gray-400 py-4">
-                        No trips available. Create one to get started!
-                    </div>
-                `;
-                return;
-            }
+            // Get today's date for filtering expired trips
+            const today = new Date();
+            today.setHours(0, 0, 0, 0);
+            const todayStr = today.toISOString().split('T')[0];
             
-            trips.forEach(trip => {
-                const joinedMembers = trip.joined_members || [];
+            let query = window.supabaseClient
+                .from('taxi_trips')
+                .select('*')
+                .gte('date', todayStr);
                 
-                // Check if current user has already joined this trip
-                const isJoined = joinedMembers.some(member => member.email === currentUser.email);
-                const isFull = joinedMembers.length >= trip.max_members;
-                
-                const tripCard = document.createElement('div');
-                tripCard.className = 'taxi-card bg-white dark:bg-gray-900 p-4 rounded-lg border border-gray-200 dark:border-gray-700 hover:border-indigo-500 dark:hover:border-indigo-400';
-                
-                tripCard.innerHTML = `
-                    <div class="flex flex-col md:flex-row justify-between md:items-center gap-4">
-                        <div>
-                            <h3 class="text-lg font-semibold text-gray-800 dark:text-white">${trip.destination}</h3>
-                            <p class="text-gray-600 dark:text-gray-400">Date: ${formatDate(trip.date)}</p>
-                            <p class="text-gray-600 dark:text-gray-400">Time: ${formatTime(trip.time)}</p>
-                            <p class="text-gray-600 dark:text-gray-400">Members: ${joinedMembers.length}/${trip.max_members}</p>
-                            <p class="text-sm text-gray-500 dark:text-gray-500">
-                                Created by: ${trip.creator} (${maskPhone(trip.creator_phone)})
-                            </p>
-                        </div>
-                        <div class="flex flex-col gap-2">
-                            ${isJoined ? 
-                                `<button 
-                                    onclick="initiateLeaveTrip(${trip.id})" 
-                                    class="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-lg transition">
-                                    Leave
-                                </button>` : 
-                                `<button 
-                                    onclick="initiateJoinTrip(${trip.id})" 
-                                    class="${isFull ? 'bg-gray-400 cursor-not-allowed' : 'bg-indigo-600 hover:bg-indigo-700'} text-white px-4 py-2 rounded-lg transition"
-                                    ${isFull ? 'disabled' : ''}>
-                                    ${isFull ? 'Full' : 'Join'}
-                                </button>`
-                            }
-                        </div>
-                    </div>
-                    
-                    <div class="mt-4">
-                        <h4 class="text-sm font-medium text-gray-700 dark:text-gray-300">Members:</h4>
-                        <ul class="mt-1 text-sm text-gray-600 dark:text-gray-400">
-                            ${joinedMembers.map(member => `
-                                <li>${member.name} (${member.email}) - Phone: ${maskPhone(member.phone)}</li>
-                            `).join('')}
-                        </ul>
-                    </div>
-                    
-                    <div class="mt-4">
-                        <h4 class="text-sm font-medium text-gray-700 dark:text-gray-300">Comments:</h4>
-                        <div class="mt-2 space-y-2">
-                            ${(trip.comments || []).map(comment => `
-                                <div class="text-sm bg-gray-50 dark:bg-gray-800 p-2 rounded">
-                                    <p class="font-medium">${comment.user}:</p>
-                                    <p>${comment.text}</p>
-                                </div>
-                            `).join('')}
-                        </div>
-                        <div class="flex items-center space-x-2 mt-2">
-                            <input type="text" id="comment-${trip.id}" placeholder="Add a comment..." class="flex-1 text-sm rounded-lg border-gray-300 dark:border-gray-600 dark:bg-gray-800 dark:text-white">
-                            <button onclick="addComment(${trip.id})" class="bg-gray-200 dark:bg-gray-700 px-3 py-1 rounded-lg hover:bg-gray-300 dark:hover:bg-gray-600">
-                                <i class="bi bi-chat-dots"></i>
-                            </button>
-                        </div>
-                    </div>
-                `;
-                tripsContainer.appendChild(tripCard);
-            });
-        }
-    
-        // Mask phone number for privacy (show only last 4 digits)
-        function maskPhone(phone) {
-            if (!phone) return "Not provided";
-            return phone;
-        }
-    
-        // Format date
-        function formatDate(dateStr) {
-            const options = { weekday: 'short', year: 'numeric', month: 'short', day: 'numeric' };
-            return new Date(dateStr).toLocaleDateString(undefined, options);
-        }
-    
-        // Format time
-        function formatTime(timeStr) {
-            return timeStr;
-        }
-    
-        // Make functions global for event handlers
-        window.initiateJoinTrip = function(tripId) {
-            const trip = trips.find(t => t.id === tripId);
-            const joinedMembers = trip.joined_members || [];
-            
-            // Check if current user has already joined this trip
-            const isJoined = joinedMembers.some(member => member.email === currentUser.email);
-            
-            if (trip && joinedMembers.length < trip.max_members && !isJoined) {
-                window.selectedTripId = tripId;
-                document.getElementById('joinModal').classList.remove('hidden');
-            }
-        };
-    
-        window.initiateLeaveTrip = function(tripId) {
-            window.selectedTripId = tripId;
-            document.getElementById('leaveModal').classList.remove('hidden');
-        };
-    
-        window.addComment = async function(tripId) {
-            const commentInput = document.getElementById(`comment-${tripId}`);
-            const commentText = commentInput.value.trim();
-            
-            if (commentText) {
-                try {
-                    // Get current trip
-                    const { data: tripData, error: tripError } = await window.supabaseClient
-                        .from('taxi_trips')
-                        .select('comments')
-                        .eq('id', tripId)
-                        .single();
-                        
-                    if (tripError) throw tripError;
-                    
-                    // Add new comment
-                    const comments = tripData.comments || [];
-                    comments.push({
-                        user: currentUser.name,
-                        text: commentText,
-                        timestamp: new Date().toISOString()
-                    });
-                    
-                    // Update trip with new comment
-                    const { error: updateError } = await window.supabaseClient
-                        .from('taxi_trips')
-                        .update({ comments: comments })
-                        .eq('id', tripId);
-                        
-                    if (updateError) throw updateError;
-                    
-                    // Refresh trips
-                    fetchTrips();
-                } catch (error) {
-                    console.error('Error adding comment:', error);
-                    alert('Failed to add comment: ' + error.message);
-                }
-            }
-            
-            commentInput.value = '';
-        };
-    
-        // Close join modal
-        document.getElementById('cancelJoin').addEventListener('click', function() {
-            document.getElementById('joinModal').classList.add('hidden');
-            window.selectedTripId = null;
-        });
-    
-        // Confirm join
-        document.getElementById('confirmJoin').addEventListener('click', async function() {
-            const phone = document.getElementById('joinPhone').value;
-            if (!phone) {
-                alert('Please enter your phone number.');
-                return;
-            }
-            
-            if (window.selectedTripId) {
-                await joinTrip(window.selectedTripId, phone);
-                document.getElementById('joinModal').classList.add('hidden');
-                window.selectedTripId = null;
-            }
-        });
-    
-        // Join trip functionality
-        async function joinTrip(tripId, phone) {
-            try {
-                // Get current trip data
-                const { data: trip, error: tripError } = await window.supabaseClient
-                    .from('taxi_trips')
-                    .select('joined_members, max_members')
-                    .eq('id', tripId)
-                    .single();
-                    
-                if (tripError) throw tripError;
-                
-                const joinedMembers = trip.joined_members || [];
-                
-                // Check if user has already joined
-                const isJoined = joinedMembers.some(member => member.email === currentUser.email);
-                
-                // Check if trip is full
-                const isFull = joinedMembers.length >= trip.max_members;
-                
-                // Only allow join if user hasn't joined and trip isn't full
-                if (!isJoined && !isFull) {
-                    // Update current user's phone
-                    currentUser.phone = phone;
-                    
-                    // Add user to joined members
-                    joinedMembers.push({ 
-                        name: currentUser.name, 
-                        email: currentUser.email,
-                        phone: phone
-                    });
-                    
-                    // Update trip in Supabase
-                    const { error: updateError } = await window.supabaseClient
-                        .from('taxi_trips')
-                        .update({ joined_members: joinedMembers })
-                        .eq('id', tripId);
-                        
-                    if (updateError) throw updateError;
-                    
-                    // Refresh trips
-                    fetchTrips();
-                }
-            } catch (error) {
-                console.error('Error joining trip:', error);
-                alert('Failed to join trip: ' + error.message);
-            }
-        }
-    
-        // Close leave modal
-        document.getElementById('cancelLeave').addEventListener('click', function() {
-            document.getElementById('leaveModal').classList.add('hidden');
-            window.selectedTripId = null;
-        });
-    
-        // Confirm leave
-        document.getElementById('confirmLeave').addEventListener('click', async function() {
-            if (window.selectedTripId) {
-                await leaveTrip(window.selectedTripId);
-                document.getElementById('leaveModal').classList.add('hidden');
-                window.selectedTripId = null;
-            }
-        });
-    
-        // Leave trip functionality
-        async function leaveTrip(tripId) {
-            try {
-                // Get current trip data
-                const { data: trip, error: tripError } = await window.supabaseClient
-                    .from('taxi_trips')
-                    .select('joined_members, creator_email')
-                    .eq('id', tripId)
-                    .single();
-                    
-                if (tripError) throw tripError;
-                
-                const joinedMembers = trip.joined_members || [];
-                
-                // Check if user is the creator of the trip
-                const isCreator = trip.creator_email === currentUser.email;
-                
-                if (isCreator && joinedMembers.length === 1) {
-                    // If creator is the only member, delete the entire trip
-                    const { error: deleteError } = await window.supabaseClient
-                        .from('taxi_trips')
-                        .delete()
-                        .eq('id', tripId);
-                        
-                    if (deleteError) throw deleteError;
-                } else {
-                    // Remove the user from joined members
-                    const updatedMembers = joinedMembers.filter(member => 
-                        member.email !== currentUser.email
-                    );
-                    
-                    let updateData = { joined_members: updatedMembers };
-                    
-                    // If creator is leaving but there are other members
-                    if (isCreator && updatedMembers.length > 0) {
-                        // Assign a new creator
-                        updateData.creator = updatedMembers[0].name;
-                        updateData.creator_email = updatedMembers[0].email;
-                        updateData.creator_phone = updatedMembers[0].phone;
-                    }
-                    
-                    // Update trip in Supabase
-                    const { error: updateError } = await window.supabaseClient
-                        .from('taxi_trips')
-                        .update(updateData)
-                        .eq('id', tripId);
-                        
-                    if (updateError) throw updateError;
-                }
-                
-                // Refresh trips
-                fetchTrips();
-            } catch (error) {
-                console.error('Error leaving trip:', error);
-                alert('Failed to leave trip: ' + error.message);
-            }
-        }
-    
-        // Search functionality
-        document.getElementById('searchTrip').addEventListener('input', async function(e) {
-            const searchTerm = e.target.value.toLowerCase();
-            if (searchTerm === '') {
-                // If search is empty, fetch all trips
-                fetchTrips();
+            // Apply sorting
+            if (sortBy === 'date') {
+                query = query.order('date', { ascending: true });
+            } else if (sortBy === 'destination') {
+                query = query.order('destination', { ascending: true });
             } else {
-                try {
-                    // Get today's date for filtering expired trips
-                    const today = new Date();
-                    today.setHours(0, 0, 0, 0);
-                    const todayStr = today.toISOString().split('T')[0];
-                    
-                    // Search trips in Supabase
-                    const { data, error } = await window.supabaseClient
-                        .from('taxi_trips')
-                        .select('*')
-                        .gte('date', todayStr)
-                        .ilike('destination', `%${searchTerm}%`)
-                        .order('created_at', { ascending: false });
-                        
-                    if (error) throw error;
-                    
-                    trips = data || [];
-                    renderTrips();
-                } catch (error) {
-                    console.error('Error searching trips:', error);
-                }
+                // For 'spots', we'll need to fetch all and sort manually
+                query = query.order('created_at', { ascending: false });
             }
-        });
-    
-        // Sort functionality
-        document.getElementById('sortTrips').addEventListener('change', async function(e) {
-            const sortBy = e.target.value;
             
-            try {
-                // Get today's date for filtering expired trips
-                const today = new Date();
-                today.setHours(0, 0, 0, 0);
-                const todayStr = today.toISOString().split('T')[0];
-                
-                let query = window.supabaseClient
-                    .from('taxi_trips')
-                    .select('*')
-                    .gte('date', todayStr);
-                    
-                // Apply sorting
-                if (sortBy === 'date') {
-                    query = query.order('date', { ascending: true });
-                } else if (sortBy === 'destination') {
-                    query = query.order('destination', { ascending: true });
-                } else {
-                    // For 'spots', we'll need to fetch all and sort manually
-                    query = query.order('created_at', { ascending: false });
-                }
-                
-                const { data, error } = await query;
-                
-                if (error) throw error;
-                
-                trips = data || [];
-                
-                // For spots sorting, we need custom sort logic
-                if (sortBy === 'spots') {
-                    trips.sort((a, b) => {
-                        const aSpots = a.max_members - (a.joined_members?.length || 0);
-                        const bSpots = b.max_members - (b.joined_members?.length || 0);
-                        return bSpots - aSpots;
-                    });
-                }
-                
-                renderTrips();
-            } catch (error) {
-                console.error('Error sorting trips:', error);
+            const { data, error } = await query;
+            
+            if (error) throw error;
+            
+            trips = data || [];
+            
+            // For spots sorting, we need custom sort logic
+            if (sortBy === 'spots') {
+                trips.sort((a, b) => {
+                    const aSpots = a.max_members - (a.joined_members?.length || 0);
+                    const bSpots = b.max_members - (b.joined_members?.length || 0);
+                    return bSpots - aSpots;
+                });
             }
-        });
-    
-        // Check session
-        async function checkSession() {
-            try {
-                // Check if user is logged in with Supabase
-                const { data: { session } } = await window.supabaseClient.auth.getSession();
-                
-                if (session) {
-                    // User is logged in, get profile
-                    const { data: profile, error } = await window.supabaseClient
-                        .from('profiles')
-                        .select('name, email')
-                        .eq('id', session.user.id)
-                        .single();
-                        
-                    if (!error && profile) {
-                        currentUser = {
-                            name: profile.name,
-                            email: profile.email,
-                            phone: ''
-                        };
-                        
-                        // Update user name in UI
-                        document.getElementById('userName').textContent = currentUser.name;
-                        
-                        // Store user info in sessionStorage
-                        sessionStorage.setItem('currentUserData', JSON.stringify(currentUser));
-                        
-                        // Fetch trips
-                        fetchTrips();
-                    } else {
-                        // Redirect to login
-                        window.location.href = 'index.html';
-                    }
+            
+            renderTrips();
+        } catch (error) {
+            console.error('Error sorting trips:', error);
+        }
+    });
+
+    // Check session
+    async function checkSession() {
+        try {
+            // Check if user is logged in with Supabase
+            const { data: { session } } = await window.supabaseClient.auth.getSession();
+            
+            if (session) {
+                // User is logged in, get profile
+                const { data: profile, error } = await window.supabaseClient
+                    .from('profiles')
+                    .select('name, email')
+                    .eq('id', session.user.id)
+                    .single();
+                    
+                if (!error && profile) {
+                    currentUser = {
+                        name: profile.name,
+                        email: profile.email,
+                        phone: ''
+                    };
+                    
+                    // Update user name in UI
+                    document.getElementById('userName').textContent = currentUser.name;
+                    
+                    // Store user info in sessionStorage
+                    sessionStorage.setItem('currentUserData', JSON.stringify(currentUser));
+                    
+                    // Fetch trips
+                    fetchTrips();
                 } else {
                     // Redirect to login
                     window.location.href = 'index.html';
                 }
-            } catch (error) {
-                console.error('Error checking session:', error);
-                // Redirect to login
-                window.location.href = 'index.html';
-            }
-        }
-    
-        // Logout function
-        window.logout = async function() {
-            try {
-                const { error } = await window.supabaseClient.auth.signOut();
-                if (error) throw error;
-                
-                // Clear session storage
-                sessionStorage.removeItem('currentUserData');
-                
-                // Redirect to login
-                window.location.href = 'index.html';
-            } catch (error) {
-                console.error('Error signing out:', error);
-                alert('Error signing out: ' + error.message);
-            }
-        };
-        
-        // Page redirection
-        window.redirectToPage = function(page) {
-            if (page === 'notice') {
-                window.location.href = 'index.html';
-            } else if (page === 'taxi') {
-                // Already on taxi page, do nothing
-            } else if (page === 'people') {
-                window.location.href = 'kyp.html';
             } else {
-                // For other pages, go to index and load the specific content
-                window.location.href = `index.html?page=${page}`;
+                // Redirect to login
+                window.location.href = 'index.html';
             }
-        };
-    
-        // Fixed: Improved checkScreenSize function
-        function checkScreenSize() {
-            const sidebar = document.getElementById('sidebar');
-            const overlay = document.getElementById('sidebarOverlay');
+        } catch (error) {
+            console.error('Error checking session:', error);
+            // Redirect to login
+            window.location.href = 'index.html';
+        }
+    }
+
+    // Logout function
+    window.logout = async function() {
+        try {
+            const { error } = await window.supabaseClient.auth.signOut();
+            if (error) throw error;
             
-            if (window.innerWidth >= 1024) { // lg breakpoint
-                sidebar.classList.remove('-translate-x-full');
-                overlay.classList.add('hidden');
-            } else {
-                sidebar.classList.add('-translate-x-full');
-            }
+            // Clear session storage
+            sessionStorage.removeItem('currentUserData');
+            
+            // Redirect to login
+            window.location.href = 'index.html';
+        } catch (error) {
+            console.error('Error signing out:', error);
+            alert('Error signing out: ' + error.message);
         }
+    };
     
-        // Add resize event listener
-        window.addEventListener('resize', checkScreenSize);
+    // Page redirection
+    window.redirectToPage = function(page) {
+        if (page === 'notice') {
+            window.location.href = 'index.html';
+        } else if (page === 'taxi') {
+            // Already on taxi page, do nothing
+        } else if (page === 'people') {
+            window.location.href = 'kyp.html';
+        } else {
+            // For other pages, go to index and load the specific content
+            window.location.href = `index.html?page=${page}`;
+        }
+    };
+
+    // Fixed: Improved checkScreenSize function
+    // function checkScreenSize() {
+    //     const sidebar = document.getElementById('sidebar');
+    //     const overlay = document.getElementById('sidebarOverlay');
         
-        // Call on page load
-        checkScreenSize();
-    });
+    //     if (window.innerWidth  1024) { // lg breakpoint
+    //         sidebar.classList.remove('-translate-x-full');
+    //         overlay.classList.add('hidden');
+    //     } else {
+    //         sidebar.classList.add('-translate-x-full');
+    //     }
+    // }
+
+    // Add resize event listener
+    // window.addEventListener('resize', checkScreenSize);
+    
+    // Call on page load
+    // checkScreenSize();
+    
+    // Set up periodic cleanup of past trips (run daily)
+    setInterval(deletePastTrips, 24 * 60 * 60 * 1000); // 24 hours
+    
+    // Also run cleanup on page load
+    deletePastTrips();
+});
 </script>
 </body>
 </html>
