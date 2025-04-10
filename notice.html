@@ -1,80 +1,241 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" class="light">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Notice Board - Student Companion</title>
+    <title>Student Companion</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    animation: {
+                        'fade-in': 'fadeIn 0.6s ease-out',
+                        'slide-in': 'slideIn 0.6s ease-out',
+                        'pulse-slow': 'pulse 3s infinite',
+                        'float': 'float 6s ease-in-out infinite',
+                        'bob': 'bob 4s ease-in-out infinite',
+                        'spin-slow': 'spin 15s linear infinite',
+                        'zoom': 'zoom 10s ease infinite',
+                    },
+                    keyframes: {
+                        fadeIn: {
+                            '0%': { opacity: '0' },
+                            '100%': { opacity: '1' }
+                        },
+                        slideIn: {
+                            '0%': { transform: 'translateY(20px)', opacity: '0' },
+                            '100%': { transform: 'translateY(0)', opacity: '1' }
+                        },
+                        float: {
+                            '0%, 100%': { transform: 'translateY(0)' },
+                            '50%': { transform: 'translateY(-20px)' }
+                        },
+                        bob: {
+                            '0%, 100%': { transform: 'translateY(0) rotate(0deg)' },
+                            '50%': { transform: 'translateY(-10px) rotate(5deg)' }
+                        },
+                        zoom: {
+                            '0%, 100%': { transform: 'scale(1)' },
+                            '50%': { transform: 'scale(1.05)' }
+                        }
+                    },
+                    backgroundImage: {
+                        'gradient-radial': 'radial-gradient(var(--tw-gradient-stops))',
+                    },
+                    colors: {
+                        primary: {
+                            50: '#f0f9ff',
+                            100: '#e0f2fe',
+                            200: '#bae6fd',
+                            300: '#7dd3fc',
+                            400: '#38bdf8',
+                            500: '#0ea5e9',
+                            600: '#0284c7',
+                            700: '#0369a1',
+                            800: '#075985',
+                            900: '#0c4a6e'
+                        },
+                        secondary: {
+                            50: '#faf5ff',
+                            100: '#f3e8ff',
+                            200: '#e9d5ff',
+                            300: '#d8b4fe',
+                            400: '#c084fc',
+                            500: '#a855f7',
+                            600: '#9333ea',
+                            700: '#7e22ce',
+                            800: '#6b21a8',
+                            900: '#581c87'
+                        },
+                        tertiary: {
+                            50: '#fff7ed',
+                            100: '#ffedd5',
+                            200: '#fed7aa',
+                            300: '#fdba74',
+                            400: '#fb923c',
+                            500: '#f97316',
+                            600: '#ea580c',
+                            700: '#c2410c',
+                            800: '#9a3412',
+                            900: '#7c2d12'
+                        }
+                    }
+                }
+            }
+        }
+    </script>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css" rel="stylesheet">
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <style>
         * {
-            font-family: 'Poppins', sans-serif;
+            font-family: 'Outfit', sans-serif;
         }
-        .auth-container {
-            background: linear-gradient(135deg, #6366f1 0%, #3b82f6 100%);
+        
+        .floating-shape {
+            position: absolute;
+            opacity: 0.7;
+            border-radius: 50%;
+            filter: blur(20px);
+            z-index: 0;
         }
-        .glass-effect {
-            background: rgba(255, 255, 255, 0.1);
-            backdrop-filter: blur(10px);
-            border: 1px solid rgba(255, 255, 255, 0.2);
+        
+        #homepage {
+            display: none;
         }
-        :root {
-            color-scheme: light dark;
+        
+        .animate-delay-1 {
+            animation-delay: 0.2s;
         }
-        .nav-link {
-            transition: all 0.3s ease;
+        
+        .animate-delay-2 {
+            animation-delay: 0.4s;
         }
-        .nav-link:hover {
-            background-color: rgba(255, 255, 255, 0.1);
-            transform: translateY(-2px);
+        
+        .animate-delay-3 {
+            animation-delay: 0.6s;
         }
-        .carousel-container {
+        
+        .animate-delay-4 {
+            animation-delay: 0.8s;
+        }
+        
+        /* Sidebar hover effect */
+        .sidebar-item {
             position: relative;
             overflow: hidden;
-            border-radius: 0.5rem;
         }
-        .carousel-slide {
-            display: none;
-            width: 100%;
-            height: 100%;
-        }
-        .carousel-slide.active {
-            display: block;
-        }
-        .carousel-control {
+        
+        .sidebar-item::after {
+            content: '';
             position: absolute;
-            top: 50%;
-            transform: translateY(-50%);
-            background: rgba(0, 0, 0, 0.5);
-            color: white;
-            border: none;
-            border-radius: 50%;
-            width: 40px;
-            height: 40px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            cursor: pointer;
-            z-index: 10;
+            top: 0;
+            left: 0;
+            width: 0;
+            height: 100%;
+            background-color: rgba(255, 255, 255, 0.1);
+            transition: width 0.3s ease;
+            z-index: -1;
         }
-        .carousel-prev {
-            left: 10px;
+        
+        .sidebar-item:hover::after {
+            width: 100%;
         }
-        .carousel-next {
-            right: 10px;
+        
+        /* Custom scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
         }
-        .notice-card {
-            transition: all 0.3s ease;
+        
+        ::-webkit-scrollbar-track {
+            background: transparent;
         }
-        .notice-card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+        
+        ::-webkit-scrollbar-thumb {
+            background: rgba(156, 163, 175, 0.5);
+            border-radius: 10px;
+        }
+        
+        ::-webkit-scrollbar-thumb:hover {
+            background: rgba(156, 163, 175, 0.8);
         }
     </style>
+    <!-- Add these styles to your existing <style> tag -->
+<style>
+    /* Mobile optimizations */
+    @media (max-width: 640px) {
+        .floating-shape {
+            opacity: 0.4;
+            filter: blur(30px);
+        }
+        
+        #contentArea {
+            padding: 1rem !important;
+        }
+    }
+    
+    /* Tablet optimizations */
+    @media (min-width: 641px) and (max-width: 1024px) {
+        .floating-shape {
+            opacity: 0.5;
+            filter: blur(25px);
+        }
+    }
+    
+    /* Animations for mobile */
+    @media (prefers-reduced-motion: reduce) {
+        .animate-float, .animate-bob, .animate-spin-slow, .animate-zoom {
+            animation: none !important;
+        }
+    }
+    
+    /* Responsive sidebar */
+    @media (max-width: 768px) {
+        #sidebar {
+            width: 240px;
+        }
+    }
+    
+    /* Smoother transitions */
+    .content-section {
+        transition: opacity 0.3s ease;
+    }
+    
+    .content-section.hidden {
+        display: none;
+        opacity: 0;
+    }
+    
+    /* Notification animation */
+    @keyframes slideInUp {
+        from {
+            transform: translateY(100%);
+            opacity: 0;
+        }
+        to {
+            transform: translateY(0);
+            opacity: 1;
+        }
+    }
+    
+    .notification-enter {
+        animation: slideInUp 0.3s forwards;
+    }
+    
+    /* Fix for mobile view content padding */
+    #contentArea {
+        transition: margin-left 0.3s ease;
+    }
+    
+    /* Better mobile form experience */
+    input, select, textarea {
+        font-size: 16px !important; /* Prevents iOS zoom on focus */
+    }
+</style>
 </head>
-<body class="bg-gray-50 dark:bg-gray-900">
+<body class="bg-gray-50 dark:bg-gray-900 transition-colors duration-300">
     <!-- Authentication check and redirect -->
     <div id="authCheck" class="fixed inset-0 z-50 flex items-center justify-center bg-gray-900 bg-opacity-80">
         <div class="bg-white dark:bg-gray-800 p-8 rounded-lg shadow-xl max-w-md w-full text-center">
@@ -85,67 +246,158 @@
     </div>
 
     <!-- Navbar -->
-    <nav class="bg-indigo-600 text-white shadow-lg sticky top-0 z-50">
+    <nav class="bg-gradient-to-r from-primary-600 to-secondary-600 dark:from-primary-800 dark:to-secondary-800 text-white shadow-lg sticky top-0 z-50 transition-colors duration-300">
         <div class="container mx-auto px-4">
             <div class="flex justify-between items-center py-4">
                 <div class="flex items-center space-x-4">
-                    <h1 class="text-2xl font-bold">Student Companion</h1>
-                    <!-- Fixed: Always show welcome message but adjust font size -->
-                    <span id="welcomeMessage" class="text-xs md:text-sm">Welcome, <span id="userName">User</span>!</span>
+                    <div class="flex items-center space-x-2">
+                        <i class="bi bi-mortarboard-fill text-2xl"></i>
+                        <h1 class="text-xl md:text-2xl font-bold">Student Companion</h1>
+                    </div>
+                    <span id="welcomeMessage" class="hidden md:inline text-sm bg-white/10 py-1 px-3 rounded-full">
+                        <i class="bi bi-person-check mr-1"></i>
+                        Welcome, <span id="userName" class="font-medium">User</span>!
+                    </span>
                 </div>
-                <!-- Fixed: Always show logout button but make it compact on small screens -->
-                <div class="flex items-center">
-                    <button id="logoutBtn" class="py-1 px-2 md:py-2 md:px-4 text-xs md:text-base rounded-lg bg-white bg-opacity-20 hover:bg-opacity-30 transition" onclick="logout()">Logout</button>
+                
+                <div class="flex items-center space-x-3">
+                    <!-- Theme Toggle Button -->
+                    <button id="themeToggleBtn" class="p-2 rounded-full bg-white/10 hover:bg-white/20 transition-all duration-300" onclick="toggleTheme()">
+                        <i id="themeIcon" class="bi bi-sun text-lg"></i>
+                    </button>
+                    
+                    <button id="logoutBtn" class="py-1 px-2 md:py-2 md:px-4 text-xs md:text-base rounded-lg bg-white/20 hover:bg-white/30 transition-all duration-300 transform hover:-translate-y-1 flex items-center space-x-1" onclick="logout()">
+                        <i class="bi bi-box-arrow-right"></i>
+                        <span class="hidden md:inline">Logout</span>
+                    </button>
                 </div>
             </div>
         </div>
     </nav>
 
+    <!-- Mobile Menu -->
+    <div id="mobileMenu" class="hidden md:hidden bg-primary-700 dark:bg-primary-900 text-white transition-colors duration-300">
+        <div class="container mx-auto px-4 py-2">
+            <button class="w-full text-left py-2 px-4 hover:bg-primary-600 dark:hover:bg-primary-800 rounded-lg transition-colors duration-300 flex items-center space-x-2" onclick="logout()">
+                <i class="bi bi-box-arrow-right"></i>
+                <span>Logout</span>
+            </button>
+        </div>
+    </div>
+
     <!-- Main content -->
     <div class="flex flex-col md:flex-row">
         <!-- Sidebar -->
-        <div id="sidebar" class="fixed md:relative w-64 bg-indigo-800 text-white h-screen z-40 transform -translate-x-full md:translate-x-0 transition-transform duration-300">
+        <div id="sidebar" class="fixed md:relative w-64 bg-gradient-to-b from-primary-800 via-primary-700 to-secondary-700 dark:from-gray-800 dark:via-gray-800 dark:to-gray-900 text-white h-screen z-40 transform -translate-x-full md:translate-x-0 transition-transform duration-300 shadow-xl overflow-auto">
             <div class="p-4">
-                <h2 class="text-xl font-semibold mb-4">Features</h2>
+                <div class="mb-6 flex items-center justify-center">
+                    <div class="w-12 h-12 rounded-full flex items-center justify-center bg-white/10 hover:bg-white/20 transition-all duration-300 cursor-pointer animate-pulse-slow">
+                        <i class="bi bi-mortarboard-fill text-2xl"></i>
+                    </div>
+                </div>
+                
+                <h2 class="text-xl font-semibold mb-6 pb-2 border-b border-white/20 dark:border-gray-700/50 flex items-center">
+                    <i class="bi bi-grid-fill mr-2"></i>
+                    Features
+                </h2>
+                
                 <ul class="space-y-2">
-                    <li><a href="#" class="block py-2 px-4 rounded-lg nav-link bg-white bg-opacity-20">Notice Board</a></li>
-                    <li><a href="taxi-search.html" class="block py-2 px-4 rounded-lg nav-link">Taxi Search</a></li>
-                    <li><a href="study.html" class="block py-2 px-4 rounded-lg nav-link">Study Materials</a></li>
-                    <li><a href="mail.html" class="block py-2 px-4 rounded-lg nav-link">Mail Formats</a></li>
-                    <li><a href="kyp.html" class="block py-2 px-4 rounded-lg nav-link">Know Your People</a></li>
-                    <li><a href="outings.html" class="block py-2 px-4 rounded-lg nav-link">Outings & Trips</a></li>
-                    <li><a href="messmenu.html" class="block py-2 px-4 rounded-lg nav-link">Mess & Canteen</a></li>
+                    <li class="sidebar-item">
+                        <a href="notice.html" class="block py-3 px-4 rounded-lg hover:bg-white/10 dark:hover:bg-gray-700/30 transition-all duration-300 flex items-center space-x-3">
+                            <div class="w-8 h-8 rounded-lg bg-white/10 flex items-center justify-center">
+                                <i class="bi bi-megaphone"></i>
+                            </div>
+                            <span>Notice Board</span>
+                        </a>
+                    </li>
+                    <li class="sidebar-item">
+                        <a href="taxi-search.html" class="block py-3 px-4 rounded-lg hover:bg-white/10 dark:hover:bg-gray-700/30 transition-all duration-300 flex items-center space-x-3">
+                            <div class="w-8 h-8 rounded-lg bg-white/10 flex items-center justify-center">
+                                <i class="bi bi-car-front"></i>
+                            </div>
+                            <span>Taxi Search</span>
+                        </a>
+                    </li>
+                    <li class="sidebar-item">
+                        <a href="study.html" class="block py-3 px-4 rounded-lg hover:bg-white/10 dark:hover:bg-gray-700/30 transition-all duration-300 flex items-center space-x-3">
+                            <div class="w-8 h-8 rounded-lg bg-white/10 flex items-center justify-center">
+                                <i class="bi bi-book"></i>
+                            </div>
+                            <span>Study Materials</span>
+                        </a>
+                    </li>
+                    <li class="sidebar-item">
+                        <a href="mail.html" class="block py-3 px-4 rounded-lg hover:bg-white/10 dark:hover:bg-gray-700/30 transition-all duration-300 flex items-center space-x-3">
+                            <div class="w-8 h-8 rounded-lg bg-white/10 flex items-center justify-center">
+                                <i class="bi bi-envelope"></i>
+                            </div>
+                            <span>Mail Formats</span>
+                        </a>
+                    </li>
+                    <li class="sidebar-item">
+                        <a href="kyp.html" class="block py-3 px-4 rounded-lg hover:bg-white/10 dark:hover:bg-gray-700/30 transition-all duration-300 flex items-center space-x-3">
+                            <div class="w-8 h-8 rounded-lg bg-white/10 flex items-center justify-center">
+                                <i class="bi bi-people"></i>
+                            </div>
+                            <span>Know Your People</span>
+                        </a>
+                    </li>
+                    <li class="sidebar-item">
+                        <a href="outings.html" class="block py-3 px-4 rounded-lg hover:bg-white/10 dark:hover:bg-gray-700/30 transition-all duration-300 flex items-center space-x-3">
+                            <div class="w-8 h-8 rounded-lg bg-white/10 flex items-center justify-center">
+                                <i class="bi bi-geo"></i>
+                            </div>
+                            <span>Outings & Trips</span>
+                        </a>
+                    </li>
+                    <li class="sidebar-item">
+                        <a href="messmenu.html" class="block py-3 px-4 rounded-lg hover:bg-white/10 dark:hover:bg-gray-700/30 transition-all duration-300 flex items-center space-x-3">
+                            <div class="w-8 h-8 rounded-lg bg-white/10 flex items-center justify-center">
+                                <i class="bi bi-cup-hot"></i>
+                            </div>
+                            <span>Mess & Canteen</span>
+                        </a>
+                    </li>
                 </ul>
+            </div>
+            
+            <!-- Sidebar Footer -->
+            <div class="mt-auto p-4 border-t border-white/10 dark:border-gray-700/30">
+                <div class="text-xs text-white/50 text-center">
+                    <p>© 2025 Student Companion</p>
+                </div>
             </div>
         </div>
 
-        <div class="fixed bottom-4 left-4 z-40 md:hidden">
-            <button onclick="toggleSidebar()" class="bg-indigo-600 text-white p-3 rounded-full shadow-lg">
-                <i class="bi bi-list text-xl"></i>
+        <!-- Mobile Sidebar Toggle -->
+        <div class="fixed bottom-6 left-6 z-40 md:hidden">
+            <button onclick="toggleSidebar()" class="bg-primary-600 dark:bg-primary-700 text-white p-4 rounded-full shadow-lg hover:bg-primary-500 dark:hover:bg-primary-600 transition-all duration-300">
+                <i id="sidebarIcon" class="bi bi-list text-xl"></i>
             </button>
         </div>
 
         <!-- Main Content Area -->
-        <div class="flex-1 p-4 md:p-8">
-            <div class="bg-white dark:bg-gray-800 rounded-xl shadow-lg p-4 md:p-6">
-                <div class="flex flex-col md:flex-row md:items-center justify-between mb-6">
-                    <h2 class="text-2xl font-bold text-gray-800 dark:text-white mb-4 md:mb-0">Notice Board</h2>
-                    <div id="adminControls" class="hidden">
-                        <button id="addNoticeBtn" class="bg-indigo-600 hover:bg-indigo-700 text-white py-2 px-4 rounded-lg flex items-center transition">
-                            <i class="bi bi-plus-lg mr-2"></i> Add Notice
-                        </button>
-                    </div>
-                </div>
-
-                <!-- Notices Container -->
-                <div id="noticesContainer" class="space-y-6 mt-2">
-                    <div class="text-center p-12 text-gray-500 dark:text-gray-400" id="emptyNotice">
-                        <i class="bi bi-clipboard text-4xl mb-2"></i>
-                        <p>No notices available at the moment</p>
-                    </div>
-                </div>
+        <!-- Main Content Area -->
+<div id="contentArea" class="flex-1 transition-all duration-300 md:ml-0 p-4 md:p-8">
+    <div class="bg-white dark:bg-gray-800 rounded-xl shadow-lg p-4 md:p-6 max-w-6xl mx-auto">
+        <div class="flex flex-col md:flex-row md:items-center justify-between mb-6">
+            <h2 class="text-2xl font-bold text-gray-800 dark:text-white mb-4 md:mb-0">Notice Board</h2>
+            <div id="adminControls" class="hidden">
+                <button id="addNoticeBtn" class="bg-primary-600 hover:bg-primary-700 text-white py-2 px-4 rounded-lg flex items-center transition">
+                    <i class="bi bi-plus-lg mr-2"></i> Add Notice
+                </button>
             </div>
         </div>
+
+        <!-- Notices Container -->
+        <div id="noticesContainer" class="space-y-6 mt-2">
+            <div class="text-center p-12 text-gray-500 dark:text-gray-400" id="emptyNotice">
+                <i class="bi bi-clipboard text-4xl mb-2"></i>
+                <p>No notices available at the moment</p>
+            </div>
+        </div>
+    </div>
+</div>
     </div>
 
     <!-- Add/Edit Notice Modal -->
@@ -220,7 +472,7 @@ document.addEventListener('DOMContentLoaded', function() {
         // document.getElementById('userName').textContent = currentUser.name;
         
         // Check if user is admin
-        if (user.name === 'hetchavadiya') {
+        if (user.name === 'admin') {
             document.getElementById('adminControls').classList.remove('hidden');
         }
         
@@ -237,9 +489,113 @@ document.addEventListener('DOMContentLoaded', function() {
     document.getElementById('noticeImages').addEventListener('change', handleImagePreview);
 });
 
+// ==== THEME FUNCTIONALITY ====
+function toggleTheme() {
+    // Check if currently in dark mode
+    const isDarkMode = document.documentElement.classList.contains('dark');
+    
+    // Toggle the dark class on the html element
+    document.documentElement.classList.toggle('dark');
+    
+    // Update the icon based on current theme
+    const themeIcon = document.getElementById('themeIcon');
+    if (isDarkMode) {
+        // Switching to light mode
+        themeIcon.classList.remove('bi-moon');
+        themeIcon.classList.add('bi-sun');
+    } else {
+        // Switching to dark mode
+        themeIcon.classList.remove('bi-sun');
+        themeIcon.classList.add('bi-moon');
+    }
+    
+    // Save preference to localStorage
+    localStorage.setItem('theme', isDarkMode ? 'light' : 'dark');
+}
+
+// Function to initialize theme based on saved preference
+function initializeTheme() {
+    // Check for saved theme preference or use system preference
+    const savedTheme = localStorage.getItem('theme');
+    
+    if (savedTheme) {
+        // Apply saved preference
+        if (savedTheme === 'dark') {
+            document.documentElement.classList.add('dark');
+            document.getElementById('themeIcon').classList.remove('bi-sun');
+            document.getElementById('themeIcon').classList.add('bi-moon');
+        } else {
+            document.documentElement.classList.remove('dark');
+            document.getElementById('themeIcon').classList.remove('bi-moon');
+            document.getElementById('themeIcon').classList.add('bi-sun');
+        }
+    } else {
+        // Apply system preference
+        if (window.matchMedia('(prefers-color-scheme: dark)').matches) {
+            document.documentElement.classList.add('dark');
+            document.getElementById('themeIcon').classList.remove('bi-sun');
+            document.getElementById('themeIcon').classList.add('bi-moon');
+        }
+    }
+}
+
+// ==== RESPONSIVE FUNCTIONALITY ====
+// ==== RESPONSIVE FUNCTIONALITY ====
+function setupResponsiveness() {
+    // Adjust UI based on screen size
+    const handleResize = () => {
+        const width = window.innerWidth;
+        const sidebar = document.getElementById('sidebar');
+        const contentArea = document.getElementById('contentArea');
+        
+        // Sidebar handling based on screen size
+        if (width < 768) { // Mobile view
+            sidebar.classList.add('-translate-x-full');
+            sidebar.classList.add('fixed');
+            sidebar.classList.remove('relative');
+            
+            // Reset content area margins for mobile
+            contentArea.classList.remove('md:ml-64');
+            contentArea.style.marginLeft = '0';
+        } else { // Desktop view
+            sidebar.classList.remove('-translate-x-full');
+            sidebar.classList.remove('fixed');
+            sidebar.classList.add('relative');
+            
+            // Set proper margin for desktop view
+            contentArea.classList.add('md:ml-64');
+        }
+    };
+    
+    // Call once on load and add event listener
+    handleResize();
+    window.addEventListener('resize', handleResize);
+}
+
+// Toggle mobile sidebar with improved transitions
 function toggleSidebar() {
     const sidebar = document.getElementById('sidebar');
+    const sidebarIcon = document.getElementById('sidebarIcon');
+    const contentArea = document.getElementById('contentArea');
+    
     sidebar.classList.toggle('-translate-x-full');
+    
+    // Update icon based on sidebar state
+    if (sidebar.classList.contains('-translate-x-full')) {
+        sidebarIcon.classList.remove('bi-x-lg');
+        sidebarIcon.classList.add('bi-list');
+        
+        // Reset content area when sidebar is closed
+        contentArea.style.marginLeft = '0';
+    } else {
+        sidebarIcon.classList.remove('bi-list');
+        sidebarIcon.classList.add('bi-x-lg');
+        
+        // Only adjust margins on mobile
+        if (window.innerWidth < 768) {
+            contentArea.style.marginLeft = '0';
+        }
+    }
 }
 
 async function logout() {
@@ -513,7 +869,7 @@ async function loadNotices() {
 }
 function createNoticeCard(notice) {
     const noticeCard = document.createElement('div');
-    noticeCard.className = 'notice-card bg-white dark:bg-gray-700 rounded-lg shadow p-5 border-l-4 border-indigo-500';
+    noticeCard.className = 'notice-card bg-white dark:bg-gray-700 rounded-lg shadow-md p-5 border-l-4 border-primary-500 hover:shadow-lg transition-shadow duration-300';
     
     // Calculate time remaining
     const now = new Date().getTime();
@@ -533,13 +889,11 @@ function createNoticeCard(notice) {
     }
     
     const hasImages = notice.images && notice.images.length > 0;
-    
-    // Use the author name from the notice, or fallback to "Unknown"
     const authorName = notice.authorName || "Unknown";
     
-    // Create card header
+    // Create card header with improved alignment
     const cardHeader = document.createElement('div');
-    cardHeader.className = 'flex justify-between items-start mb-3';
+    cardHeader.className = 'flex flex-col sm:flex-row sm:justify-between sm:items-center gap-2 mb-3';
     cardHeader.innerHTML = `
         <div>
             <h3 class="text-xl font-semibold text-gray-800 dark:text-white">${notice.title}</h3>
@@ -550,7 +904,7 @@ function createNoticeCard(notice) {
         <div class="flex items-center">
             <span class="text-xs bg-yellow-100 text-yellow-800 dark:bg-yellow-800 dark:text-yellow-100 py-1 px-2 rounded-full mr-2">${expiryText}</span>
             <div id="adminNoticeControls-${notice.id}" class="hidden flex">
-                <button class="text-indigo-600 hover:text-indigo-800 dark:text-indigo-400 dark:hover:text-indigo-300 mx-1" onclick="openEditModal('${notice.id}')">
+                <button class="text-primary-600 hover:text-primary-800 dark:text-primary-400 dark:hover:text-primary-300 mx-1" onclick="openEditModal('${notice.id}')">
                     <i class="bi bi-pencil"></i>
                 </button>
                 <button class="text-red-600 hover:text-red-800 dark:text-red-400 dark:hover:text-red-300 mx-1" onclick="deleteNotice('${notice.id}')">
@@ -561,30 +915,30 @@ function createNoticeCard(notice) {
     `;
     noticeCard.appendChild(cardHeader);
     
-    // Add image carousel if images exist
+    // Add image carousel if images exist with rounded corners and proper alignment
     if (hasImages) {
         const carouselContainer = document.createElement('div');
-        carouselContainer.className = 'carousel-container mb-4 h-64';
+        carouselContainer.className = 'carousel-container mb-4 h-64 relative overflow-hidden rounded-lg';
         
         notice.images.forEach((image, idx) => {
             const slide = document.createElement('div');
-            slide.className = `carousel-slide ${idx === 0 ? 'active' : ''}`;
+            slide.className = `carousel-slide absolute inset-0 transition-opacity duration-300 ${idx === 0 ? 'opacity-100' : 'opacity-0'}`;
             slide.setAttribute('data-slide', idx);
             slide.innerHTML = `<img src="${image}" alt="Notice Image" class="w-full h-full object-contain">`;
             carouselContainer.appendChild(slide);
         });
         
-        // Add controls if more than one image
+        // Add controls if more than one image with better positioning
         if (notice.images.length > 1) {
             const prevBtn = document.createElement('button');
-            prevBtn.className = 'carousel-control carousel-prev';
+            prevBtn.className = 'absolute left-2 top-1/2 transform -translate-y-1/2 bg-black bg-opacity-50 text-white rounded-full w-8 h-8 flex items-center justify-center';
             prevBtn.innerHTML = '<i class="bi bi-chevron-left"></i>';
             prevBtn.onclick = function() {
                 changeSlide(carouselContainer, -1);
             };
             
             const nextBtn = document.createElement('button');
-            nextBtn.className = 'carousel-control carousel-next';
+            nextBtn.className = 'absolute right-2 top-1/2 transform -translate-y-1/2 bg-black bg-opacity-50 text-white rounded-full w-8 h-8 flex items-center justify-center';
             nextBtn.innerHTML = '<i class="bi bi-chevron-right"></i>';
             nextBtn.onclick = function() {
                 changeSlide(carouselContainer, 1);
@@ -597,17 +951,16 @@ function createNoticeCard(notice) {
         noticeCard.appendChild(carouselContainer);
     }
     
-    // Add notice content
+    // Add notice content with improved text formatting
     const content = document.createElement('div');
-    content.className = 'text-gray-700 dark:text-gray-300 whitespace-pre-line';
+    content.className = 'text-gray-700 dark:text-gray-300 whitespace-pre-line leading-relaxed';
     content.textContent = notice.content;
     noticeCard.appendChild(content);
     
-    // Check if user is admin to show controls - fix admin check
+    // Admin controls check with proper alignment with primary theme color
     setTimeout(() => {
         const userData = JSON.parse(sessionStorage.getItem('currentUserData') || '{}');
-        // Use consistent admin check with the one used in DOMContentLoaded
-        if (userData.name === 'hetchavadiya') {
+        if (userData.name === 'admin') {
             document.getElementById(`adminNoticeControls-${notice.id}`).classList.remove('hidden');
         }
     }, 0);
@@ -615,9 +968,10 @@ function createNoticeCard(notice) {
     return noticeCard;
 }
 
+// Update slide change function for smoother transitions
 function changeSlide(container, direction) {
     const slides = container.querySelectorAll('.carousel-slide');
-    const activeSlide = container.querySelector('.carousel-slide.active');
+    const activeSlide = container.querySelector('.carousel-slide.opacity-100');
     const activeIndex = parseInt(activeSlide.getAttribute('data-slide'));
     
     let newIndex = activeIndex + direction;
@@ -628,10 +982,11 @@ function changeSlide(container, direction) {
         newIndex = 0;
     }
     
-    activeSlide.classList.remove('active');
-    slides[newIndex].classList.add('active');
+    activeSlide.classList.remove('opacity-100');
+    activeSlide.classList.add('opacity-0');
+    slides[newIndex].classList.remove('opacity-0');
+    slides[newIndex].classList.add('opacity-100');
 }
-
 async function cleanupExpiredNotices() {
     try {
         // Use timestamp in milliseconds instead of ISO string

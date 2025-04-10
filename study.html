@@ -1,207 +1,524 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" class="light">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Study Materials | Student Companion</title>
+    <title>Student Companion</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    animation: {
+                        'fade-in': 'fadeIn 0.6s ease-out',
+                        'slide-in': 'slideIn 0.6s ease-out',
+                        'pulse-slow': 'pulse 3s infinite',
+                        'float': 'float 6s ease-in-out infinite',
+                        'bob': 'bob 4s ease-in-out infinite',
+                        'spin-slow': 'spin 15s linear infinite',
+                        'zoom': 'zoom 10s ease infinite',
+                    },
+                    keyframes: {
+                        fadeIn: {
+                            '0%': { opacity: '0' },
+                            '100%': { opacity: '1' }
+                        },
+                        slideIn: {
+                            '0%': { transform: 'translateY(20px)', opacity: '0' },
+                            '100%': { transform: 'translateY(0)', opacity: '1' }
+                        },
+                        float: {
+                            '0%, 100%': { transform: 'translateY(0)' },
+                            '50%': { transform: 'translateY(-20px)' }
+                        },
+                        bob: {
+                            '0%, 100%': { transform: 'translateY(0) rotate(0deg)' },
+                            '50%': { transform: 'translateY(-10px) rotate(5deg)' }
+                        },
+                        zoom: {
+                            '0%, 100%': { transform: 'scale(1)' },
+                            '50%': { transform: 'scale(1.05)' }
+                        }
+                    },
+                    backgroundImage: {
+                        'gradient-radial': 'radial-gradient(var(--tw-gradient-stops))',
+                    },
+                    colors: {
+                        primary: {
+                            50: '#f0f9ff',
+                            100: '#e0f2fe',
+                            200: '#bae6fd',
+                            300: '#7dd3fc',
+                            400: '#38bdf8',
+                            500: '#0ea5e9',
+                            600: '#0284c7',
+                            700: '#0369a1',
+                            800: '#075985',
+                            900: '#0c4a6e'
+                        },
+                        secondary: {
+                            50: '#faf5ff',
+                            100: '#f3e8ff',
+                            200: '#e9d5ff',
+                            300: '#d8b4fe',
+                            400: '#c084fc',
+                            500: '#a855f7',
+                            600: '#9333ea',
+                            700: '#7e22ce',
+                            800: '#6b21a8',
+                            900: '#581c87'
+                        },
+                        tertiary: {
+                            50: '#fff7ed',
+                            100: '#ffedd5',
+                            200: '#fed7aa',
+                            300: '#fdba74',
+                            400: '#fb923c',
+                            500: '#f97316',
+                            600: '#ea580c',
+                            700: '#c2410c',
+                            800: '#9a3412',
+                            900: '#7c2d12'
+                        }
+                    }
+                }
+            }
+        }
+    </script>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <style>
         * {
-            font-family: 'Poppins', sans-serif;
+            font-family: 'Outfit', sans-serif;
         }
-        .auth-container {
-            background: linear-gradient(135deg, #6366f1 0%, #3b82f6 100%);
+        
+        .floating-shape {
+            position: absolute;
+            opacity: 0.7;
+            border-radius: 50%;
+            filter: blur(20px);
+            z-index: 0;
         }
-        .glass-effect {
-            background: rgba(255, 255, 255, 0.1);
-            backdrop-filter: blur(10px);
-            border: 1px solid rgba(255, 255, 255, 0.2);
+        
+        #homepage {
+            display: none;
         }
-        :root {
-            color-scheme: light dark;
+        
+        .animate-delay-1 {
+            animation-delay: 0.2s;
         }
-        .nav-link {
-            transition: all 0.3s ease;
+        
+        .animate-delay-2 {
+            animation-delay: 0.4s;
         }
-        .nav-link:hover {
+        
+        .animate-delay-3 {
+            animation-delay: 0.6s;
+        }
+        
+        .animate-delay-4 {
+            animation-delay: 0.8s;
+        }
+        
+        /* Sidebar hover effect */
+        .sidebar-item {
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .sidebar-item::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 0;
+            height: 100%;
             background-color: rgba(255, 255, 255, 0.1);
-            transform: translateY(-2px);
+            transition: width 0.3s ease;
+            z-index: -1;
+        }
+        
+        .sidebar-item:hover::after {
+            width: 100%;
+        }
+        
+        /* Custom scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+        
+        ::-webkit-scrollbar-track {
+            background: transparent;
+        }
+        
+        ::-webkit-scrollbar-thumb {
+            background: rgba(156, 163, 175, 0.5);
+            border-radius: 10px;
+        }
+        
+        ::-webkit-scrollbar-thumb:hover {
+            background: rgba(156, 163, 175, 0.8);
         }
     </style>
+    <!-- Add these styles to your existing <style> tag -->
+<style>
+    /* Mobile optimizations */
+    @media (max-width: 640px) {
+        .floating-shape {
+            opacity: 0.4;
+            filter: blur(30px);
+        }
+        
+        #contentArea {
+            padding: 1rem !important;
+        }
+    }
+    
+    /* Tablet optimizations */
+    @media (min-width: 641px) and (max-width: 1024px) {
+        .floating-shape {
+            opacity: 0.5;
+            filter: blur(25px);
+        }
+    }
+    
+    /* Animations for mobile */
+    @media (prefers-reduced-motion: reduce) {
+        .animate-float, .animate-bob, .animate-spin-slow, .animate-zoom {
+            animation: none !important;
+        }
+    }
+    
+    /* Responsive sidebar */
+    @media (max-width: 768px) {
+        #sidebar {
+            width: 240px;
+        }
+    }
+    
+    /* Smoother transitions */
+    .content-section {
+        transition: opacity 0.3s ease;
+    }
+    
+    .content-section.hidden {
+        display: none;
+        opacity: 0;
+    }
+    
+    /* Notification animation */
+    @keyframes slideInUp {
+        from {
+            transform: translateY(100%);
+            opacity: 0;
+        }
+        to {
+            transform: translateY(0);
+            opacity: 1;
+        }
+    }
+    
+    .notification-enter {
+        animation: slideInUp 0.3s forwards;
+    }
+    
+    /* Fix for mobile view content padding */
+    #contentArea {
+        transition: margin-left 0.3s ease;
+    }
+    
+    /* Better mobile form experience */
+    input, select, textarea {
+        font-size: 16px !important; /* Prevents iOS zoom on focus */
+    }
+</style>
 </head>
-<body class="bg-gray-50 dark:bg-gray-900">
+<body class="bg-gray-50 dark:bg-gray-900 transition-colors duration-300">
     <div id="homepage" class="min-h-screen">
         <!-- Navbar -->
-        <nav class="bg-indigo-600 text-white shadow-lg sticky top-0 z-50">
+        <nav class="bg-gradient-to-r from-primary-600 to-secondary-600 dark:from-primary-800 dark:to-secondary-800 text-white shadow-lg sticky top-0 z-50 transition-colors duration-300">
             <div class="container mx-auto px-4">
                 <div class="flex justify-between items-center py-4">
                     <div class="flex items-center space-x-4">
-                        <h1 class="text-2xl font-bold">Student Companion</h1>
-                        <span id="welcomeMessage" class="hidden md:inline text-sm">Welcome, <span id="userName">User</span>!</span>
+                        <div class="flex items-center space-x-2">
+                            <i class="bi bi-mortarboard-fill text-2xl"></i>
+                            <h1 class="text-xl md:text-2xl font-bold">Student Companion</h1>
+                        </div>
+                        <span id="welcomeMessage" class="hidden md:inline text-sm bg-white/10 py-1 px-3 rounded-full">
+                            <i class="bi bi-person-check mr-1"></i>
+                            Welcome, <span id="userName" class="font-medium">User</span>!
+                        </span>
                     </div>
                     
-                    <div class="flex items-center">
-                        <button id="logoutBtn" class="py-1 px-2 md:py-2 md:px-4 text-xs md:text-base rounded-lg bg-white bg-opacity-20 hover:bg-opacity-30 transition ml-2" onclick="logout()">Logout</button>
+                    <div class="flex items-center space-x-3">
+                        <!-- Theme Toggle Button -->
+                        <button id="themeToggleBtn" class="p-2 rounded-full bg-white/10 hover:bg-white/20 transition-all duration-300" onclick="toggleTheme()">
+                            <i id="themeIcon" class="bi bi-sun text-lg"></i>
+                        </button>
+                        
+                        <button id="logoutBtn" class="py-1 px-2 md:py-2 md:px-4 text-xs md:text-base rounded-lg bg-white/20 hover:bg-white/30 transition-all duration-300 transform hover:-translate-y-1 flex items-center space-x-1" onclick="logout()">
+                            <i class="bi bi-box-arrow-right"></i>
+                            <span class="hidden md:inline">Logout</span>
+                        </button>
                     </div>
                 </div>
             </div>
         </nav>
 
+        <!-- Mobile Menu -->
+        <div id="mobileMenu" class="hidden md:hidden bg-primary-700 dark:bg-primary-900 text-white transition-colors duration-300">
+            <div class="container mx-auto px-4 py-2">
+                <button class="w-full text-left py-2 px-4 hover:bg-primary-600 dark:hover:bg-primary-800 rounded-lg transition-colors duration-300 flex items-center space-x-2" onclick="logout()">
+                    <i class="bi bi-box-arrow-right"></i>
+                    <span>Logout</span>
+                </button>
+            </div>
+        </div>
+
         <!-- Flex Container for Sidebar and Content -->
         <div class="flex flex-col md:flex-row">
             <!-- Sidebar -->
-            <div id="sidebar" class="fixed md:relative w-64 bg-indigo-800 text-white h-screen z-40 transform -translate-x-full md:translate-x-0 transition-transform duration-300">
+            <div id="sidebar" class="fixed md:relative w-64 bg-gradient-to-b from-primary-800 via-primary-700 to-secondary-700 dark:from-gray-800 dark:via-gray-800 dark:to-gray-900 text-white h-screen z-40 transform -translate-x-full md:translate-x-0 transition-transform duration-300 shadow-xl overflow-auto">
                 <div class="p-4">
-                    <h2 class="text-xl font-semibold mb-4">Features</h2>
+                    <div class="mb-6 flex items-center justify-center">
+                        <div class="w-12 h-12 rounded-full flex items-center justify-center bg-white/10 hover:bg-white/20 transition-all duration-300 cursor-pointer animate-pulse-slow">
+                            <i class="bi bi-mortarboard-fill text-2xl"></i>
+                        </div>
+                    </div>
+                    
+                    <h2 class="text-xl font-semibold mb-6 pb-2 border-b border-white/20 dark:border-gray-700/50 flex items-center">
+                        <i class="bi bi-grid-fill mr-2"></i>
+                        Features
+                    </h2>
+                    
                     <ul class="space-y-2">
-                        <li><a href="notice.html" class="block py-2 px-4 rounded-lg nav-link" onclick="loadContent('notice')">Notice Board</a></li>
-                        <li><a href="taxi-search.html" class="block py-2 px-4 rounded-lg nav-link">Taxi Search</a></li>
-                        <li><a href="#" class="block py-2 px-4 rounded-lg nav-link active bg-indigo-700" onclick="loadContent('study')">Study Materials</a></li>
-                        <li><a href="mail.html" class="block py-2 px-4 rounded-lg nav-link" onclick="loadContent('mail')">Mail Formats</a></li>
-                        <li><a href="kyp.html" class="block py-2 px-4 rounded-lg nav-link">Know Your People</a></li>
-                        <li><a href="outings.html" class="block py-2 px-4 rounded-lg nav-link">Outings & Trips</a></li>
-                        <li><a href="messmenu.html" class="block py-2 px-4 rounded-lg nav-link">Mess & Canteen</a></li>
+                        <li class="sidebar-item">
+                            <a href="notice.html" class="block py-3 px-4 rounded-lg hover:bg-white/10 dark:hover:bg-gray-700/30 transition-all duration-300 flex items-center space-x-3">
+                                <div class="w-8 h-8 rounded-lg bg-white/10 flex items-center justify-center">
+                                    <i class="bi bi-megaphone"></i>
+                                </div>
+                                <span>Notice Board</span>
+                            </a>
+                        </li>
+                        <li class="sidebar-item">
+                            <a href="taxi-search.html" class="block py-3 px-4 rounded-lg hover:bg-white/10 dark:hover:bg-gray-700/30 transition-all duration-300 flex items-center space-x-3">
+                                <div class="w-8 h-8 rounded-lg bg-white/10 flex items-center justify-center">
+                                    <i class="bi bi-car-front"></i>
+                                </div>
+                                <span>Taxi Search</span>
+                            </a>
+                        </li>
+                        <li class="sidebar-item">
+                            <a href="study.html" class="block py-3 px-4 rounded-lg hover:bg-white/10 dark:hover:bg-gray-700/30 transition-all duration-300 flex items-center space-x-3">
+                                <div class="w-8 h-8 rounded-lg bg-white/10 flex items-center justify-center">
+                                    <i class="bi bi-book"></i>
+                                </div>
+                                <span>Study Materials</span>
+                            </a>
+                        </li>
+                        <li class="sidebar-item">
+                            <a href="mail.html" class="block py-3 px-4 rounded-lg hover:bg-white/10 dark:hover:bg-gray-700/30 transition-all duration-300 flex items-center space-x-3">
+                                <div class="w-8 h-8 rounded-lg bg-white/10 flex items-center justify-center">
+                                    <i class="bi bi-envelope"></i>
+                                </div>
+                                <span>Mail Formats</span>
+                            </a>
+                        </li>
+                        <li class="sidebar-item">
+                            <a href="kyp.html" class="block py-3 px-4 rounded-lg hover:bg-white/10 dark:hover:bg-gray-700/30 transition-all duration-300 flex items-center space-x-3">
+                                <div class="w-8 h-8 rounded-lg bg-white/10 flex items-center justify-center">
+                                    <i class="bi bi-people"></i>
+                                </div>
+                                <span>Know Your People</span>
+                            </a>
+                        </li>
+                        <li class="sidebar-item">
+                            <a href="outings.html" class="block py-3 px-4 rounded-lg hover:bg-white/10 dark:hover:bg-gray-700/30 transition-all duration-300 flex items-center space-x-3">
+                                <div class="w-8 h-8 rounded-lg bg-white/10 flex items-center justify-center">
+                                    <i class="bi bi-geo"></i>
+                                </div>
+                                <span>Outings & Trips</span>
+                            </a>
+                        </li>
+                        <li class="sidebar-item">
+                            <a href="messmenu.html" class="block py-3 px-4 rounded-lg hover:bg-white/10 dark:hover:bg-gray-700/30 transition-all duration-300 flex items-center space-x-3">
+                                <div class="w-8 h-8 rounded-lg bg-white/10 flex items-center justify-center">
+                                    <i class="bi bi-cup-hot"></i>
+                                </div>
+                                <span>Mess & Canteen</span>
+                            </a>
+                        </li>
                     </ul>
+                </div>
+                
+                <!-- Sidebar Footer -->
+                <div class="mt-auto p-4 border-t border-white/10 dark:border-gray-700/30">
+                    <div class="text-xs text-white/50 text-center">
+                        <p>© 2025 Student Companion</p>
+                    </div>
                 </div>
             </div>
 
-            <!-- Mobile Sidebar Toggle Button -->
-            <div class="fixed bottom-4 left-4 z-40 md:hidden">
-                <button onclick="toggleSidebar()" class="bg-indigo-600 text-white p-3 rounded-full shadow-lg">
-                    <i class="bi bi-list text-xl"></i>
+            <!-- Mobile Sidebar Toggle -->
+            <div class="fixed bottom-6 left-6 z-40 md:hidden">
+                <button onclick="toggleSidebar()" class="bg-primary-600 dark:bg-primary-700 text-white p-4 rounded-full shadow-lg hover:bg-primary-500 dark:hover:bg-primary-600 transition-all duration-300">
+                    <i id="sidebarIcon" class="bi bi-list text-xl"></i>
                 </button>
             </div>
 
             <!-- Main Content -->
-            <div class="flex-1 p-4 md:p-8">
-                <div class="bg-white dark:bg-gray-800 rounded-xl shadow-lg p-4 md:p-6">
-                    <!-- Study Materials Content -->
-                    <div class="mb-6 flex justify-between items-center">
-                        <div>
-                            <h1 class="text-2xl font-bold text-gray-800 dark:text-white">Study Materials</h1>
-                            <p class="text-gray-600 dark:text-gray-300 mt-2">Access study resources for your courses</p>
-                        </div>
-                        <!-- Admin-only Add Material Button -->
-                        <div id="adminControls" class="hidden">
-                            <button id="addMaterialBtn" class="bg-indigo-600 text-white py-2 px-4 rounded-lg hover:bg-indigo-700">
-                                <i class="bi bi-plus-lg mr-1"></i> Add Material
-                            </button>
-                        </div>
-                    </div>
+            <!-- Main Content -->
+<div class="flex-1 p-4 md:p-8">
+    <div class="bg-white dark:bg-gray-800 rounded-xl shadow-lg p-4 md:p-6 transition-colors duration-300">
+        <!-- Study Materials Content -->
+        <div class="mb-6 flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+            <div>
+                <h1 class="text-2xl font-bold text-gray-800 dark:text-white flex items-center">
+                    <i class="bi bi-book mr-2 text-primary-600 dark:text-primary-400"></i>
+                    Study Materials
+                </h1>
+                <p class="text-gray-600 dark:text-gray-300 mt-2">Access study resources for your courses</p>
+            </div>
+            <!-- Admin-only Add Material Button -->
+            <div id="adminControls" class="hidden">
+                <button id="addMaterialBtn" class="bg-gradient-to-r from-primary-600 to-secondary-600 dark:from-primary-700 dark:to-secondary-700 text-white py-2 px-4 rounded-lg hover:opacity-90 transition-all duration-300 transform hover:-translate-y-1 flex items-center">
+                    <i class="bi bi-plus-lg mr-1"></i> Add Material
+                </button>
+            </div>
+        </div>
 
-                    <!-- Search and Filter -->
-                    <div class="flex flex-wrap gap-4 mb-6">
-                        <div class="flex-1">
-                            <input type="text" id="materialSearch" placeholder="Search materials..." class="w-full px-4 py-2 rounded-lg border focus:outline-none focus:ring-2 focus:ring-indigo-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white">
-                        </div>
-                        <select class="px-4 py-2 rounded-lg border focus:outline-none focus:ring-2 focus:ring-indigo-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white">
-                            <option value="">All Departments</option>
-                            <option value="cs">Computer Science</option>
-                            <option value="ee">Electrical Engineering</option>
-                            <option value="me">Mechanical Engineering</option>
-                        </select>
-                        <select class="px-4 py-2 rounded-lg border focus:outline-none focus:ring-2 focus:ring-indigo-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white">
-                            <option value="">All Semesters</option>
-                            <option value="1">Semester 1</option>
-                            <option value="2">Semester 2</option>
-                            <option value="3">Semester 3</option>
-                        </select>
-                    </div>
-
-                    <!-- Materials List -->
-                    <div class="space-y-4">
-                        <!-- Material Card -->
-                        <div class="bg-white dark:bg-gray-700 p-4 rounded-lg shadow-md hover:shadow-lg transition-shadow">
-                            <div class="flex justify-between items-start">
-                                <div>
-                                    <h3 class="font-medium text-gray-800 dark:text-white">Data Structures Notes</h3>
-                                    <p class="text-sm text-gray-600 dark:text-gray-300">Computer Science • Semester 3</p>
-                                </div>
-                                <div class="flex">
-                                    <!-- Admin Actions (Hidden by Default) -->
-                                    <div class="admin-actions hidden mr-2">
-                                        <button class="text-blue-600 hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300 mx-1">
-                                            <i class="bi bi-pencil"></i>
-                                        </button>
-                                        <button class="text-red-600 hover:text-red-700 dark:text-red-400 dark:hover:text-red-300 mx-1">
-                                            <i class="bi bi-trash"></i>
-                                        </button>
-                                    </div>
-                                    <!-- View Link Button -->
-                                    <a href="materials/data-structures.pdf" target="_blank" class="text-indigo-600 hover:text-indigo-700 dark:text-indigo-400 dark:hover:text-indigo-300 px-3 py-1 border border-indigo-600 dark:border-indigo-400 rounded-lg">
-                                        <i class="bi bi-eye mr-1"></i> View
-                                    </a>
-                                </div>
-                            </div>
-                            <p class="text-sm text-gray-500 dark:text-gray-400 mt-2">Uploaded by Prof. Smith • 2 days ago</p>
-                        </div>
-
-                        <!-- More Material Cards -->
-                        <div class="bg-white dark:bg-gray-700 p-4 rounded-lg shadow-md hover:shadow-lg transition-shadow">
-                            <div class="flex justify-between items-start">
-                                <div>
-                                    <h3 class="font-medium text-gray-800 dark:text-white">Circuit Theory Practice Problems</h3>
-                                    <p class="text-sm text-gray-600 dark:text-gray-300">Electrical Engineering • Semester 2</p>
-                                </div>
-                                <div class="flex">
-                                    <!-- Admin Actions (Hidden by Default) -->
-                                    <div class="admin-actions hidden mr-2">
-                                        <button class="text-blue-600 hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300 mx-1">
-                                            <i class="bi bi-pencil"></i>
-                                        </button>
-                                        <button class="text-red-600 hover:text-red-700 dark:text-red-400 dark:hover:text-red-300 mx-1">
-                                            <i class="bi bi-trash"></i>
-                                        </button>
-                                    </div>
-                                    <!-- View Link Button -->
-                                    <a href="materials/circuit-theory.pdf" target="_blank" class="text-indigo-600 hover:text-indigo-700 dark:text-indigo-400 dark:hover:text-indigo-300 px-3 py-1 border border-indigo-600 dark:border-indigo-400 rounded-lg">
-                                        <i class="bi bi-eye mr-1"></i> View
-                                    </a>
-                                </div>
-                            </div>
-                            <p class="text-sm text-gray-500 dark:text-gray-400 mt-2">Uploaded by Dr. Johnson • 5 days ago</p>
-                        </div>
+        <!-- Search and Filter -->
+        <div class="flex flex-wrap gap-4 mb-6">
+            <div class="flex-1">
+                <div class="relative">
+                    <input type="text" id="materialSearch" placeholder="Search materials..." class="w-full px-4 py-2 rounded-lg border focus:outline-none focus:ring-2 focus:ring-primary-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white pl-10 transition-colors duration-300">
+                    <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                        <i class="bi bi-search text-gray-400"></i>
                     </div>
                 </div>
             </div>
+            <select class="px-4 py-2 rounded-lg border focus:outline-none focus:ring-2 focus:ring-primary-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white transition-colors duration-300">
+                <option value="">All Departments</option>
+                <option value="cs">Computer Science</option>
+                <option value="ee">Electrical Engineering</option>
+                <option value="me">Mechanical Engineering</option>
+            </select>
+            <select class="px-4 py-2 rounded-lg border focus:outline-none focus:ring-2 focus:ring-primary-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white transition-colors duration-300">
+                <option value="">All Semesters</option>
+                <option value="1">Semester 1</option>
+                <option value="2">Semester 2</option>
+                <option value="3">Semester 3</option>
+            </select>
+        </div>
+
+        <!-- Materials List -->
+        <div class="space-y-4">
+            <!-- Material Card -->
+            <div class="bg-white dark:bg-gray-700 p-4 rounded-lg shadow-md hover:shadow-lg transition-all duration-300 border border-gray-100 dark:border-gray-600">
+                <div class="flex justify-between items-start">
+                    <div>
+                        <h3 class="font-medium text-gray-800 dark:text-white flex items-center">
+                            <i class="bi bi-file-earmark-text mr-2 text-primary-500 dark:text-primary-400"></i>
+                            Data Structures Notes
+                        </h3>
+                        <p class="text-sm text-gray-600 dark:text-gray-300 mt-1">Computer Science • Semester 3</p>
+                    </div>
+                    <div class="flex">
+                        <!-- Admin Actions (Hidden by Default) -->
+                        <div class="admin-actions hidden mr-2">
+                            <button class="text-blue-600 hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300 mx-1">
+                                <i class="bi bi-pencil"></i>
+                            </button>
+                            <button class="text-red-600 hover:text-red-700 dark:text-red-400 dark:hover:text-red-300 mx-1">
+                                <i class="bi bi-trash"></i>
+                            </button>
+                        </div>
+                        <!-- View Link Button -->
+                        <a href="materials/data-structures.pdf" target="_blank" class="text-primary-600 hover:text-primary-700 dark:text-primary-400 dark:hover:text-primary-300 px-3 py-1 border border-primary-600 dark:border-primary-400 rounded-lg transition-colors duration-300 flex items-center">
+                            <i class="bi bi-eye mr-1"></i> View
+                        </a>
+                    </div>
+                </div>
+                <p class="text-sm text-gray-500 dark:text-gray-400 mt-2 flex items-center">
+                    <i class="bi bi-person mr-1"></i> Uploaded by Prof. Smith • 
+                    <i class="bi bi-calendar3 mx-1"></i> 2 days ago
+                </p>
+            </div>
+
+            <!-- More Material Cards -->
+            <div class="bg-white dark:bg-gray-700 p-4 rounded-lg shadow-md hover:shadow-lg transition-all duration-300 border border-gray-100 dark:border-gray-600">
+                <div class="flex justify-between items-start">
+                    <div>
+                        <h3 class="font-medium text-gray-800 dark:text-white flex items-center">
+                            <i class="bi bi-file-earmark-text mr-2 text-primary-500 dark:text-primary-400"></i>
+                            Circuit Theory Practice Problems
+                        </h3>
+                        <p class="text-sm text-gray-600 dark:text-gray-300 mt-1">Electrical Engineering • Semester 2</p>
+                    </div>
+                    <div class="flex">
+                        <!-- Admin Actions (Hidden by Default) -->
+                        <div class="admin-actions hidden mr-2">
+                            <button class="text-blue-600 hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300 mx-1">
+                                <i class="bi bi-pencil"></i>
+                            </button>
+                            <button class="text-red-600 hover:text-red-700 dark:text-red-400 dark:hover:text-red-300 mx-1">
+                                <i class="bi bi-trash"></i>
+                            </button>
+                        </div>
+                        <!-- View Link Button -->
+                        <a href="materials/circuit-theory.pdf" target="_blank" class="text-primary-600 hover:text-primary-700 dark:text-primary-400 dark:hover:text-primary-300 px-3 py-1 border border-primary-600 dark:border-primary-400 rounded-lg transition-colors duration-300 flex items-center">
+                            <i class="bi bi-eye mr-1"></i> View
+                        </a>
+                    </div>
+                </div>
+                <p class="text-sm text-gray-500 dark:text-gray-400 mt-2 flex items-center">
+                    <i class="bi bi-person mr-1"></i> Uploaded by Dr. Johnson • 
+                    <i class="bi bi-calendar3 mx-1"></i> 5 days ago
+                </p>
+            </div>
         </div>
     </div>
+</div>
 
-    <!-- Add/Edit Material Modal (Admin Only) -->
-    <div id="materialModal" class="hidden fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50">
-        <div class="relative top-20 mx-auto p-5 border w-96 shadow-lg rounded-md bg-white dark:bg-gray-800 dark:border-gray-700">
-            <div class="mt-3">
-                <h3 id="modalTitle" class="text-lg font-medium leading-6 text-gray-900 dark:text-white mb-4">Add Study Material</h3>
-                <form id="materialForm">
-                    <input type="text" id="materialTitle" placeholder="Material Title" class="w-full px-3 py-2 border rounded-lg mb-3 dark:bg-gray-700 dark:border-gray-600 dark:text-white">
-                    
-                    <select id="materialDepartment" class="w-full px-3 py-2 border rounded-lg mb-3 dark:bg-gray-700 dark:border-gray-600 dark:text-white">
-                        <option value="">Select Department</option>
-                        <option value="cs">Computer Science</option>
-                        <option value="ee">Electrical Engineering</option>
-                        <option value="me">Mechanical Engineering</option>
-                    </select>
-                    
-                    <select id="materialSemester" class="w-full px-3 py-2 border rounded-lg mb-3 dark:bg-gray-700 dark:border-gray-600 dark:text-white">
-                        <option value="">Select Semester</option>
-                        <option value="1">Semester 1</option>
-                        <option value="2">Semester 2</option>
-                        <option value="3">Semester 3</option>
-                    </select>
-                    
-                    <input type="text" id="materialLink" placeholder="Material Link URL" class="w-full px-3 py-2 border rounded-lg mb-3 dark:bg-gray-700 dark:border-gray-600 dark:text-white">
-                    
-                    <input type="text" id="materialUploader" placeholder="Uploaded by" class="w-full px-3 py-2 border rounded-lg mb-3 dark:bg-gray-700 dark:border-gray-600 dark:text-white">
-                    
-                    <div class="flex justify-end space-x-3">
-                        <button type="button" id="cancelBtn" class="px-4 py-2 bg-gray-200 text-gray-800 rounded-lg hover:bg-gray-300 dark:bg-gray-700 dark:text-white dark:hover:bg-gray-600">Cancel</button>
-                        <button type="submit" class="px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700">Save</button>
-                    </div>
-                </form>
-            </div>
+<!-- Add/Edit Material Modal (Admin Only) -->
+<div id="materialModal" class="hidden fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50">
+    <div class="relative top-20 mx-auto p-5 border w-96 shadow-lg rounded-xl bg-white dark:bg-gray-800 dark:border-gray-700 transition-colors duration-300">
+        <div class="mt-3">
+            <h3 id="modalTitle" class="text-lg font-medium leading-6 text-gray-900 dark:text-white mb-4 flex items-center">
+                <i class="bi bi-file-earmark-plus mr-2 text-primary-600 dark:text-primary-400"></i>
+                Add Study Material
+            </h3>
+            <form id="materialForm">
+                <input type="text" id="materialTitle" placeholder="Material Title" class="w-full px-3 py-2 border rounded-lg mb-3 dark:bg-gray-700 dark:border-gray-600 dark:text-white focus:outline-none focus:ring-2 focus:ring-primary-500 transition-colors duration-300">
+                
+                <select id="materialDepartment" class="w-full px-3 py-2 border rounded-lg mb-3 dark:bg-gray-700 dark:border-gray-600 dark:text-white focus:outline-none focus:ring-2 focus:ring-primary-500 transition-colors duration-300">
+                    <option value="">Select Department</option>
+                    <option value="cs">Computer Science</option>
+                    <option value="ee">Electrical Engineering</option>
+                    <option value="me">Mechanical Engineering</option>
+                </select>
+                
+                <select id="materialSemester" class="w-full px-3 py-2 border rounded-lg mb-3 dark:bg-gray-700 dark:border-gray-600 dark:text-white focus:outline-none focus:ring-2 focus:ring-primary-500 transition-colors duration-300">
+                    <option value="">Select Semester</option>
+                    <option value="1">Semester 1</option>
+                    <option value="2">Semester 2</option>
+                    <option value="3">Semester 3</option>
+                </select>
+                
+                <input type="text" id="materialLink" placeholder="Material Link URL" class="w-full px-3 py-2 border rounded-lg mb-3 dark:bg-gray-700 dark:border-gray-600 dark:text-white focus:outline-none focus:ring-2 focus:ring-primary-500 transition-colors duration-300">
+                
+                <input type="text" id="materialUploader" placeholder="Uploaded by" class="w-full px-3 py-2 border rounded-lg mb-3 dark:bg-gray-700 dark:border-gray-600 dark:text-white focus:outline-none focus:ring-2 focus:ring-primary-500 transition-colors duration-300">
+                
+                <div class="flex justify-end space-x-3">
+                    <button type="button" id="cancelBtn" class="px-4 py-2 bg-gray-200 text-gray-800 rounded-lg hover:bg-gray-300 dark:bg-gray-700 dark:text-white dark:hover:bg-gray-600 transition-colors duration-300">Cancel</button>
+                    <button type="submit" class="px-4 py-2 bg-gradient-to-r from-primary-600 to-secondary-600 dark:from-primary-700 dark:to-secondary-700 text-white rounded-lg hover:opacity-90 transition-all duration-300">Save</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
         </div>
     </div>
 
@@ -214,39 +531,75 @@ document.addEventListener('DOMContentLoaded', function() {
     // Create a proper client instance
     window.supabaseClient = supabase.createClient(supabaseUrl, supabaseKey);
     
-    // Check if on auth page
-    if (document.getElementById('authPage')) {
-        // Initialize auth handlers
-        initializeAuthHandlers();
+    // Make homepage visible
+    document.getElementById('homepage').style.display = 'block';
+    
+    // Load user data from session if available or set defaults
+    let userData = sessionStorage.getItem('currentUserData');
+    
+    if (userData) {
+        const user = JSON.parse(userData);
+        document.getElementById('userName').textContent = user.name;
+        document.getElementById('welcomeMessage').classList.remove('hidden');
         
-        // Check session on page load
-        checkSession();
-    } else {
-        // On homepage - check for existing user session
-        const userData = sessionStorage.getItem('currentUserData');
-        if (userData) {
-            const user = JSON.parse(userData);
-            document.getElementById('userName').textContent = user.name;
-            document.getElementById('welcomeMessage').classList.remove('hidden');
-            
-            // Check if user is admin and show admin controls
-            if (user.name === 'Admin') {
-                document.getElementById('adminControls').classList.remove('hidden');
-                const adminActions = document.querySelectorAll('.admin-actions');
-                adminActions.forEach(element => {
-                    element.classList.remove('hidden');
-                });
-            }
-            
-            // Initialize materials from Supabase
-            initializeMaterialsFromSupabase();
-        } else {
-            // Redirect to login page if not logged in
-            window.location.href = 'index.html';
+        // Check if user is admin and show admin controls
+        if (user.name === 'Admin') {
+            document.getElementById('adminControls').classList.remove('hidden');
+            const adminActions = document.querySelectorAll('.admin-actions');
+            adminActions.forEach(element => {
+                element.classList.remove('hidden');
+            });
         }
+    } else {
+        // Set a default user if not logged in
+        const defaultUser = {name: 'Guest'};
+        document.getElementById('userName').textContent = defaultUser.name;
+        document.getElementById('welcomeMessage').classList.remove('hidden');
+        sessionStorage.setItem('currentUserData', JSON.stringify(defaultUser));
     }
+    
+    // Initialize materials
+    initializeMaterialsFromSupabase();
+    setupFilters();
+    if (window.supabaseClient) {
+        populateFilters();
+    }
+    
+    // Add click event listeners
+    addEventListeners();
 });
 
+// ==== THEME FUNCTIONALITY ====
+function toggleTheme() {
+    // Check if currently in dark mode
+    const isDarkMode = document.documentElement.classList.contains('dark');
+    
+    // Toggle the dark class on the html element
+    document.documentElement.classList.toggle('dark');
+    
+    // Update the icon based on current theme
+    const themeIcon = document.getElementById('themeIcon');
+    if (themeIcon) {
+        if (isDarkMode) {
+            // Switching to light mode
+            themeIcon.classList.remove('bi-moon');
+            themeIcon.classList.add('bi-sun');
+        } else {
+            // Switching to dark mode
+            themeIcon.classList.remove('bi-sun');
+            themeIcon.classList.add('bi-moon');
+        }
+    }
+    
+    // Save preference to localStorage
+    localStorage.setItem('theme', isDarkMode ? 'light' : 'dark');
+}
+
+// Toggle mobile sidebar
+function toggleSidebar() {
+    const sidebar = document.getElementById('sidebar');
+    sidebar.classList.toggle('-translate-x-full');
+}
 
 async function logout() {
     try {
@@ -256,128 +609,126 @@ async function logout() {
         // Clear session storage
         sessionStorage.removeItem('currentUserData');
         
-        // Redirect to login page
-        window.location.href = 'index.html';
+        // Redirect to login page or refresh current page
+        window.location.reload();
     } catch (error) {
         alert('Error signing out: ' + error.message);
     }
 }
 
-async function checkSession() {
-    try {
-        // Check if user is logged in with Supabase
-        const { data: { session } } = await window.supabaseClient.auth.getSession();
-        
-        if (session) {
-            // User is logged in, get profile
-            const { data: profile, error } = await window.supabaseClient
-                .from('profiles')
-                .select('name, is_admin')
-                .eq('id', session.user.id)
-                .single();
-                
-            if (!error && profile) {
-                // Check if admin user
-                const userName = profile.is_admin ? 'Admin' : profile.name;
-                showHomepage(userName);
-                
-                // Check for page parameter in URL
-                const urlParams = new URLSearchParams(window.location.search);
-                const page = urlParams.get('page');
-                if (page) {
-                    loadContent(page);
-                }
-            }
-        }
-    } catch (error) {
-        console.error('Error checking session:', error);
-    }
-}
-
-function switchTab(tab) {
-    const forms = {
-        login: document.getElementById('loginForm'),
-        admin: document.getElementById('adminForm'),
-        register: document.getElementById('registerForm')
-    };
-    
-    // Hide all forms
-    Object.values(forms).forEach(form => form.classList.add('hidden'));
-    
-    // Show selected form
-    forms[tab].classList.remove('hidden');
-    
-    // Update active tab styling
-    document.querySelectorAll('button').forEach(btn => {
-        btn.classList.remove('bg-opacity-30');
-    });
-    document.getElementById(`${tab}Tab`).classList.add('bg-opacity-30');
-}
-
-function showHomepage(userName) {
-    // On Auth page
-    if (document.getElementById('authPage')) {
-        // Hide auth page
-        document.getElementById('authPage').style.display = 'none';
-        
-        // Show homepage
-        document.getElementById('homepage').style.display = 'block';
-        
-        // Store user info in sessionStorage
-        sessionStorage.setItem('currentUserData', JSON.stringify({
-            name: userName
-        }));
-        
-        // Redirect to homepage
-        window.location.href = 'homepage.html';
-    } else {
-        // Already on homepage
-        document.getElementById('userName').textContent = userName;
-        document.getElementById('welcomeMessage').classList.remove('hidden');
-        
-        // Check if user is admin and show admin controls
-        if (userName === 'Admin') {
-            document.getElementById('adminControls').classList.remove('hidden');
-            const adminActions = document.querySelectorAll('.admin-actions');
-            adminActions.forEach(element => {
-                element.classList.remove('hidden');
-            });
-        }
-    }
-}
-
-// Toggle sidebar for mobile
-function toggleSidebar() {
-    const sidebar = document.getElementById('sidebar');
-    sidebar.classList.toggle('-translate-x-full');
-}
-
 // STUDY MATERIALS MANAGEMENT WITH SUPABASE INTEGRATION
 
-// Modal Functionality for Add/Edit Material (Admin Only)
-const materialModal = document.getElementById('materialModal');
-const addMaterialBtn = document.getElementById('addMaterialBtn');
-const cancelBtn = document.getElementById('cancelBtn');
-const materialForm = document.getElementById('materialForm');
+function addEventListeners() {
+    // Modal Functionality for Add/Edit Material (Admin Only)
+    const materialModal = document.getElementById('materialModal');
+    const addMaterialBtn = document.getElementById('addMaterialBtn');
+    const cancelBtn = document.getElementById('cancelBtn');
+    const materialForm = document.getElementById('materialForm');
 
-// Show modal when Add Material button is clicked
-if (addMaterialBtn) {
-    addMaterialBtn.onclick = function() {
-        document.getElementById('modalTitle').textContent = 'Add Study Material';
-        document.getElementById('materialTitle').value = '';
-        document.getElementById('materialDepartment').value = '';
-        document.getElementById('materialSemester').value = '';
-        document.getElementById('materialLink').value = '';
-        document.getElementById('materialUploader').value = '';
-        delete materialForm.dataset.materialId; // Remove any stored ID when adding new
-        materialModal.classList.remove('hidden');
+    // Show modal when Add Material button is clicked
+    if (addMaterialBtn) {
+        addMaterialBtn.onclick = function() {
+            document.getElementById('modalTitle').textContent = 'Add Study Material';
+            document.getElementById('materialTitle').value = '';
+            document.getElementById('materialDepartment').value = '';
+            document.getElementById('materialSemester').value = '';
+            document.getElementById('materialLink').value = '';
+            document.getElementById('materialUploader').value = '';
+            delete materialForm.dataset.materialId; // Remove any stored ID when adding new
+            materialModal.classList.remove('hidden');
+        }
     }
-}
 
-// Cancel button closes modal
-if (cancelBtn) {
-    cancelBtn.onclick = function() {
-        materialModal.classList.add('hidden');
+    // Cancel button closes modal
+    if (cancelBtn) {
+        cancelBtn.onclick = function() {
+            materialModal.classList.add('hidden');
+        }
+    }
+
+    // Form submission with Supabase integration
+    if (materialForm) {
+        materialForm.onsubmit = async function(e) {
+            e.preventDefault();
+            
+            // Get form values
+            const title = document.getElementById('materialTitle').value;
+            const department = document.getElementById('materialDepartment').value;
+            const semester = document.getElementById('materialSemester').value;
+            const link = document.getElementById('materialLink').value;
+            const uploader = document.getElementById('materialUploader').value;
+            
+            // Get the material ID (if editing)
+            const materialId = materialForm.dataset.materialId;
+
+            // Create the material object
+            const materialData = {
+                title: title,
+                department: department,
+                semester: semester,
+                link: link,
+                uploader: uploader
+            };
+            
+            try {
+                if (materialId) {
+                    // Update existing material
+                    const updatedMaterial = await updateMaterialInSupabase(materialId, materialData);
+                    
+                    if (updatedMaterial) {
+                        // Find and update the material card in the DOM
+                        const materialCard = document.querySelector(`button[data-id="${materialId}"]`).closest('.bg-white');
+                        const newCard = createMaterialCard(updatedMaterial);
+                        materialCard.replaceWith(newCard);
+                    }
+                } else {
+                    // Add new material
+                    const newMaterial = await addMaterialToSupabase(materialData);
+                    
+                    if (newMaterial) {
+                        // Create and add the new material card to the DOM
+                        const materialCard = createMaterialCard(newMaterial);
+                        const materialsList = document.querySelector('.space-y-4');
+                        materialsList.prepend(materialCard);
+                    }
+                }
+                
+                // Close the modal
+                materialModal.classList.add('hidden');
+                
+                // Clear the form
+                materialForm.reset();
+                delete materialForm.dataset.materialId;
+            } catch (error) {
+                alert('Error saving material: ' + error.message);
+            }
+        };
+    }
+
+    // Search Functionality
+    const materialSearchInput = document.getElementById('materialSearch');
+    if (materialSearchInput) {
+        materialSearchInput.addEventListener('input', function() {
+            const searchTerm = materialSearchInput.value.toLowerCase();
+            const materialCards = document.querySelectorAll('.space-y-4 > div');
+
+            materialCards.forEach(card => {
+                const title = card.querySelector('h3').textContent.toLowerCase();
+                const details = card.querySelector('p').textContent.toLowerCase();
+                if (title.includes(searchTerm) || details.includes(searchTerm)) {
+                    card.style.display = '';
+                } else {
+                    card.style.display = 'none';
+                }
+            });
+        });
+    }
+
+    // Close modal when clicking outside
+    window.onclick = function(event) {
+        if (event.target == materialModal) {
+            materialModal.classList.add('hidden');
+        }
     }
 }
 
@@ -410,10 +761,21 @@ async function initializeMaterialsFromSupabase() {
         initializeDemoMaterials();
     }
 }
-
 function createMaterialCard(material) {
     const newMaterial = document.createElement('div');
-    newMaterial.classList.add('bg-white', 'dark:bg-gray-700', 'p-4', 'rounded-lg', 'shadow-md', 'hover:shadow-lg', 'transition-shadow');
+    newMaterial.classList.add(
+        'bg-white', 
+        'dark:bg-gray-700', 
+        'p-4', 
+        'rounded-lg', 
+        'shadow-md', 
+        'hover:shadow-lg', 
+        'transition-all', 
+        'duration-300',
+        'border',
+        'border-gray-100',
+        'dark:border-gray-600'
+    );
     
     const departmentText = getDepartmentText(material.department);
     const semesterText = material.semester ? `Semester ${material.semester}` : '';
@@ -422,8 +784,11 @@ function createMaterialCard(material) {
     newMaterial.innerHTML = `
         <div class="flex justify-between items-start">
             <div>
-                <h3 class="font-medium text-gray-800 dark:text-white">${material.title}</h3>
-                <p class="text-sm text-gray-600 dark:text-gray-300">${departmentText} • ${semesterText}</p>
+                <h3 class="font-medium text-gray-800 dark:text-white flex items-center">
+                    <i class="bi bi-file-earmark-text mr-2 text-primary-500 dark:text-primary-400"></i>
+                    ${material.title}
+                </h3>
+                <p class="text-sm text-gray-600 dark:text-gray-300 mt-1">${departmentText} • ${semesterText}</p>
             </div>
             <div class="flex">
                 <div class="admin-actions mr-2 ${sessionStorage.getItem('currentUserData') && JSON.parse(sessionStorage.getItem('currentUserData')).name === 'Admin' ? '' : 'hidden'}">
@@ -434,16 +799,244 @@ function createMaterialCard(material) {
                         <i class="bi bi-trash"></i>
                     </button>
                 </div>
-                <a href="${material.link}" target="_blank" class="text-indigo-600 hover:text-indigo-700 dark:text-indigo-400 dark:hover:text-indigo-300 px-3 py-1 border border-indigo-600 dark:border-indigo-400 rounded-lg">
+                <a href="${material.link}" target="_blank" class="text-primary-600 hover:text-primary-700 dark:text-primary-400 dark:hover:text-primary-300 px-3 py-1 border border-primary-600 dark:border-primary-400 rounded-lg transition-colors duration-300 flex items-center">
                     <i class="bi bi-eye mr-1"></i> View
                 </a>
             </div>
         </div>
-        <p class="text-sm text-gray-500 dark:text-gray-400 mt-2">Uploaded by ${material.uploader} • ${timeAgo}</p>
+        <p class="text-sm text-gray-500 dark:text-gray-400 mt-2 flex items-center">
+            <i class="bi bi-person mr-1"></i> Uploaded by ${material.uploader} • 
+            <i class="bi bi-calendar3 mx-1"></i> ${timeAgo}
+        </p>
     `;
+    
+    // Add event listeners for edit and delete buttons
+    const editBtn = newMaterial.querySelector('.edit-button');
+    if (editBtn) {
+        editBtn.addEventListener('click', async function() {
+            const materialId = this.getAttribute('data-id');
+            
+            try {
+                // Get material data from Supabase
+                const { data: material, error } = await window.supabaseClient
+                    .from('materials')
+                    .select('*')
+                    .eq('id', materialId)
+                    .single();
+                    
+                if (error) throw error;
+                
+                if (material) {
+                    // Fill the form with existing data
+                    document.getElementById('modalTitle').innerHTML = '<i class="bi bi-pencil-square mr-2 text-primary-600 dark:text-primary-400"></i>Edit Study Material';
+                    document.getElementById('materialTitle').value = material.title;
+                    document.getElementById('materialDepartment').value = material.department;
+                    document.getElementById('materialSemester').value = material.semester || '';
+                    document.getElementById('materialLink').value = material.link;
+                    document.getElementById('materialUploader').value = material.uploader;
+                    
+                    // Store the material ID in the form
+                    document.getElementById('materialForm').dataset.materialId = materialId;
+                    
+                    document.getElementById('materialModal').classList.remove('hidden');
+                }
+            } catch (error) {
+                console.error('Error fetching material for edit:', error);
+                alert('Error loading material data: ' + error.message);
+            }
+        });
+    }
+    
+    const deleteBtn = newMaterial.querySelector('.delete-button');
+    if (deleteBtn) {
+        deleteBtn.addEventListener('click', async function() {
+            const materialId = this.getAttribute('data-id');
+            
+            if (confirm('Are you sure you want to delete this material?')) {
+                try {
+                    // Delete from Supabase
+                    const success = await deleteMaterialFromSupabase(materialId);
+                    
+                    if (success) {
+                        // Remove from DOM with a fade-out effect
+                        newMaterial.classList.add('opacity-0');
+                        setTimeout(() => {
+                            newMaterial.remove();
+                        }, 300);
+                    }
+                } catch (error) {
+                    console.error('Error deleting material:', error);
+                    alert('Error deleting material');
+                }
+            }
+        });
+    }
     
     return newMaterial;
 }
+// Add this function to your existing JavaScript code
+
+function setupFilters() {
+    // Get filter elements - use the existing dropdowns
+    const departmentFilter = document.querySelector('select:nth-of-type(1)'); // First select element (department)
+    const semesterFilter = document.querySelector('select:nth-of-type(2)');   // Second select element (semester)
+    const searchInput = document.getElementById('materialSearch');
+    
+    // Set up event listeners for filters
+    if (departmentFilter) {
+        departmentFilter.id = 'departmentFilter'; // Adding id for easier reference
+        departmentFilter.addEventListener('change', applyFilters);
+    }
+    
+    if (semesterFilter) {
+        semesterFilter.id = 'semesterFilter'; // Adding id for easier reference
+        semesterFilter.addEventListener('change', applyFilters);
+    }
+    
+    if (searchInput) {
+        // Modify the existing search event listener to use the combined filter function
+        searchInput.removeEventListener('input', null); // Remove previous listener if any
+        searchInput.addEventListener('input', applyFilters);
+    }
+    
+    // Function to apply all filters (search + department + semester)
+    function applyFilters() {
+        const searchTerm = searchInput ? searchInput.value.toLowerCase() : '';
+        const selectedDepartment = departmentFilter ? departmentFilter.value : '';
+        const selectedSemester = semesterFilter ? semesterFilter.value : '';
+        
+        // Get all material cards
+        const materialCards = document.querySelectorAll('.space-y-4 > div');
+        
+        materialCards.forEach(card => {
+            const title = card.querySelector('h3').textContent.toLowerCase();
+            const detailsElement = card.querySelector('p');
+            const details = detailsElement ? detailsElement.textContent.toLowerCase() : '';
+            
+            // Check if card matches the search term
+            const matchesSearch = !searchTerm || 
+                title.includes(searchTerm) || 
+                details.includes(searchTerm);
+            
+            // Check if card matches the department filter
+            let matchesDepartment = true;
+            if (selectedDepartment) {
+                // Get department from details (assuming format "Department • Semester X")
+                const departmentText = details.split('•')[0].trim().toLowerCase();
+                const deptMap = {
+                    'cs': 'computer science',
+                    'ee': 'electrical engineering',
+                    'me': 'mechanical engineering'
+                };
+                matchesDepartment = departmentText === deptMap[selectedDepartment].toLowerCase();
+            }
+            
+            // Check if card matches the semester filter
+            let matchesSemester = true;
+            if (selectedSemester) {
+                // Get semester from details (assuming format "Department • Semester X")
+                const semesterPart = details.split('•')[1];
+                if (semesterPart) {
+                    const semesterText = semesterPart.trim().toLowerCase();
+                    matchesSemester = semesterText === `semester ${selectedSemester}`;
+                } else {
+                    matchesSemester = false;
+                }
+            }
+            
+            // Show or hide the card based on all filters
+            if (matchesSearch && matchesDepartment && matchesSemester) {
+                card.style.display = '';
+            } else {
+                card.style.display = 'none';
+            }
+        });
+        
+        // Show a message if no results are found
+        const materialsList = document.querySelector('.space-y-4');
+        let noResultsMessage = document.getElementById('noResultsMessage');
+        
+        // Check if any cards are visible
+        const visibleCards = Array.from(materialCards).filter(card => card.style.display !== 'none');
+        
+        if (visibleCards.length === 0) {
+            // No visible cards, show the message
+            if (!noResultsMessage) {
+                noResultsMessage = document.createElement('div');
+                noResultsMessage.id = 'noResultsMessage';
+                noResultsMessage.className = 'text-center py-6 text-gray-500 dark:text-gray-400';
+                noResultsMessage.innerHTML = '<i class="bi bi-search mb-2 text-2xl"></i><p>No materials found matching your filters.</p>';
+                materialsList.appendChild(noResultsMessage);
+            } else {
+                noResultsMessage.style.display = '';
+            }
+        } else if (noResultsMessage) {
+            // Hide the message if there are visible cards
+            noResultsMessage.style.display = 'none';
+        }
+    }
+}
+
+// Function to dynamically populate department and semester filters from available data
+async function populateFilters() {
+    try {
+        // Get all materials from Supabase
+        const { data: materials, error } = await window.supabaseClient
+            .from('materials')
+            .select('*');
+            
+        if (error) throw error;
+        
+        if (materials && materials.length > 0) {
+            // Extract unique departments and semesters
+            const departments = new Set();
+            const semesters = new Set();
+            
+            materials.forEach(material => {
+                if (material.department) departments.add(material.department);
+                if (material.semester) semesters.add(material.semester);
+            });
+            
+            // Update department filter options
+            const departmentFilter = document.getElementById('departmentFilter');
+            if (departmentFilter) {
+                // Keep the first option (All Departments)
+                while (departmentFilter.options.length > 1) {
+                    departmentFilter.remove(1);
+                }
+                
+                // Add department options
+                departments.forEach(dept => {
+                    const option = document.createElement('option');
+                    option.value = dept;
+                    option.textContent = getDepartmentText(dept);
+                    departmentFilter.appendChild(option);
+                });
+            }
+            
+            // Update semester filter options
+            const semesterFilter = document.getElementById('semesterFilter');
+            if (semesterFilter) {
+                // Keep the first option (All Semesters)
+                while (semesterFilter.options.length > 1) {
+                    semesterFilter.remove(1);
+                }
+                
+                // Add semester options
+                const sortedSemesters = Array.from(semesters).sort((a, b) => parseInt(a) - parseInt(b));
+                sortedSemesters.forEach(sem => {
+                    const option = document.createElement('option');
+                    option.value = sem;
+                    option.textContent = `Semester ${sem}`;
+                    semesterFilter.appendChild(option);
+                });
+            }
+        }
+    } catch (error) {
+        console.error('Error populating filters:', error);
+    }
+}
+
 
 function formatTimeAgo(dateString) {
     if (!dateString) return 'Just now';
@@ -522,157 +1115,6 @@ async function deleteMaterialFromSupabase(id) {
     }
 }
 
-// Form submission with Supabase integration
-if (materialForm) {
-    materialForm.onsubmit = async function(e) {
-        e.preventDefault();
-        
-        // Get form values
-        const title = document.getElementById('materialTitle').value;
-        const department = document.getElementById('materialDepartment').value;
-        const semester = document.getElementById('materialSemester').value;
-        const link = document.getElementById('materialLink').value;
-        const uploader = document.getElementById('materialUploader').value;
-        
-        // Get the material ID (if editing)
-        const materialId = materialForm.dataset.materialId;
-
-        // Create the material object
-        const materialData = {
-            title: title,
-            department: department,
-            semester: semester,
-            link: link,
-            uploader: uploader
-        };
-        
-        try {
-            if (materialId) {
-                // Update existing material
-                const updatedMaterial = await updateMaterialInSupabase(materialId, materialData);
-                
-                if (updatedMaterial) {
-                    // Find and update the material card in the DOM
-                    const materialCard = document.querySelector(`button[data-id="${materialId}"]`).closest('.bg-white');
-                    const newCard = createMaterialCard(updatedMaterial);
-                    materialCard.replaceWith(newCard);
-                }
-            } else {
-                // Add new material
-                const newMaterial = await addMaterialToSupabase(materialData);
-                
-                if (newMaterial) {
-                    // Create and add the new material card to the DOM
-                    const materialCard = createMaterialCard(newMaterial);
-                    const materialsList = document.querySelector('.space-y-4');
-                    materialsList.prepend(materialCard);
-                }
-            }
-            
-            // Close the modal
-            materialModal.classList.add('hidden');
-            
-            // Clear the form
-            materialForm.reset();
-            delete materialForm.dataset.materialId;
-        } catch (error) {
-            alert('Error saving material: ' + error.message);
-        }
-    };
-}
-
-// Search Functionality
-const materialSearchInput = document.getElementById('materialSearch');
-if (materialSearchInput) {
-    materialSearchInput.addEventListener('input', function() {
-        const searchTerm = materialSearchInput.value.toLowerCase();
-        const materialCards = document.querySelectorAll('.space-y-4 > div');
-
-        materialCards.forEach(card => {
-            const title = card.querySelector('h3').textContent.toLowerCase();
-            const details = card.querySelector('p').textContent.toLowerCase();
-            if (title.includes(searchTerm) || details.includes(searchTerm)) {
-                card.style.display = '';
-            } else {
-                card.style.display = 'none';
-            }
-        });
-    });
-}
-
-// Close modal when clicking outside
-window.onclick = function(event) {
-    if (event.target == materialModal) {
-        materialModal.classList.add('hidden');
-    }
-}
-
-// Event delegation for Edit and Delete functionality
-document.addEventListener('click', async function(e) {
-    // Edit button clicked
-    if (e.target.closest('.edit-button') || e.target.classList.contains('bi-pencil')) {
-        const editButton = e.target.closest('.edit-button') || e.target.closest('.bi-pencil').parentElement;
-        const materialId = editButton.getAttribute('data-id');
-        
-        // Check if materialId is valid before making the request
-        if (!materialId || materialId === 'undefined') {
-            console.error('Invalid material ID for edit');
-            alert('Error: Could not identify the material to edit');
-            return;
-        }
-        
-        try {
-            // Get material data from Supabase
-            const { data: material, error } = await window.supabaseClient
-                .from('materials')
-                .select('*')
-                .eq('id', materialId)
-                .single();
-                
-            if (error) throw error;
-            
-            if (material) {
-                // Fill the form with existing data
-                document.getElementById('modalTitle').textContent = 'Edit Study Material';
-                document.getElementById('materialTitle').value = material.title;
-                document.getElementById('materialDepartment').value = material.department;
-                document.getElementById('materialSemester').value = material.semester || '';
-                document.getElementById('materialLink').value = material.link;
-                document.getElementById('materialUploader').value = material.uploader;
-                
-                // Store the material ID in the form
-                materialForm.dataset.materialId = materialId;
-                
-                materialModal.classList.remove('hidden');
-            }
-        } catch (error) {
-            console.error('Error fetching material for edit:', error);
-            alert('Error loading material data: ' + error.message);
-        }
-    }
-    // Delete button clicked
-    else if (e.target.closest('.delete-button') || e.target.closest('.bi-trash')) {
-        const deleteButton = e.target.closest('.delete-button') || e.target.closest('.bi-trash').parentElement;
-        const materialId = deleteButton.dataset.id;
-        
-        if (confirm('Are you sure you want to delete this material?')) {
-            try {
-                // Delete from Supabase
-                const success = await deleteMaterialFromSupabase(materialId);
-                
-                if (success) {
-                    // Remove from DOM
-                    const card = deleteButton.closest('.bg-white');
-                    card.remove();
-                }
-            } catch (error) {
-                console.error('Error deleting material:', error);
-                alert('Error deleting material');
-            }
-        }
-    }
-});
-
 // Helper functions
 function getDepartmentText(code) {
     switch(code) {
@@ -680,15 +1122,6 @@ function getDepartmentText(code) {
         case 'ee': return 'Electrical Engineering';
         case 'me': return 'Mechanical Engineering';
         default: return code || '';
-    }
-}
-
-function getDepartmentCode(text) {
-    switch(text.trim()) {
-        case 'Computer Science': return 'cs';
-        case 'Electrical Engineering': return 'ee';
-        case 'Mechanical Engineering': return 'me';
-        default: return text || '';
     }
 }
 
@@ -741,10 +1174,10 @@ async function initializeDemoMaterials() {
     }
 }
 
-// Check for system dark mode preference
-if (window.matchMedia('(prefers-color-scheme: dark)').matches) {
-    document.documentElement.classList.add('dark');
-}
+// // Check for system dark mode preference
+// if (window.matchMedia('(prefers-color-scheme: dark)').matches) {
+//     document.documentElement.classList.add('dark');
+// }
     </script>
 </body>
 </html>

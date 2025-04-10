@@ -1,1129 +1,1392 @@
 <!DOCTYPE html>
-<html lang="en">
-
+<html lang="en" class="light">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Student Companion - Mess & Canteen</title>
+    <title>Student Companion</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    animation: {
+                        'fade-in': 'fadeIn 0.6s ease-out',
+                        'slide-in': 'slideIn 0.6s ease-out',
+                        'pulse-slow': 'pulse 3s infinite',
+                        'float': 'float 6s ease-in-out infinite',
+                        'bob': 'bob 4s ease-in-out infinite',
+                        'spin-slow': 'spin 15s linear infinite',
+                        'zoom': 'zoom 10s ease infinite',
+                    },
+                    keyframes: {
+                        fadeIn: {
+                            '0%': { opacity: '0' },
+                            '100%': { opacity: '1' }
+                        },
+                        slideIn: {
+                            '0%': { transform: 'translateY(20px)', opacity: '0' },
+                            '100%': { transform: 'translateY(0)', opacity: '1' }
+                        },
+                        float: {
+                            '0%, 100%': { transform: 'translateY(0)' },
+                            '50%': { transform: 'translateY(-20px)' }
+                        },
+                        bob: {
+                            '0%, 100%': { transform: 'translateY(0) rotate(0deg)' },
+                            '50%': { transform: 'translateY(-10px) rotate(5deg)' }
+                        },
+                        zoom: {
+                            '0%, 100%': { transform: 'scale(1)' },
+                            '50%': { transform: 'scale(1.05)' }
+                        }
+                    },
+                    backgroundImage: {
+                        'gradient-radial': 'radial-gradient(var(--tw-gradient-stops))',
+                    },
+                    colors: {
+                        primary: {
+                            50: '#f0f9ff',
+                            100: '#e0f2fe',
+                            200: '#bae6fd',
+                            300: '#7dd3fc',
+                            400: '#38bdf8',
+                            500: '#0ea5e9',
+                            600: '#0284c7',
+                            700: '#0369a1',
+                            800: '#075985',
+                            900: '#0c4a6e'
+                        },
+                        secondary: {
+                            50: '#faf5ff',
+                            100: '#f3e8ff',
+                            200: '#e9d5ff',
+                            300: '#d8b4fe',
+                            400: '#c084fc',
+                            500: '#a855f7',
+                            600: '#9333ea',
+                            700: '#7e22ce',
+                            800: '#6b21a8',
+                            900: '#581c87'
+                        },
+                        tertiary: {
+                            50: '#fff7ed',
+                            100: '#ffedd5',
+                            200: '#fed7aa',
+                            300: '#fdba74',
+                            400: '#fb923c',
+                            500: '#f97316',
+                            600: '#ea580c',
+                            700: '#c2410c',
+                            800: '#9a3412',
+                            900: '#7c2d12'
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css" rel="stylesheet">
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap"
-        rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <style>
         * {
-            font-family: 'Poppins', sans-serif;
+            font-family: 'Outfit', sans-serif;
         }
-
-        .nav-link {
-            transition: all 0.3s ease;
+        
+        .floating-shape {
+            position: absolute;
+            opacity: 0.7;
+            border-radius: 50%;
+            filter: blur(20px);
+            z-index: 0;
         }
-
-        .nav-link:hover {
+        
+        #homepage {
+            display: none;
+        }
+        
+        .animate-delay-1 {
+            animation-delay: 0.2s;
+        }
+        
+        .animate-delay-2 {
+            animation-delay: 0.4s;
+        }
+        
+        .animate-delay-3 {
+            animation-delay: 0.6s;
+        }
+        
+        .animate-delay-4 {
+            animation-delay: 0.8s;
+        }
+        
+        /* Sidebar hover effect */
+        .sidebar-item {
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .sidebar-item::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 0;
+            height: 100%;
             background-color: rgba(255, 255, 255, 0.1);
-            transform: translateY(-2px);
+            transition: width 0.3s ease;
+            z-index: -1;
+        }
+        
+        .sidebar-item:hover::after {
+            width: 100%;
+        }
+        
+        /* Custom scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+        
+        ::-webkit-scrollbar-track {
+            background: transparent;
+        }
+        
+        ::-webkit-scrollbar-thumb {
+            background: rgba(156, 163, 175, 0.5);
+            border-radius: 10px;
+        }
+        
+        ::-webkit-scrollbar-thumb:hover {
+            background: rgba(156, 163, 175, 0.8);
         }
     </style>
+    <!-- Add these styles to your existing <style> tag -->
+<style>
+    /* Mobile optimizations */
+    @media (max-width: 640px) {
+        .floating-shape {
+            opacity: 0.4;
+            filter: blur(30px);
+        }
+        
+        #contentArea {
+            padding: 1rem !important;
+        }
+    }
+    
+    /* Tablet optimizations */
+    @media (min-width: 641px) and (max-width: 1024px) {
+        .floating-shape {
+            opacity: 0.5;
+            filter: blur(25px);
+        }
+    }
+    
+    /* Animations for mobile */
+    @media (prefers-reduced-motion: reduce) {
+        .animate-float, .animate-bob, .animate-spin-slow, .animate-zoom {
+            animation: none !important;
+        }
+    }
+    
+    /* Responsive sidebar */
+    @media (max-width: 768px) {
+        #sidebar {
+            width: 240px;
+        }
+    }
+    
+    /* Smoother transitions */
+    .content-section {
+        transition: opacity 0.3s ease;
+    }
+    
+    .content-section.hidden {
+        display: none;
+        opacity: 0;
+    }
+    
+    /* Notification animation */
+    @keyframes slideInUp {
+        from {
+            transform: translateY(100%);
+            opacity: 0;
+        }
+        to {
+            transform: translateY(0);
+            opacity: 1;
+        }
+    }
+    
+    .notification-enter {
+        animation: slideInUp 0.3s forwards;
+    }
+    
+    /* Fix for mobile view content padding */
+    #contentArea {
+        transition: margin-left 0.3s ease;
+    }
+    
+    /* Better mobile form experience */
+    input, select, textarea {
+        font-size: 16px !important; /* Prevents iOS zoom on focus */
+    }
+</style>
 </head>
 
-<body class="bg-gray-50 dark:bg-gray-900 min-h-screen">
+<body class="bg-gray-50 dark:bg-gray-900 transition-colors duration-300">
     <!-- Navbar -->
-    <nav class="bg-indigo-600 text-white shadow-lg sticky top-0 z-50">
+    <nav class="bg-gradient-to-r from-primary-600 to-secondary-600 dark:from-primary-800 dark:to-secondary-800 text-white shadow-lg sticky top-0 z-50 transition-colors duration-300">
         <div class="container mx-auto px-4">
             <div class="flex justify-between items-center py-4">
                 <div class="flex items-center space-x-4">
-                    <h1 class="text-2xl font-bold">Student Companion</h1>
-                    <span id="welcomeMessage" class="hidden md:inline text-sm">Welcome, <span
-                            id="userName">User</span>!</span>
+                    <div class="flex items-center space-x-2">
+                        <i class="bi bi-mortarboard-fill text-2xl"></i>
+                        <h1 class="text-xl md:text-2xl font-bold">Student Companion</h1>
+                    </div>
+                    <span id="welcomeMessage" class="hidden md:inline text-sm bg-white/10 py-1 px-3 rounded-full">
+                        <i class="bi bi-person-check mr-1"></i>
+                        Welcome, <span id="userName" class="font-medium">User</span>!
+                    </span>
                 </div>
-                <div class="flex items-center">
-                    <button id="logoutBtn" class="py-1 px-2 md:py-2 md:px-4 text-xs md:text-base rounded-lg bg-white bg-opacity-20 hover:bg-opacity-30 transition" onclick="logout()">Logout</button>
-                </div>  
+                
+                <div class="flex items-center space-x-3">
+                    <!-- Theme Toggle Button -->
+                    <button id="themeToggleBtn" class="p-2 rounded-full bg-white/10 hover:bg-white/20 transition-all duration-300" onclick="toggleTheme()">
+                        <i id="themeIcon" class="bi bi-sun text-lg"></i>
+                    </button>
+                    
+                    <button id="logoutBtn" class="py-1 px-2 md:py-2 md:px-4 text-xs md:text-base rounded-lg bg-white/20 hover:bg-white/30 transition-all duration-300 transform hover:-translate-y-1 flex items-center space-x-1" onclick="logout()">
+                        <i class="bi bi-box-arrow-right"></i>
+                        <span class="hidden md:inline">Logout</span>
+                    </button>
+                </div>
             </div>
         </div>
     </nav>
 
     <!-- Mobile Menu -->
-    <div id="mobileMenu" class="hidden md:hidden bg-indigo-700 text-white">
+    <div id="mobileMenu" class="hidden md:hidden bg-primary-700 dark:bg-primary-900 text-white transition-colors duration-300">
         <div class="container mx-auto px-4 py-2">
-            <button class="w-full text-left py-2 px-4 hover:bg-indigo-600 rounded-lg" onclick="logout()">Logout</button>
+            <button class="w-full text-left py-2 px-4 hover:bg-primary-600 dark:hover:bg-primary-800 rounded-lg transition-colors duration-300 flex items-center space-x-2" onclick="logout()">
+                <i class="bi bi-box-arrow-right"></i>
+                <span>Logout</span>
+            </button>
         </div>
     </div>
 
     <!-- Main Content Layout -->
     <div class="flex flex-col md:flex-row relative">
         <!-- Sidebar -->
-        <div id="sidebar" class="fixed md:relative w-64 bg-indigo-800 text-white h-screen z-40 transform -translate-x-full md:translate-x-0 transition-transform duration-300">
+        <div id="sidebar" class="fixed md:relative w-64 bg-gradient-to-b from-primary-800 via-primary-700 to-secondary-700 dark:from-gray-800 dark:via-gray-800 dark:to-gray-900 text-white h-screen z-40 transform -translate-x-full md:translate-x-0 transition-transform duration-300 shadow-xl overflow-auto">
             <div class="p-4">
-                <h2 class="text-xl font-semibold mb-4">Features</h2>
+                <div class="mb-6 flex items-center justify-center">
+                    <div class="w-12 h-12 rounded-full flex items-center justify-center bg-white/10 hover:bg-white/20 transition-all duration-300 cursor-pointer animate-pulse-slow">
+                        <i class="bi bi-mortarboard-fill text-2xl"></i>
+                    </div>
+                </div>
+                
+                <h2 class="text-xl font-semibold mb-6 pb-2 border-b border-white/20 dark:border-gray-700/50 flex items-center">
+                    <i class="bi bi-grid-fill mr-2"></i>
+                    Features
+                </h2>
+                
                 <ul class="space-y-2">
-                    <li><a href="notice.html" class="block py-2 px-4 rounded-lg nav-link">Notice Board</a></li>
-                    <li><a href="taxi-search.html" class="block py-2 px-4 rounded-lg nav-link">Taxi Search</a></li>
-                    <li><a href="study.html" class="block py-2 px-4 rounded-lg nav-link">Study Materials</a></li>
-                    <li><a href="mail.html" class="block py-2 px-4 rounded-lg nav-link">Mail Formats</a></li>
-                    <li><a href="kyp.html" class="block py-2 px-4 rounded-lg nav-link" >Know Your People</a></li>
-                    <li><a href="outings.html" class="block py-2 px-4 rounded-lg nav-link" >Outings & Trips</a></li>
-                    <li><a href="messmenu.html" class="block py-2 px-4 rounded-lg nav-link" >Mess & Canteen</a></li>
+                    <li class="sidebar-item">
+                        <a href="notice.html" class="block py-3 px-4 rounded-lg hover:bg-white/10 dark:hover:bg-gray-700/30 transition-all duration-300 flex items-center space-x-3">
+                            <div class="w-8 h-8 rounded-lg bg-white/10 flex items-center justify-center">
+                                <i class="bi bi-megaphone"></i>
+                            </div>
+                            <span>Notice Board</span>
+                        </a>
+                    </li>
+                    <li class="sidebar-item">
+                        <a href="taxi-search.html" class="block py-3 px-4 rounded-lg hover:bg-white/10 dark:hover:bg-gray-700/30 transition-all duration-300 flex items-center space-x-3">
+                            <div class="w-8 h-8 rounded-lg bg-white/10 flex items-center justify-center">
+                                <i class="bi bi-car-front"></i>
+                            </div>
+                            <span>Taxi Search</span>
+                        </a>
+                    </li>
+                    <li class="sidebar-item">
+                        <a href="study.html" class="block py-3 px-4 rounded-lg hover:bg-white/10 dark:hover:bg-gray-700/30 transition-all duration-300 flex items-center space-x-3">
+                            <div class="w-8 h-8 rounded-lg bg-white/10 flex items-center justify-center">
+                                <i class="bi bi-book"></i>
+                            </div>
+                            <span>Study Materials</span>
+                        </a>
+                    </li>
+                    <li class="sidebar-item">
+                        <a href="mail.html" class="block py-3 px-4 rounded-lg hover:bg-white/10 dark:hover:bg-gray-700/30 transition-all duration-300 flex items-center space-x-3">
+                            <div class="w-8 h-8 rounded-lg bg-white/10 flex items-center justify-center">
+                                <i class="bi bi-envelope"></i>
+                            </div>
+                            <span>Mail Formats</span>
+                        </a>
+                    </li>
+                    <li class="sidebar-item">
+                        <a href="kyp.html" class="block py-3 px-4 rounded-lg hover:bg-white/10 dark:hover:bg-gray-700/30 transition-all duration-300 flex items-center space-x-3">
+                            <div class="w-8 h-8 rounded-lg bg-white/10 flex items-center justify-center">
+                                <i class="bi bi-people"></i>
+                            </div>
+                            <span>Know Your People</span>
+                        </a>
+                    </li>
+                    <li class="sidebar-item">
+                        <a href="outings.html" class="block py-3 px-4 rounded-lg hover:bg-white/10 dark:hover:bg-gray-700/30 transition-all duration-300 flex items-center space-x-3">
+                            <div class="w-8 h-8 rounded-lg bg-white/10 flex items-center justify-center">
+                                <i class="bi bi-geo"></i>
+                            </div>
+                            <span>Outings & Trips</span>
+                        </a>
+                    </li>
+                    <li class="sidebar-item">
+                        <a href="messmenu.html" class="block py-3 px-4 rounded-lg hover:bg-white/10 dark:hover:bg-gray-700/30 transition-all duration-300 flex items-center space-x-3">
+                            <div class="w-8 h-8 rounded-lg bg-white/10 flex items-center justify-center">
+                                <i class="bi bi-cup-hot"></i>
+                            </div>
+                            <span>Mess & Canteen</span>
+                        </a>
+                    </li>
                 </ul>
+            </div>
+            
+            <!-- Sidebar Footer -->
+            <div class="mt-auto p-4 border-t border-white/10 dark:border-gray-700/30">
+                <div class="text-xs text-white/50 text-center">
+                    <p>© 2025 Student Companion</p>
+                </div>
             </div>
         </div>
 
-        <!-- Mobile sidebar toggle -->
-        <div class="fixed bottom-4 left-4 z-40 md:hidden">
-            <button onclick="toggleSidebar()" class="bg-indigo-600 text-white p-3 rounded-full shadow-lg">
-                <i class="bi bi-list text-xl"></i>
+        <!-- Mobile Sidebar Toggle -->
+        <div class="fixed bottom-6 left-6 z-40 md:hidden">
+            <button onclick="toggleSidebar()" class="bg-primary-600 dark:bg-primary-700 text-white p-4 rounded-full shadow-lg hover:bg-primary-500 dark:hover:bg-primary-600 transition-all duration-300">
+                <i id="sidebarIcon" class="bi bi-list text-xl"></i>
             </button>
         </div>
 
         <!-- Main Content -->
-        <div class="flex-1 p-4 md:p-8">
-            <div class="bg-white dark:bg-gray-800 rounded-xl shadow-lg p-4 md:p-6">
-                <h2 class="text-2xl font-bold mb-6 text-gray-800 dark:text-white">Mess & Canteen</h2>
+<div class="flex-1 p-4 md:p-8">
+    <div class="bg-white dark:bg-gray-800 rounded-xl shadow-lg p-4 md:p-6">
+        <div class="flex justify-between items-center mb-6">
+            <h2 class="text-2xl font-bold text-gray-800 dark:text-white">Mess & Canteen</h2>
+            <div id="adminControls" class="hidden">
+                <button id="editMenuBtn" class="px-4 py-2 bg-amber-500 hover:bg-amber-600 text-white rounded-lg flex items-center">
+                    <i class="bi bi-pencil-square mr-2"></i>
+                    Edit Menu
+                </button>
+            </div>
+        </div>
 
-                <!-- Menu Type Buttons -->
+        <!-- Menu Type Buttons -->
+        <div class="flex flex-wrap gap-2 mb-6">
+            <button onclick="switchMenu('messMenu')"
+                class="menu-button px-4 py-2 rounded-lg bg-indigo-500 text-white">
+                Mess Menu
+            </button>
+            <button onclick="switchMenu('canteenMenu')"
+                class="menu-button px-4 py-2 rounded-lg bg-indigo-100 text-indigo-600 dark:bg-indigo-900 dark:text-indigo-300">
+                Canteen Menu
+            </button>
+        </div>
+
+        <!-- Mess Menu Section -->
+        <div id="messMenu" class="menu-section">
+            <div class="mb-6">
+                <!-- Upcoming Meal Alert -->
+                <div id="upcomingMealAlert" class="mb-6 p-4 bg-indigo-100 dark:bg-indigo-900/50 rounded-lg border-l-4 border-indigo-500">
+                    <div class="flex items-center">
+                        <i class="bi bi-alarm text-indigo-600 dark:text-indigo-300 text-xl mr-3"></i>
+                        <div>
+                            <h4 class="font-semibold text-indigo-600 dark:text-indigo-300">Upcoming Meal</h4>
+                            <p id="upcomingMealText" class="text-gray-700 dark:text-gray-300">Loading...</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <h3 class="text-xl font-semibold mb-4 text-gray-700 dark:text-gray-200">Weekly Mess Menu</h3>
+
+                <!-- Day Selection -->
+                <div class="flex flex-wrap gap-2 mb-6" id="daySelector">
+                    <button onclick="showDayMenu('monday')"
+                        class="day-button px-3 py-1.5 rounded-md active bg-indigo-500 text-white">Monday</button>
+                    <button onclick="showDayMenu('tuesday')"
+                        class="day-button px-3 py-1.5 rounded-md bg-indigo-100 text-indigo-600 dark:bg-indigo-900 dark:text-indigo-300">Tuesday</button>
+                    <button onclick="showDayMenu('wednesday')"
+                        class="day-button px-3 py-1.5 rounded-md bg-indigo-100 text-indigo-600 dark:bg-indigo-900 dark:text-indigo-300">Wednesday</button>
+                    <button onclick="showDayMenu('thursday')"
+                        class="day-button px-3 py-1.5 rounded-md bg-indigo-100 text-indigo-600 dark:bg-indigo-900 dark:text-indigo-300">Thursday</button>
+                    <button onclick="showDayMenu('friday')"
+                        class="day-button px-3 py-1.5 rounded-md bg-indigo-100 text-indigo-600 dark:bg-indigo-900 dark:text-indigo-300">Friday</button>
+                    <button onclick="showDayMenu('saturday')"
+                        class="day-button px-3 py-1.5 rounded-md bg-indigo-100 text-indigo-600 dark:bg-indigo-900 dark:text-indigo-300">Saturday</button>
+                    <button onclick="showDayMenu('sunday')"
+                        class="day-button px-3 py-1.5 rounded-md bg-indigo-100 text-indigo-600 dark:bg-indigo-900 dark:text-indigo-300">Sunday</button>
+                </div>
+
+                <!-- Meal Type Selection -->
+                <div class="flex flex-wrap gap-2 mb-6" id="mealTypeSelector">
+                    <button onclick="showMealType('breakfast')"
+                        class="meal-type-button px-3 py-1.5 rounded-md active bg-green-500 text-white">
+                        <i class="bi bi-cup-hot mr-1"></i>Breakfast
+                    </button>
+                    <button onclick="showMealType('lunch')"
+                        class="meal-type-button px-3 py-1.5 rounded-md bg-green-100 text-green-600 dark:bg-green-900 dark:text-green-300">
+                        <i class="bi bi-egg-fried mr-1"></i>Lunch
+                    </button>
+                    <button onclick="showMealType('snacks')"
+                        class="meal-type-button px-3 py-1.5 rounded-md bg-green-100 text-green-600 dark:bg-green-900 dark:text-green-300">
+                        <i class="bi bi-moon-stars mr-1"></i>Snacks
+                    </button>
+                    <button onclick="showMealType('dinner')"
+                        class="meal-type-button px-3 py-1.5 rounded-md bg-green-100 text-green-600 dark:bg-green-900 dark:text-green-300">
+                        <i class="bi bi-moon-stars mr-1"></i>Dinner
+                    </button>
+                </div>
+
+                <!-- Loading spinner -->
+                <div id="menuLoadingSpinner" class="flex justify-center my-12">
+                    <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-indigo-500"></div>
+                </div>
+
+                <!-- Day Menus Container (will be populated from Supabase) -->
+                <div id="menuContainer" class="hidden">
+                    <!-- Content will be dynamically populated based on day and meal type selection -->
+                </div>
+            </div>
+        </div>
+
+        <!-- Canteen Menu Section -->
+        <div id="canteenMenu" class="menu-section hidden">
+            <div class="mb-6">
+                <h3 class="text-lg font-semibold mb-4 text-gray-700 dark:text-gray-300">Canteen Food Items</h3>
+
+                <!-- Category selection -->
                 <div class="flex flex-wrap gap-2 mb-6">
-                    <button onclick="switchMenu('messMenu')"
-                        class="menu-button px-4 py-2 rounded-lg bg-indigo-500 text-white">
-                        Mess Menu
-                    </button>
-                    <button onclick="switchMenu('canteenMenu')"
-                        class="menu-button px-4 py-2 rounded-lg bg-indigo-100 text-indigo-600 dark:bg-indigo-900 dark:text-indigo-300">
-                        Canteen Menu
-                    </button>
+                    <button
+                        class="menu-category active px-4 py-2 bg-indigo-100 dark:bg-indigo-900 rounded-lg text-indigo-600 dark:text-indigo-300 font-medium"
+                        onclick="showCategory('snacks')">Snacks</button>
+                    <button
+                        class="menu-category px-4 py-2 bg-indigo-100 dark:bg-indigo-900 rounded-lg text-indigo-600 dark:text-indigo-300 font-medium"
+                        onclick="showCategory('beverages')">Beverages</button>
+                    <button
+                        class="menu-category px-4 py-2 bg-indigo-100 dark:bg-indigo-900 rounded-lg text-indigo-600 dark:text-indigo-300 font-medium"
+                        onclick="showCategory('meals')">Meals</button>
+                    <button
+                        class="menu-category px-4 py-2 bg-indigo-100 dark:bg-indigo-900 rounded-lg text-indigo-600 dark:text-indigo-300 font-medium"
+                        onclick="showCategory('desserts')">Desserts</button>
+                </div>
+                
+                <!-- Loading spinner for canteen menu -->
+                <div id="canteenLoadingSpinner" class="flex justify-center my-12">
+                    <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-indigo-500"></div>
                 </div>
 
-                <!-- Mess Menu Section -->
-                <div id="messMenu" class="menu-section">
-                    <div class="mb-6">
-                        <h3 class="text-xl font-semibold mb-4 text-gray-700 dark:text-gray-200">Weekly Mess Menu</h3>
-
-                        <!-- Day Selection -->
-                        <div class="flex flex-wrap gap-2 mb-6">
-                            <button onclick="showDayMenu('monday')"
-                                class="day-button px-3 py-1.5 rounded-md active bg-indigo-500 text-white">Monday</button>
-                            <button onclick="showDayMenu('tuesday')"
-                                class="day-button px-3 py-1.5 rounded-md bg-indigo-100 text-indigo-600 dark:bg-indigo-900 dark:text-indigo-300">Tuesday</button>
-                            <button onclick="showDayMenu('wednesday')"
-                                class="day-button px-3 py-1.5 rounded-md bg-indigo-100 text-indigo-600 dark:bg-indigo-900 dark:text-indigo-300">Wednesday</button>
-                            <button onclick="showDayMenu('thursday')"
-                                class="day-button px-3 py-1.5 rounded-md bg-indigo-100 text-indigo-600 dark:bg-indigo-900 dark:text-indigo-300">Thursday</button>
-                            <button onclick="showDayMenu('friday')"
-                                class="day-button px-3 py-1.5 rounded-md bg-indigo-100 text-indigo-600 dark:bg-indigo-900 dark:text-indigo-300">Friday</button>
-                            <button onclick="showDayMenu('saturday')"
-                                class="day-button px-3 py-1.5 rounded-md bg-indigo-100 text-indigo-600 dark:bg-indigo-900 dark:text-indigo-300">Saturday</button>
-                            <button onclick="showDayMenu('sunday')"
-                                class="day-button px-3 py-1.5 rounded-md bg-indigo-100 text-indigo-600 dark:bg-indigo-900 dark:text-indigo-300">Sunday</button>
-                        </div>
-
-                        <!-- Monday Menu -->
-                        <div id="monday-menu" class="day-menu">
-                            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-                                <div class="bg-indigo-50 dark:bg-indigo-900/30 rounded-lg p-4">
-                                    <h4 class="font-semibold text-lg mb-2 text-indigo-600 dark:text-indigo-300">
-                                        Breakfast (7:30 - 9:00)</h4>
-                                    <ul class="space-y-1 text-gray-700 dark:text-gray-300">
-                                        <li>• Bread & Butter</li>
-                                        <li>• Boiled Eggs</li>
-                                        <li>• Corn Flakes</li>
-                                        <li>• Tea/Coffee</li>
-                                    </ul>
-                                </div>
-                                <div class="bg-indigo-50 dark:bg-indigo-900/30 rounded-lg p-4">
-                                    <h4 class="font-semibold text-lg mb-2 text-indigo-600 dark:text-indigo-300">Lunch
-                                        (12:30 - 2:00)</h4>
-                                    <ul class="space-y-1 text-gray-700 dark:text-gray-300">
-                                        <li>• Rice</li>
-                                        <li>• Dal Fry</li>
-                                        <li>• Mix Vegetable</li>
-                                        <li>• Chicken Curry</li>
-                                        <li>• Salad & Papad</li>
-                                    </ul>
-                                </div>
-                                <div class="bg-indigo-50 dark:bg-indigo-900/30 rounded-lg p-4">
-                                    <h4 class="font-semibold text-lg mb-2 text-indigo-600 dark:text-indigo-300">Dinner
-                                        (7:30 - 9:00)</h4>
-                                    <ul class="space-y-1 text-gray-700 dark:text-gray-300">
-                                        <li>• Roti</li>
-                                        <li>• Rice</li>
-                                        <li>• Dal Tadka</li>
-                                        <li>• Paneer Butter Masala</li>
-                                        <li>• Sweet</li>
-                                    </ul>
-                                </div>
-                                <div class="bg-indigo-50 dark:bg-indigo-900/30 rounded-lg p-4">
-                                    <h4 class="font-semibold text-lg mb-2 text-indigo-600 dark:text-indigo-300">Dinner
-                                        (7:30 - 9:00)</h4>
-                                    <ul class="space-y-1 text-gray-700 dark:text-gray-300">
-                                        <li>• Roti</li>
-                                        <li>• Rice</li>
-                                        <li>• Dal Tadka</li>
-                                        <li>• Paneer Butter Masala</li>
-                                        <li>• Sweet</li>
-                                    </ul>
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- Tuesday Menu -->
-                        <div id="tuesday-menu" class="day-menu hidden">
-                            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-                                <div class="bg-indigo-50 dark:bg-indigo-900/30 rounded-lg p-4">
-                                    <h4 class="font-semibold text-lg mb-2 text-indigo-600 dark:text-indigo-300">
-                                        Breakfast (7:30 - 9:00)</h4>
-                                    <ul class="space-y-1 text-gray-700 dark:text-gray-300">
-                                        <li>• Aloo Paratha</li>
-                                        <li>• Curd</li>
-                                        <li>• Fruit</li>
-                                        <li>• Tea/Coffee</li>
-                                    </ul>
-                                </div>
-                                <div class="bg-indigo-50 dark:bg-indigo-900/30 rounded-lg p-4">
-                                    <h4 class="font-semibold text-lg mb-2 text-indigo-600 dark:text-indigo-300">Lunch
-                                        (12:30 - 2:00)</h4>
-                                    <ul class="space-y-1 text-gray-700 dark:text-gray-300">
-                                        <li>• Rice</li>
-                                        <li>• Dal Makhani</li>
-                                        <li>• Bhindi Fry</li>
-                                        <li>• Fish Curry</li>
-                                        <li>• Salad & Papad</li>
-                                    </ul>
-                                </div>
-                                <div class="bg-indigo-50 dark:bg-indigo-900/30 rounded-lg p-4">
-                                    <h4 class="font-semibold text-lg mb-2 text-indigo-600 dark:text-indigo-300">Dinner
-                                        (7:30 - 9:00)</h4>
-                                    <ul class="space-y-1 text-gray-700 dark:text-gray-300">
-                                        <li>• Roti</li>
-                                        <li>• Jeera Rice</li>
-                                        <li>• Dal Palak</li>
-                                        <li>• Malai Kofta</li>
-                                        <li>• Ice Cream</li>
-                                    </ul>
-                                </div>
-                                <div class="bg-indigo-50 dark:bg-indigo-900/30 rounded-lg p-4">
-                                    <h4 class="font-semibold text-lg mb-2 text-indigo-600 dark:text-indigo-300">Dinner
-                                        (7:30 - 9:00)</h4>
-                                    <ul class="space-y-1 text-gray-700 dark:text-gray-300">
-                                        <li>• Roti</li>
-                                        <li>• Rice</li>
-                                        <li>• Dal Tadka</li>
-                                        <li>• Paneer Butter Masala</li>
-                                        <li>• Sweet</li>
-                                    </ul>
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- Wednesday Menu -->
-                        <div id="wednesday-menu" class="day-menu hidden">
-                            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-                                <div class="bg-indigo-50 dark:bg-indigo-900/30 rounded-lg p-4">
-                                    <h4 class="font-semibold text-lg mb-2 text-indigo-600 dark:text-indigo-300">
-                                        Breakfast (7:30 - 9:00)</h4>
-                                    <ul class="space-y-1 text-gray-700 dark:text-gray-300">
-                                        <li>• Idli</li>
-                                        <li>• Sambhar</li>
-                                        <li>• Coconut Chutney</li>
-                                        <li>• Tea/Coffee</li>
-                                    </ul>
-                                </div>
-                                <div class="bg-indigo-50 dark:bg-indigo-900/30 rounded-lg p-4">
-                                    <h4 class="font-semibold text-lg mb-2 text-indigo-600 dark:text-indigo-300">Lunch
-                                        (12:30 - 2:00)</h4>
-                                    <ul class="space-y-1 text-gray-700 dark:text-gray-300">
-                                        <li>• Rice</li>
-                                        <li>• Sambhar</li>
-                                        <li>• Cabbage Thoran</li>
-                                        <li>• Egg Curry</li>
-                                        <li>• Salad & Papad</li>
-                                    </ul>
-                                </div>
-                                <div class="bg-indigo-50 dark:bg-indigo-900/30 rounded-lg p-4">
-                                    <h4 class="font-semibold text-lg mb-2 text-indigo-600 dark:text-indigo-300">Dinner
-                                        (7:30 - 9:00)</h4>
-                                    <ul class="space-y-1 text-gray-700 dark:text-gray-300">
-                                        <li>• Roti</li>
-                                        <li>• Rice</li>
-                                        <li>• Dal Fry</li>
-                                        <li>• Veg Kofta</li>
-                                        <li>• Gulab Jamun</li>
-                                    </ul>
-                                </div>
-                                <div class="bg-indigo-50 dark:bg-indigo-900/30 rounded-lg p-4">
-                                    <h4 class="font-semibold text-lg mb-2 text-indigo-600 dark:text-indigo-300">Dinner
-                                        (7:30 - 9:00)</h4>
-                                    <ul class="space-y-1 text-gray-700 dark:text-gray-300">
-                                        <li>• Roti</li>
-                                        <li>• Rice</li>
-                                        <li>• Dal Tadka</li>
-                                        <li>• Paneer Butter Masala</li>
-                                        <li>• Sweet</li>
-                                    </ul>
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- Add other day menus similarly -->
-                        <div id="thursday-menu" class="day-menu hidden">
-                            <!-- Thursday menu content -->
-                            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-                                <!-- Similar structure for Thursday -->
-                                <div class="bg-indigo-50 dark:bg-indigo-900/30 rounded-lg p-4">
-                                    <h4 class="font-semibold text-lg mb-2 text-indigo-600 dark:text-indigo-300">
-                                        Breakfast (7:30 - 9:00)</h4>
-                                    <ul class="space-y-1 text-gray-700 dark:text-gray-300">
-                                        <li>• Poha</li>
-                                        <li>• Boiled Eggs</li>
-                                        <li>• Fruit</li>
-                                        <li>• Tea/Coffee</li>
-                                    </ul>
-                                </div>
-                                <div class="bg-indigo-50 dark:bg-indigo-900/30 rounded-lg p-4">
-                                    <h4 class="font-semibold text-lg mb-2 text-indigo-600 dark:text-indigo-300">Lunch
-                                        (12:30 - 2:00)</h4>
-                                    <ul class="space-y-1 text-gray-700 dark:text-gray-300">
-                                        <li>• Rice</li>
-                                        <li>• Dal Tadka</li>
-                                        <li>• Aloo Gobi</li>
-                                        <li>• Chicken Curry</li>
-                                        <li>• Salad & Papad</li>
-                                    </ul>
-                                </div>
-                                <div class="bg-indigo-50 dark:bg-indigo-900/30 rounded-lg p-4">
-                                    <h4 class="font-semibold text-lg mb-2 text-indigo-600 dark:text-indigo-300">Dinner
-                                        (7:30 - 9:00)</h4>
-                                    <ul class="space-y-1 text-gray-700 dark:text-gray-300">
-                                        <li>• Roti</li>
-                                        <li>• Rice</li>
-                                        <li>• Rajma</li>
-                                        <li>• Kadhai Paneer</li>
-                                        <li>• Kheer</li>
-                                    </ul>
-                                </div>
-                                <div class="bg-indigo-50 dark:bg-indigo-900/30 rounded-lg p-4">
-                                    <h4 class="font-semibold text-lg mb-2 text-indigo-600 dark:text-indigo-300">Dinner
-                                        (7:30 - 9:00)</h4>
-                                    <ul class="space-y-1 text-gray-700 dark:text-gray-300">
-                                        <li>• Roti</li>
-                                        <li>• Rice</li>
-                                        <li>• Dal Tadka</li>
-                                        <li>• Paneer Butter Masala</li>
-                                        <li>• Sweet</li>
-                                    </ul>
-                                </div>
-                            </div>
-                        </div>
-
-                        <div id="friday-menu" class="day-menu hidden">
-                            <!-- Friday menu content -->
-                            <!-- Similar structure -->
-                            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-                                <div class="bg-indigo-50 dark:bg-indigo-900/30 rounded-lg p-4">
-                                    <h4 class="font-semibold text-lg mb-2 text-indigo-600 dark:text-indigo-300">
-                                        Breakfast (7:30 - 9:00)</h4>
-                                    <ul class="space-y-1 text-gray-700 dark:text-gray-300">
-                                        <li>• Puri</li>
-                                        <li>• Aloo Sabzi</li>
-                                        <li>• Fruit</li>
-                                        <li>• Tea/Coffee</li>
-                                    </ul>
-                                </div>
-                                <div class="bg-indigo-50 dark:bg-indigo-900/30 rounded-lg p-4">
-                                    <h4 class="font-semibold text-lg mb-2 text-indigo-600 dark:text-indigo-300">Lunch
-                                        (12:30 - 2:00)</h4>
-                                    <ul class="space-y-1 text-gray-700 dark:text-gray-300">
-                                        <li>• Rice</li>
-                                        <li>• Chana Dal</li>
-                                        <li>• Palak Paneer</li>
-                                        <li>• Egg Curry</li>
-                                        <li>• Salad & Papad</li>
-                                    </ul>
-                                </div>
-                                <div class="bg-indigo-50 dark:bg-indigo-900/30 rounded-lg p-4">
-                                    <h4 class="font-semibold text-lg mb-2 text-indigo-600 dark:text-indigo-300">Dinner
-                                        (7:30 - 9:00)</h4>
-                                    <ul class="space-y-1 text-gray-700 dark:text-gray-300">
-                                        <li>• Roti</li>
-                                        <li>• Rice</li>
-                                        <li>• Dal Fry</li>
-                                        <li>• Chilli Chicken</li>
-                                        <li>• Jalebi</li>
-                                    </ul>
-                                </div>
-                                <div class="bg-indigo-50 dark:bg-indigo-900/30 rounded-lg p-4">
-                                    <h4 class="font-semibold text-lg mb-2 text-indigo-600 dark:text-indigo-300">Dinner
-                                        (7:30 - 9:00)</h4>
-                                    <ul class="space-y-1 text-gray-700 dark:text-gray-300">
-                                        <li>• Roti</li>
-                                        <li>• Rice</li>
-                                        <li>• Dal Tadka</li>
-                                        <li>• Paneer Butter Masala</li>
-                                        <li>• Sweet</li>
-                                    </ul>
-                                </div>
-                            </div>
-                        </div>
-
-                        <div id="saturday-menu" class="day-menu hidden">
-                            <!-- Saturday menu content -->
-                            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-                                <div class="bg-indigo-50 dark:bg-indigo-900/30 rounded-lg p-4">
-                                    <h4 class="font-semibold text-lg mb-2 text-indigo-600 dark:text-indigo-300">
-                                        Breakfast (7:30 - 9:00)</h4>
-                                    <ul class="space-y-1 text-gray-700 dark:text-gray-300">
-                                        <li>• Dosa</li>
-                                        <li>• Sambhar</li>
-                                        <li>• Coconut Chutney</li>
-                                        <li>• Tea/Coffee</li>
-                                    </ul>
-                                </div>
-                                <div class="bg-indigo-50 dark:bg-indigo-900/30 rounded-lg p-4">
-                                    <h4 class="font-semibold text-lg mb-2 text-indigo-600 dark:text-indigo-300">Lunch
-                                        (12:30 - 2:00)</h4>
-                                    <ul class="space-y-1 text-gray-700 dark:text-gray-300">
-                                        <li>• Pulao</li>
-                                        <li>• Raita</li>
-                                        <li>• Veg Korma</li>
-                                        <li>• Mutton Curry</li>
-                                        <li>• Salad & Papad</li>
-                                    </ul>
-                                </div>
-                                <div class="bg-indigo-50 dark:bg-indigo-900/30 rounded-lg p-4">
-                                    <h4 class="font-semibold text-lg mb-2 text-indigo-600 dark:text-indigo-300">Dinner
-                                        (7:30 - 9:00)</h4>
-                                    <ul class="space-y-1 text-gray-700 dark:text-gray-300">
-                                        <li>• Roti</li>
-                                        <li>• Rice</li>
-                                        <li>• Dal Makhani</li>
-                                        <li>• Matar Paneer</li>
-                                        <li>• Fruit Custard</li>
-                                    </ul>
-                                </div>
-                                <div class="bg-indigo-50 dark:bg-indigo-900/30 rounded-lg p-4">
-                                    <h4 class="font-semibold text-lg mb-2 text-indigo-600 dark:text-indigo-300">Dinner
-                                        (7:30 - 9:00)</h4>
-                                    <ul class="space-y-1 text-gray-700 dark:text-gray-300">
-                                        <li>• Roti</li>
-                                        <li>• Rice</li>
-                                        <li>• Dal Tadka</li>
-                                        <li>• Paneer Butter Masala</li>
-                                        <li>• Sweet</li>
-                                    </ul>
-                                </div>
-                            </div>
-                        </div>
-
-                        <div id="sunday-menu" class="day-menu hidden">
-                            <!-- Sunday menu content -->
-                            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-                                <div class="bg-indigo-50 dark:bg-indigo-900/30 rounded-lg p-4">
-                                    <h4 class="font-semibold text-lg mb-2 text-indigo-600 dark:text-indigo-300">
-                                        Breakfast (7:30 - 9:00)</h4>
-                                    <ul class="space-y-1 text-gray-700 dark:text-gray-300">
-                                        <li>• Dosa</li>
-                                        <li>• Sambhar</li>
-                                        <li>• Coconut Chutney</li>
-                                        <li>• Tea/Coffee</li>
-                                    </ul>
-                                </div>
-                                <div class="bg-indigo-50 dark:bg-indigo-900/30 rounded-lg p-4">
-                                    <h4 class="font-semibold text-lg mb-2 text-indigo-600 dark:text-indigo-300">Lunch
-                                        (12:30 - 2:00)</h4>
-                                    <ul class="space-y-1 text-gray-700 dark:text-gray-300">
-                                        <li>• Pulao</li>
-                                        <li>• Raita</li>
-                                        <li>• Veg Korma</li>
-                                        <li>• Mutton Curry</li>
-                                        <li>• Salad & Papad</li>
-                                    </ul>
-                                </div>
-                                <div class="bg-indigo-50 dark:bg-indigo-900/30 rounded-lg p-4">
-                                    <h4 class="font-semibold text-lg mb-2 text-indigo-600 dark:text-indigo-300">Dinner
-                                        (7:30 - 9:00)</h4>
-                                    <ul class="space-y-1 text-gray-700 dark:text-gray-300">
-                                        <li>• Roti</li>
-                                        <li>• Rice</li>
-                                        <li>• Dal Makhani</li>
-                                        <li>• Matar Paneer</li>
-                                        <li>• Fruit Custard</li>
-                                    </ul>
-                                </div>
-                                <div class="bg-indigo-50 dark:bg-indigo-900/30 rounded-lg p-4">
-                                    <h4 class="font-semibold text-lg mb-2 text-indigo-600 dark:text-indigo-300">Dinner
-                                        (7:30 - 9:00)</h4>
-                                    <ul class="space-y-1 text-gray-700 dark:text-gray-300">
-                                        <li>• Roti</li>
-                                        <li>• Rice</li>
-                                        <li>• Dal Tadka</li>
-                                        <li>• Paneer Butter Masala</li>
-                                        <li>• Sweet</li>
-                                    </ul>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Canteen Menu Section -->
-            <div id="canteenMenu" class="menu-section hidden">
-                <div class="mb-6">
-                    <h3 class="text-lg font-semibold mb-4 text-gray-700 dark:text-gray-300">Canteen Food Items</h3>
-
-                    <!-- Category selection -->
-                    <div class="flex flex-wrap gap-2 mb-6">
-                        <button
-                            class="menu-category active px-4 py-2 bg-indigo-100 dark:bg-indigo-900 rounded-lg text-indigo-600 dark:text-indigo-300 font-medium"
-                            onclick="showCategory('snacks')">Snacks</button>
-                        <button
-                            class="menu-category px-4 py-2 bg-indigo-100 dark:bg-indigo-900 rounded-lg text-indigo-600 dark:text-indigo-300 font-medium"
-                            onclick="showCategory('beverages')">Beverages</button>
-                        <button
-                            class="menu-category px-4 py-2 bg-indigo-100 dark:bg-indigo-900 rounded-lg text-indigo-600 dark:text-indigo-300 font-medium"
-                            onclick="showCategory('meals')">Meals</button>
-                        <button
-                            class="menu-category px-4 py-2 bg-indigo-100 dark:bg-indigo-900 rounded-lg text-indigo-600 dark:text-indigo-300 font-medium"
-                            onclick="showCategory('desserts')">Desserts</button>
-                    </div>
-
-                    <!-- Menu Items by Category -->
-                    <div id="categoryContainer">
-                        <!-- Snacks -->
-                        <div id="snacks-menu" class="category-menu">
-                            <div class="bg-white dark:bg-gray-800 rounded-lg shadow overflow-hidden">
-                                <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
-                                    <thead class="bg-gray-50 dark:bg-gray-700">
-                                        <tr>
-                                            <th scope="col"
-                                                class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
-                                                Item</th>
-                                            <th scope="col"
-                                                class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
-                                                Price</th>
-                                            <th scope="col"
-                                                class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
-                                                Availability</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody
-                                        class="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
-                                        <tr>
-                                            <td
-                                                class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white">
-                                                Samosa</td>
-                                            <td
-                                                class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-300">
-                                                ₹15</td>
-                                            <td class="px-6 py-4 whitespace-nowrap text-sm text-green-500">Available
-                                            </td>
-                                        </tr>
-                                        <tr>
-                                            <td
-                                                class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white">
-                                                Bread Pakora</td>
-                                            <td
-                                                class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-300">
-                                                ₹20</td>
-                                            <td class="px-6 py-4 whitespace-nowrap text-sm text-green-500">Available
-                                            </td>
-                                        </tr>
-                                        <tr>
-                                            <td
-                                                class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white">
-                                                Veg Sandwich</td>
-                                            <td
-                                                class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-300">
-                                                ₹35</td>
-                                            <td class="px-6 py-4 whitespace-nowrap text-sm text-green-500">Available
-                                            </td>
-                                        </tr>
-                                        <tr>
-                                            <td
-                                                class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white">
-                                                Cheese Sandwich</td>
-                                            <td
-                                                class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-300">
-                                                ₹50</td>
-                                            <td class="px-6 py-4 whitespace-nowrap text-sm text-green-500">Available
-                                            </td>
-                                        </tr>
-                                        <tr>
-                                            <td
-                                                class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white">
-                                                French Fries</td>
-                                            <td
-                                                class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-300">
-                                                ₹45</td>
-                                            <td class="px-6 py-4 whitespace-nowrap text-sm text-green-500">Available
-                                            </td>
-                                        </tr>
-                                        <tr>
-                                            <td
-                                                class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white">
-                                                Vada Pav</td>
-                                            <td
-                                                class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-300">
-                                                ₹25</td>
-                                            <td class="px-6 py-4 whitespace-nowrap text-sm text-green-500">Available
-                                            </td>
-                                        </tr>
-                                    </tbody>
-                                </table>
-                            </div>
-                        </div>
-
-                        <!-- Beverages -->
-                        <div id="beverages-menu" class="category-menu hidden">
-                            <div class="bg-white dark:bg-gray-800 rounded-lg shadow overflow-hidden">
-                                <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
-                                    <thead class="bg-gray-50 dark:bg-gray-700">
-                                        <tr>
-                                            <th scope="col"
-                                                class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
-                                                Item</th>
-                                            <th scope="col"
-                                                class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
-                                                Price</th>
-                                            <th scope="col"
-                                                class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
-                                                Availability</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody
-                                        class="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
-                                        <tr>
-                                            <td
-                                                class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white">
-                                                Tea</td>
-                                            <td
-                                                class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-300">
-                                                ₹10</td>
-                                            <td class="px-6 py-4 whitespace-nowrap text-sm text-green-500">Available
-                                            </td>
-                                        </tr>
-                                        <tr>
-                                            <td
-                                                class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white">
-                                                Coffee</td>
-                                            <td
-                                                class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-300">
-                                                ₹15</td>
-                                            <td class="px-6 py-4 whitespace-nowrap text-sm text-green-500">Available
-                                            </td>
-                                        </tr>
-                                        <tr>
-                                            <td
-                                                class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white">
-                                                Cold Coffee</td>
-                                            <td
-                                                class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-300">
-                                                ₹40</td>
-                                            <td class="px-6 py-4 whitespace-nowrap text-sm text-green-500">Available
-                                            </td>
-                                        </tr>
-                                        <tr>
-                                            <td
-                                                class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white">
-                                                Fresh Juice</td>
-                                            <td
-                                                class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-300">
-                                                ₹35</td>
-                                            <td class="px-6 py-4 whitespace-nowrap text-sm text-green-500">Available
-                                            </td>
-                                        </tr>
-                                        <tr>
-                                            <td
-                                                class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white">
-                                                Soft Drinks</td>
-                                            <td
-                                                class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-300">
-                                                ₹20</td>
-                                            <td class="px-6 py-4 whitespace-nowrap text-sm text-green-500">Available
-                                            </td>
-                                        </tr>
-                                        <tr>
-                                            <td
-                                                class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white">
-                                                Lassi</td>
-                                            <td
-                                                class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-300">
-                                                ₹30</td>
-                                            <td class="px-6 py-4 whitespace-nowrap text-sm text-green-500">Available
-                                            </td>
-                                        </tr>
-                                    </tbody>
-                                </table>
-                            </div>
-                        </div>
-
-                        <!-- Meals -->
-                        <div id="meals-menu" class="category-menu hidden">
-                            <div class="bg-white dark:bg-gray-800 rounded-lg shadow overflow-hidden">
-                                <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
-                                    <thead class="bg-gray-50 dark:bg-gray-700">
-                                        <tr>
-                                            <th scope="col"
-                                                class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
-                                                Item</th>
-                                            <th scope="col"
-                                                class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
-                                                Price</th>
-                                            <th scope="col"
-                                                class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
-                                                Availability</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody
-                                        class="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
-                                        <tr>
-                                            <td
-                                                class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white">
-                                                Veg Thali</td>
-                                            <td
-                                                class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-300">
-                                                ₹80</td>
-                                            <td class="px-6 py-4 whitespace-nowrap text-sm text-green-500">Available
-                                            </td>
-                                        </tr>
-                                        <tr>
-                                            <td
-                                                class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white">
-                                                Special Thali</td>
-                                            <td
-                                                class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-300">
-                                                ₹120</td>
-                                            <td class="px-6 py-4 whitespace-nowrap text-sm text-green-500">Available
-                                            </td>
-                                        </tr>
-                                        <tr>
-                                            <td
-                                                class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white">
-                                                Chole Bhature</td>
-                                            <td
-                                                class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-300">
-                                                ₹70</td>
-                                            <td class="px-6 py-4 whitespace-nowrap text-sm text-green-500">Available
-                                            </td>
-                                        </tr>
-                                        <tr>
-                                            <td
-                                                class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white">
-                                                Rajma Rice</td>
-                                            <td
-                                                class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-300">
-                                                ₹60</td>
-                                            <td class="px-6 py-4 whitespace-nowrap text-sm text-green-500">Available
-                                            </td>
-                                        </tr>
-                                        <tr>
-                                            <td
-                                                class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white">
-                                                Paneer Butter Masala</td>
-                                            <td
-                                                class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-300">
-                                                ₹110</td>
-                                            <td class="px-6 py-4 whitespace-nowrap text-sm text-green-500">Available
-                                            </td>
-                                        </tr>
-                                    </tbody>
-                                </table>
-                            </div>
-                        </div>
-
-                        <!-- Desserts -->
-                        <div id="desserts-menu" class="category-menu hidden">
-                            <div class="bg-white dark:bg-gray-800 rounded-lg shadow overflow-hidden">
-                                <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
-                                    <thead class="bg-gray-50 dark:bg-gray-700">
-                                        <tr>
-                                            <th scope="col"
-                                                class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
-                                                Item</th>
-                                            <th scope="col"
-                                                class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
-                                                Price</th>
-                                            <th scope="col"
-                                                class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
-                                                Availability</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody
-                                        class="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
-                                        <tr>
-                                            <td
-                                                class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white">
-                                                Ice Cream</td>
-                                            <td
-                                                class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-300">
-                                                ₹40</td>
-                                            <td class="px-6 py-4 whitespace-nowrap text-sm text-green-500">Available
-                                            </td>
-                                        </tr>
-                                        <tr>
-                                            <td
-                                                class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white">
-                                                Gulab Jamun</td>
-                                            <td
-                                                class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-300">
-                                                ₹15</td>
-                                            <td class="px-6 py-4 whitespace-nowrap text-sm text-green-500">Available
-                                            </td>
-                                        </tr>
-                                        <tr>
-                                            <td
-                                                class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white">
-                                                Pastry</td>
-                                            <td
-                                                class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-300">
-                                                ₹35</td>
-                                            <td class="px-6 py-4 whitespace-nowrap text-sm text-green-500">Available
-                                            </td>
-                                        </tr>
-                                        <tr>
-                                            <td
-                                                class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white">
-                                                Brownie</td>
-                                            <td
-                                                class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-300">
-                                                ₹45</td>
-                                            <td class="px-6 py-4 whitespace-nowrap text-sm text-red-500">Out of Stock
-                                            </td>
-                                        </tr>
-                                        <tr>
-                                            <td
-                                                class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white">
-                                                Fruit Custard</td>
-                                            <td
-                                                class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-300">
-                                                ₹40</td>
-                                            <td class="px-6 py-4 whitespace-nowrap text-sm text-green-500">Available
-                                            </td>
-                                        </tr>
-                                    </tbody>
-                                </table>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Admin Controls Section -->
-            <div id="adminControls" class="menu-section hidden">
-                <div class="mb-6">
-                    <h3 class="text-lg font-semibold mb-4 text-gray-700 dark:text-gray-300">Menu Management</h3>
-                    <p class="text-gray-600 dark:text-gray-400 mb-6">Welcome Admin! Here you can update the mess and
-                        canteen menus.</p>
-
-                    <!-- Admin Tabs -->
-                    <div class="mb-6">
-                        <div class="flex flex-wrap gap-2 mb-6">
-                            <button
-                                class="admin-tab active px-4 py-2 bg-indigo-100 dark:bg-indigo-900 rounded-lg text-indigo-600 dark:text-indigo-300 font-medium"
-                                onclick="switchAdminTab('updateMessMenu')">Update Mess Menu</button>
-                            <button
-                                class="admin-tab px-4 py-2 bg-indigo-100 dark:bg-indigo-900 rounded-lg text-indigo-600 dark:text-indigo-300 font-medium"
-                                onclick="switchAdminTab('updateCanteenMenu')">Update Canteen Menu</button>
-                            <button
-                                class="admin-tab px-4 py-2 bg-indigo-100 dark:bg-indigo-900 rounded-lg text-indigo-600 dark:text-indigo-300 font-medium"
-                                onclick="switchAdminTab('specialAnnouncements')">Special Announcements</button>
-                        </div>
-
-                        <!-- Update Mess Menu -->
-                        <div id="updateMessMenu" class="admin-tab-content">
-                            <div class="bg-white dark:bg-gray-800 rounded-lg shadow p-6">
-                                <h4 class="text-lg font-medium mb-4 text-gray-800 dark:text-white">Update Weekly Mess
-                                    Menu</h4>
-
-                                <form id="messMenuForm">
-                                    <div class="mb-4">
-                                        <label class="block text-gray-700 dark:text-gray-300 mb-2">Select Day:</label>
-                                        <select id="menuDay"
-                                            class="w-full p-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-800 dark:text-white">
-                                            <option value="monday">Monday</option>
-                                            <option value="tuesday">Tuesday</option>
-                                            <option value="wednesday">Wednesday</option>
-                                            <option value="thursday">Thursday</option>
-                                            <option value="friday">Friday</option>
-                                            <option value="saturday">Saturday</option>
-                                            <option value="sunday">Sunday</option>
-                                        </select>
-                                    </div>
-
-                                    <div class="mb-4">
-                                        <label class="block text-gray-700 dark:text-gray-300 mb-2">Select Meal:</label>
-                                        <select id="mealType"
-                                            class="w-full p-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-800 dark:text-white">
-                                            <option value="breakfast">Breakfast</option>
-                                            <option value="lunch">Lunch</option>
-                                            <option value="dinner">Dinner</option>
-                                        </select>
-                                    </div>
-
-                                    <div class="mb-4">
-                                        <label class="block text-gray-700 dark:text-gray-300 mb-2">Menu Items (One per
-                                            line):</label>
-                                        <textarea id="menuItems" rows="6"
-                                            class="w-full p-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-800 dark:text-white"
-                                            placeholder="Enter menu items, one per line"></textarea>
-                                    </div>
-
-                                    <button type="submit"
-                                        class="px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition">Update
-                                        Menu</button>
-                                </form>
-                            </div>
-                        </div>
-
-                        <!-- Update Canteen Menu -->
-                        <div id="updateCanteenMenu" class="admin-tab-content hidden">
-                            <div class="bg-white dark:bg-gray-800 rounded-lg shadow p-6">
-                                <h4 class="text-lg font-medium mb-4 text-gray-800 dark:text-white">Update Canteen Menu
-                                </h4>
-
-                                <form id="canteenMenuForm">
-                                    <div class="mb-4">
-                                        <label class="block text-gray-700 dark:text-gray-300 mb-2">Select
-                                            Category:</label>
-                                        <select id="foodCategory"
-                                            class="w-full p-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-800 dark:text-white">
-                                            <option value="snacks">Snacks</option>
-                                            <option value="beverages">Beverages</option>
-                                            <option value="meals">Meals</option>
-                                            <option value="desserts">Desserts</option>
-                                        </select>
-                                    </div>
-
-                                    <div class="mb-4">
-                                        <label class="block text-gray-700 dark:text-gray-300 mb-2">Item Name:</label>
-                                        <input type="text" id="itemName"
-                                            class="w-full p-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-800 dark:text-white"
-                                            placeholder="Enter item name">
-                                    </div>
-
-                                    <div class="mb-4">
-                                        <label class="block text-gray-700 dark:text-gray-300 mb-2">Price (₹):</label>
-                                        <input type="number" id="itemPrice"
-                                            class="w-full p-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-800 dark:text-white"
-                                            placeholder="Enter price">
-                                    </div>
-
-                                    <div class="mb-4">
-                                        <label class="block text-gray-700 dark:text-gray-300 mb-2">Availability:</label>
-                                        <select id="itemAvailability"
-                                            class="w-full p-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-800 dark:text-white">
-                                            <option value="available">Available</option>
-                                            <option value="unavailable">Out of Stock</option>
-                                        </select>
-                                    </div>
-
-                                    <div class="flex space-x-2">
-                                        <button type="submit"
-                                            class="px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition">Add
-                                            / Update Item</button>
-                                        <button type="button" id="deleteItemBtn"
-                                            class="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition">Delete
-                                            Item</button>
-                                    </div>
-                                </form>
-                            </div>
-                        </div>
-
-                        <!-- Special Announcements -->
-                        <div id="specialAnnouncements" class="admin-tab-content hidden">
-                            <div class="bg-white dark:bg-gray-800 rounded-lg shadow p-6">
-                                <h4 class="text-lg font-medium mb-4 text-gray-800 dark:text-white">Add Special
-                                    Announcements</h4>
-
-                                <form id="announcementForm">
-                                    <div class="mb-4">
-                                        <label class="block text-gray-700 dark:text-gray-300 mb-2">Announcement
-                                            Title:</label>
-                                        <input type="text" id="announcementTitle"
-                                            class="w-full p-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-800 dark:text-white"
-                                            placeholder="Enter announcement title">
-                                    </div>
-
-                                    <div class="mb-4">
-                                        <label class="block text-gray-700 dark:text-gray-300 mb-2">Announcement
-                                            Message:</label>
-                                        <textarea id="announcementMessage" rows="4"
-                                            class="w-full p-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-800 dark:text-white"
-                                            placeholder="Enter announcement details"></textarea>
-                                    </div>
-
-                                    <div class="mb-4">
-                                        <label class="block text-gray-700 dark:text-gray-300 mb-2">Valid Until:</label>
-                                        <input type="date" id="announcementValidity"
-                                            class="w-full p-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-800 dark:text-white">
-                                    </div>
-
-                                    <button type="submit"
-                                        class="px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition">Post
-                                        Announcement</button>
-                                </form>
-
-                                <div class="mt-6">
-                                    <h5 class="font-medium mb-2 text-gray-700 dark:text-gray-300">Current Announcements:
-                                    </h5>
-                                    <div class="space-y-2">
-                                        <div class="bg-indigo-50 dark:bg-indigo-900/30 p-3 rounded-lg">
-                                            <div class="flex justify-between">
-                                                <h6 class="font-medium text-indigo-600 dark:text-indigo-300">Special
-                                                    Mess Night - This Friday</h6>
-                                                <button class="text-red-500 hover:text-red-700"><i
-                                                        class="bi bi-trash"></i></button>
-                                            </div>
-                                            <p class="text-sm text-indigo-500 dark:text-indigo-400">Valid until:
-                                                05/04/2025</p>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
+                <!-- Menu Items by Category Container (will be populated from Supabase) -->
+                <div id="categoryContainer" class="hidden">
+                    <!-- Content will be dynamically populated based on category selection -->
                 </div>
             </div>
         </div>
     </div>
+</div>
+
+<!-- Edit Menu Modal -->
+<div id="editMenuModal" class="fixed inset-0 bg-black/50 flex items-center justify-center z-50 hidden">
+    <div class="bg-white dark:bg-gray-800 rounded-xl shadow-xl p-6 max-w-3xl w-full max-h-[90vh] overflow-y-auto">
+        <div class="flex justify-between items-center mb-6">
+            <h3 class="text-xl font-bold text-gray-800 dark:text-white">Edit Mess Menu</h3>
+            <button onclick="closeEditModal()" class="text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200">
+                <i class="bi bi-x-lg"></i>
+            </button>
+        </div>
+        
+        <div class="mb-4">
+            <div class="flex gap-4 mb-6">
+                <div class="w-1/2">
+                    <label class="block text-gray-700 dark:text-gray-300 mb-2">Select Day</label>
+                    <select id="editDay" class="w-full px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-800 dark:text-white">
+                        <option value="monday">Monday</option>
+                        <option value="tuesday">Tuesday</option>
+                        <option value="wednesday">Wednesday</option>
+                        <option value="thursday">Thursday</option>
+                        <option value="friday">Friday</option>
+                        <option value="saturday">Saturday</option>
+                        <option value="sunday">Sunday</option>
+                    </select>
+                </div>
+                <div class="w-1/2">
+                    <label class="block text-gray-700 dark:text-gray-300 mb-2">Select Meal</label>
+                    <select id="editMeal" class="w-full px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-800 dark:text-white">
+                        <option value="breakfast">Breakfast</option>
+                        <option value="lunch">Lunch</option>
+                        <option value="lunch">Snacks</option>
+                        <option value="dinner">Dinner</option>
+                    </select>
+                </div>
+            </div>
+            
+            <div class="mb-4">
+                <label class="block text-gray-700 dark:text-gray-300 mb-2">Meal Time</label>
+                <input type="text" id="editMealTime" placeholder="e.g. 7:30 - 9:00" class="w-full px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-800 dark:text-white">
+            </div>
+            
+            <div class="mb-4">
+                <label class="block text-gray-700 dark:text-gray-300 mb-2">Menu Items (One per line)</label>
+                <textarea id="editMenuItems" rows="8" class="w-full px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-800 dark:text-white" placeholder="Rice&#10;Dal Fry&#10;Mix Vegetable&#10;Chicken Curry&#10;Salad & Papad"></textarea>
+            </div>
+        </div>
+        
+        <div class="flex justify-end gap-3">
+            <button onclick="closeEditModal()" class="px-4 py-2 bg-gray-200 hover:bg-gray-300 dark:bg-gray-700 dark:hover:bg-gray-600 text-gray-800 dark:text-white rounded-lg">Cancel</button>
+            <button onclick="saveMenuChanges()" class="px-4 py-2 bg-indigo-500 hover:bg-indigo-600 text-white rounded-lg">Save Changes</button>
+        </div>
+    </div>
+</div>
+
+<!-- Edit Canteen Menu Modal -->
+<div id="editCanteenModal" class="fixed inset-0 bg-black/50 flex items-center justify-center z-50 hidden">
+    <div class="bg-white dark:bg-gray-800 rounded-xl shadow-xl p-6 max-w-3xl w-full max-h-[90vh] overflow-y-auto">
+        <div class="flex justify-between items-center mb-6">
+            <h3 class="text-xl font-bold text-gray-800 dark:text-white">Edit Canteen Menu</h3>
+            <button onclick="closeCanteenEditModal()" class="text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200">
+                <i class="bi bi-x-lg"></i>
+            </button>
+        </div>
+        
+        <div class="mb-4">
+            <div class="mb-4">
+                <label class="block text-gray-700 dark:text-gray-300 mb-2">Select Category</label>
+                <select id="editCategory" class="w-full px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-800 dark:text-white">
+                    <option value="snacks">Snacks</option>
+                    <option value="beverages">Beverages</option>
+                    <option value="meals">Meals</option>
+                    <option value="desserts">Desserts</option>
+                </select>
+            </div>
+            
+            <div id="canteenItemsContainer">
+                <!-- Items will be dynamically added here -->
+                <div class="canteen-item border border-gray-200 dark:border-gray-700 p-4 rounded-lg mb-3">
+                    <div class="grid grid-cols-12 gap-2">
+                        <div class="col-span-5">
+                            <label class="block text-gray-700 dark:text-gray-300 text-sm mb-1">Item Name</label>
+                            <input type="text" class="item-name w-full px-3 py-2 text-sm rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-800 dark:text-white">
+                        </div>
+                        <div class="col-span-3">
+                            <label class="block text-gray-700 dark:text-gray-300 text-sm mb-1">Price (₹)</label>
+                            <input type="number" class="item-price w-full px-3 py-2 text-sm rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-800 dark:text-white">
+                        </div>
+                        <div class="col-span-3">
+                            <label class="block text-gray-700 dark:text-gray-300 text-sm mb-1">Available</label>
+                            <select class="item-available w-full px-3 py-2 text-sm rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-800 dark:text-white">
+                                <option value="true">Yes</option>
+                                <option value="false">No</option>
+                            </select>
+                        </div>
+                        <div class="col-span-1 flex items-end justify-center">
+                            <button class="delete-item p-2 bg-red-100 hover:bg-red-200 dark:bg-red-900/30 dark:hover:bg-red-900/50 text-red-500 rounded-lg">
+                                <i class="bi bi-trash"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <button id="addCanteenItem" class="mt-3 px-4 py-2 bg-green-500 hover:bg-green-600 text-white rounded-lg flex items-center">
+                <i class="bi bi-plus-lg mr-2"></i> Add Item
+            </button>
+        </div>
+        
+        <div class="flex justify-end gap-3 mt-6">
+            <button onclick="closeCanteenEditModal()" class="px-4 py-2 bg-gray-200 hover:bg-gray-300 dark:bg-gray-700 dark:hover:bg-gray-600 text-gray-800 dark:text-white rounded-lg">Cancel</button>
+            <button onclick="saveCanteenChanges()" class="px-4 py-2 bg-indigo-500 hover:bg-indigo-600 text-white rounded-lg">Save Changes</button>
+        </div>
+    </div>
+</div>
+
+            
     </div>
     </div>
-    <script>
-        // Mess & Canteen Menu Logic
-        function switchMenu(menuType) {
-            document.querySelectorAll('.menu-section').forEach(section => {
-                section.classList.add('hidden');
-            });
-            document.getElementById(`${menuType}`).classList.remove('hidden');
+    <script>// Initialize Supabase client
+   // Modify the global variables to include snacks in the meal types
+let messMenuData = {};
+let canteenMenuData = {};
+let currentDay = 'monday';
+let currentMealType = 'breakfast';
+let currentCategory = 'snacks';
+let userIsAdmin = false;
 
-            // Update active button
-            document.querySelectorAll('.menu-button').forEach(btn => {
-                btn.classList.remove('bg-indigo-500', 'text-white');
-                btn.classList.add('bg-indigo-100', 'text-indigo-600', 'dark:bg-indigo-900', 'dark:text-indigo-300');
-            });
-            document.querySelector(`[onclick="switchMenu('${menuType}')"]`).classList.remove('bg-indigo-100', 'text-indigo-600', 'dark:bg-indigo-900', 'dark:text-indigo-300');
-            document.querySelector(`[onclick="switchMenu('${menuType}')"]`).classList.add('bg-indigo-500', 'text-white');
+document.addEventListener('DOMContentLoaded', async () => {
+    // Make sure Supabase is loaded before proceeding
+    if (typeof supabase === 'undefined') {
+        console.error('Supabase library not loaded! Please include the supabase-js script.');
+        showNotification('Failed to initialize Supabase client', 'error');
+        return;
+    }
+
+    // Initialize client if not already done
+    if (!window.supabaseClient) {
+        const supabaseUrl = 'https://cebomekzvltlaabcvjix.supabase.co';
+        const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImNlYm9tZWt6dmx0bGFhYmN2aml4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDM3NjUwNjQsImV4cCI6MjA1OTM0MTA2NH0.dtlBNgdctrv-txCEpNxjpfwzL02X0g7msUZIVuzG9J8';
+        
+        window.supabaseClient = supabase.createClient(supabaseUrl, supabaseKey);
+    }
+
+    // Check user authentication and admin status
+    checkUserAuth();
+    
+    // Get current day of the week
+    const days = ['sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday'];
+    const today = days[new Date().getDay()];
+    currentDay = today;
+    
+    // Initialize default views
+    showDayMenu(today);
+    showMealType('breakfast');
+    showCategory('snacks');
+    
+    // Load mess and canteen menu data
+    await loadMessMenu();
+    await loadCanteenMenu();
+    
+    // Update upcoming meal information
+    updateUpcomingMeal();
+    
+    // Set up event listeners for edit buttons
+    setupAdminControls();
+    
+    // Check for saved theme preference
+    initializeTheme();
+});
+
+// Check if user is authenticated and if they have admin privileges
+function checkUserAuth() {
+    const userData = JSON.parse(sessionStorage.getItem('currentUserData') || '{}');
+    if (userData && userData.name) {
+        const userNameElement = document.getElementById('userName');
+        if (userNameElement) {
+            userNameElement.textContent = userData.name;
         }
-
-        function showDayMenu(day) {
-            // Hide all day menus
-            document.querySelectorAll('.day-menu').forEach(menu => {
-                menu.classList.add('hidden');
-            });
-
-            // Show selected day menu
-            document.getElementById(`${day}-menu`).classList.remove('hidden');
-
-            // Update active day button
-            document.querySelectorAll('.day-button').forEach(btn => {
-                btn.classList.remove('active', 'bg-indigo-500', 'text-white');
-                btn.classList.add('bg-indigo-100', 'text-indigo-600', 'dark:bg-indigo-900', 'dark:text-indigo-300');
-            });
-            document.querySelector(`[onclick="showDayMenu('${day}')"]`).classList.remove('bg-indigo-100', 'text-indigo-600', 'dark:bg-indigo-900', 'dark:text-indigo-300');
-            document.querySelector(`[onclick="showDayMenu('${day}')"]`).classList.add('active', 'bg-indigo-500', 'text-white');
+        document.getElementById('welcomeMessage').classList.remove('hidden');
+        
+        // Check if user is admin
+        
+        if (userData.name==='admin') {
+            document.getElementById('adminControls').classList.remove('hidden');
         }
+    } else {
+        // Redirect to login if not authenticated
+        window.location.href = 'index.html';
+    }
+}
 
-        function showCategory(category) {
-            // Hide all category menus
-            document.querySelectorAll('.category-menu').forEach(menu => {
-                menu.classList.add('hidden');
-            });
-
-            // Show selected category menu
-            document.getElementById(`${category}-menu`).classList.remove('hidden');
-
-            // Update active category button
-            document.querySelectorAll('.menu-category').forEach(btn => {
-                btn.classList.remove('active', 'bg-indigo-500', 'text-white');
-                btn.classList.add('bg-indigo-100', 'text-indigo-600', 'dark:bg-indigo-900', 'dark:text-indigo-300');
-            });
-            document.querySelector(`[onclick="showCategory('${category}')"]`).classList.remove('bg-indigo-100', 'text-indigo-600', 'dark:bg-indigo-900', 'dark:text-indigo-300');
-            document.querySelector(`[onclick="showCategory('${category}')"]`).classList.add('active', 'bg-indigo-500', 'text-white');
-        }
-
-        // Theme Toggle
-        const themeToggle = document.getElementById('themeToggle');
-        if (themeToggle) {
-            themeToggle.addEventListener('click', () => {
-                document.documentElement.classList.toggle('dark');
-                const isDark = document.documentElement.classList.contains('dark');
-                localStorage.setItem('darkMode', isDark ? 'enabled' : 'disabled');
-
-                // Update icon
-                themeToggle.innerHTML = isDark
-                    ? '<i class="bi bi-sun-fill"></i>'
-                    : '<i class="bi bi-moon-fill"></i>';
-            });
-        }
-
-        // Initialize the application
-        document.addEventListener('DOMContentLoaded', () => {
-            // Display the user name from localStorage
-            const userData = sessionStorage.getItem('currentUserData');
-            if (userData) {
-                const user = JSON.parse(userData);
-                const userNameElement = document.getElementById('userName');
-                if (userNameElement) {
-                    userNameElement.textContent = user.isAdmin ? `Admin: ${user.name}` : user.name;
-                }
-                document.getElementById('welcomeMessage').classList.remove('hidden');
-
-                // Show admin controls if the user is an admin
-                if (user.isAdmin) {
-                    document.querySelectorAll('.admin-only').forEach(el => {
-                        el.classList.remove('hidden');
-                    });
-                    const adminControlsLink = document.getElementById('adminControlsLink');
-                    if (adminControlsLink) {
-                        adminControlsLink.classList.remove('hidden');
+// Load mess menu data from Supabase
+async function loadMessMenu() {
+    try {
+        document.getElementById('menuLoadingSpinner').classList.remove('hidden');
+        document.getElementById('menuContainer').classList.add('hidden');
+        
+        const { data, error } = await window.supabaseClient
+            .from('mess_menu')
+            .select('*');
+            
+        if (error) throw error;
+        
+        // Process and organize menu data by day and meal type
+        messMenuData = {};
+        data.forEach(item => {
+            if (!messMenuData[item.day]) {
+                messMenuData[item.day] = {};
+            }
+            
+            // Parse the items array to ensure food type information
+            let processedItems = [];
+            if (item.items && Array.isArray(item.items)) {
+                processedItems = item.items.map(itemData => {
+                    // If item is already an object with name and type
+                    if (typeof itemData === 'object' && itemData !== null && itemData.name) {
+                        return {
+                            name: itemData.name,
+                            type: itemData.type || 'veg' // Default to veg if type is missing
+                        };
                     }
-                }
+                    // If item is a string that contains type information (Item|Type)
+                    else if (typeof itemData === 'string' && itemData.includes('|')) {
+                        const [name, type] = itemData.split('|').map(s => s.trim());
+                        return {
+                            name: name,
+                            type: ['veg', 'non-veg', 'egg'].includes(type.toLowerCase()) ? type.toLowerCase() : 'veg'
+                        };
+                    }
+                    // If item is just a string
+                    else if (typeof itemData === 'string') {
+                        return {
+                            name: itemData,
+                            type: 'veg' // Default to veg
+                        };
+                    }
+                    // Fallback for any other format
+                    else {
+                        console.error('Unknown item format:', itemData);
+                        return {
+                            name: 'Unknown item',
+                            type: 'veg'
+                        };
+                    }
+                });
             }
-
-            // Get current day of the week
-            const days = ['sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday'];
-            const today = days[new Date().getDay()];
-
-            // Show today's menu by default
-            showDayMenu(today);
-
-            // Set default canteen category to snacks
-            showCategory('snacks');
-
-            // Make sure canteen menu section is visible
-            const canteenMenu = document.getElementById('canteenMenu');
-            if (canteenMenu) {
-                canteenMenu.classList.remove('hidden');
-            }
-
-            // Check for saved theme preference
-            const savedTheme = localStorage.getItem('darkMode');
-            if (themeToggle) {
-                if (savedTheme === 'enabled') {
-                    document.documentElement.classList.add('dark');
-                    themeToggle.innerHTML = '<i class="bi bi-sun-fill"></i>';
-                } else {
-                    themeToggle.innerHTML = '<i class="bi bi-moon-fill"></i>';
-                }
+            
+            messMenuData[item.day][item.meal_type] = {
+                time: item.time,
+                items: processedItems
+            };
+        });
+        
+        console.log('Processed menu data:', messMenuData);
+        
+        // Render the menu for the selected day and meal type
+        renderMessMenu(currentDay, currentMealType);
+        
+    } catch (error) {
+        console.error('Error loading mess menu:', error);
+        showNotification('Failed to load mess menu', 'error');
+    } finally {
+        document.getElementById('menuLoadingSpinner').classList.add('hidden');
+        document.getElementById('menuContainer').classList.remove('hidden');
+    }
+}
+// Load canteen menu data from Supabase
+async function loadCanteenMenu() {
+    try {
+        document.getElementById('canteenLoadingSpinner').classList.remove('hidden');
+        document.getElementById('categoryContainer').classList.add('hidden');
+        
+        const { data, error } = await window.supabaseClient
+            .from('canteen_menu')
+            .select('*');
+            
+        if (error) throw error;
+        
+        // Process and organize menu data by category
+        canteenMenuData = {
+            snacks: [],
+            beverages: [],
+            meals: [],
+            desserts: []
+        };
+        
+        data.forEach(item => {
+            if (canteenMenuData[item.category]) {
+                canteenMenuData[item.category].push(item);
             }
         });
+        
+        // Render the canteen menu for the selected category
+        renderCanteenMenu(currentCategory);
+        
+    } catch (error) {
+        console.error('Error loading canteen menu:', error);
+        showNotification('Failed to load canteen menu', 'error');
+    } finally {
+        document.getElementById('canteenLoadingSpinner').classList.add('hidden');
+        document.getElementById('categoryContainer').classList.remove('hidden');
+    }
+}
 
-        // Mobile menu toggle
-        function toggleMobileMenu() {
-            const mobileMenu = document.getElementById('mobileMenu');
-            if (mobileMenu) {
-                mobileMenu.classList.toggle('hidden');
+// Switch between mess and canteen menu views
+function switchMenu(menuType) {
+    document.querySelectorAll('.menu-section').forEach(section => {
+        section.classList.add('hidden');
+    });
+    document.getElementById(menuType).classList.remove('hidden');
+
+    // Update active button
+    document.querySelectorAll('.menu-button').forEach(btn => {
+        btn.classList.remove('bg-indigo-500', 'text-white');
+        btn.classList.add('bg-indigo-100', 'text-indigo-600', 'dark:bg-indigo-900', 'dark:text-indigo-300');
+    });
+    
+    const activeButton = document.querySelector(`[onclick="switchMenu('${menuType}')"]`);
+    activeButton.classList.remove('bg-indigo-100', 'text-indigo-600', 'dark:bg-indigo-900', 'dark:text-indigo-300');
+    activeButton.classList.add('bg-indigo-500', 'text-white');
+}
+
+// Show menu for selected day
+function showDayMenu(day) {
+    currentDay = day;
+    
+    // Update active day button
+    document.querySelectorAll('.day-button').forEach(btn => {
+        btn.classList.remove('active', 'bg-indigo-500', 'text-white');
+        btn.classList.add('bg-indigo-100', 'text-indigo-600', 'dark:bg-indigo-900', 'dark:text-indigo-300');
+    });
+    
+    const activeDayButton = document.querySelector(`[onclick="showDayMenu('${day}')"]`);
+    activeDayButton.classList.remove('bg-indigo-100', 'text-indigo-600', 'dark:bg-indigo-900', 'dark:text-indigo-300');
+    activeDayButton.classList.add('active', 'bg-indigo-500', 'text-white');
+    
+    // Render menu for selected day and current meal type
+    renderMessMenu(day, currentMealType);
+}
+
+// Show menu for selected meal type
+function showMealType(mealType) {
+    currentMealType = mealType;
+    
+    // Update active meal type button
+    document.querySelectorAll('.meal-type-button').forEach(btn => {
+        btn.classList.remove('active', 'bg-green-500', 'text-white');
+        btn.classList.add('bg-green-100', 'text-green-600', 'dark:bg-green-900', 'dark:text-green-300');
+    });
+    
+    const activeMealButton = document.querySelector(`[onclick="showMealType('${mealType}')"]`);
+    activeMealButton.classList.remove('bg-green-100', 'text-green-600', 'dark:bg-green-900', 'dark:text-green-300');
+    activeMealButton.classList.add('active', 'bg-green-500', 'text-white');
+    
+    // Render menu for current day and selected meal type
+    renderMessMenu(currentDay, mealType);
+}
+
+// Show canteen items for selected category
+function showCategory(category) {
+    currentCategory = category;
+    
+    // Update active category button
+    document.querySelectorAll('.menu-category').forEach(btn => {
+        btn.classList.remove('active', 'bg-indigo-500', 'text-white');
+        btn.classList.add('bg-indigo-100', 'text-indigo-600', 'dark:bg-indigo-900', 'dark:text-indigo-300');
+    });
+    
+    const activeCategoryButton = document.querySelector(`[onclick="showCategory('${category}')"]`);
+    activeCategoryButton.classList.remove('bg-indigo-100', 'text-indigo-600', 'dark:bg-indigo-900', 'dark:text-indigo-300');
+    activeCategoryButton.classList.add('active', 'bg-indigo-500', 'text-white');
+    
+    // Render canteen menu for selected category
+    renderCanteenMenu(category);
+}
+
+// Function to get food type icon
+function getFoodTypeIcon(type) {
+    switch(type.toLowerCase()) {
+        case 'non-veg':
+            return '<span class="inline-block w-4 h-4 bg-red-500 border border-red-500 rounded-full mr-2" title="Non-Vegetarian"></span>';
+        case 'egg':
+            return '<span class="inline-block w-4 h-4 border border-red-500 bg-yellow-200 rounded-full mr-2" title="Contains Egg"></span>';
+        case 'veg':
+        default:
+            return '<span class="inline-block w-4 h-4 bg-green-500 border border-green-500 rounded-full mr-2" title="Vegetarian"></span>';
+    }
+}
+// Render mess menu for selected day and meal type
+function renderMessMenu(day, mealType) {
+    const menuContainer = document.getElementById('menuContainer');
+    menuContainer.innerHTML = '';
+    
+    if (messMenuData[day] && messMenuData[day][mealType]) {
+        const mealData = messMenuData[day][mealType];
+        
+        // Create menu card
+        const menuCard = document.createElement('div');
+        menuCard.className = 'bg-white dark:bg-gray-700 rounded-lg shadow-md p-4';
+        
+        // Time info
+        const timeInfo = document.createElement('div');
+        timeInfo.className = 'mb-3 text-sm text-gray-500 dark:text-gray-400 flex items-center';
+        timeInfo.innerHTML = `<i class="bi bi-clock mr-2"></i> ${mealData.time}`;
+        
+        // Items list
+        const itemsList = document.createElement('ul');
+        itemsList.className = 'space-y-2';
+        
+        // Debug the items array structure
+        console.log('Meal items data:', JSON.stringify(mealData.items));
+        
+        mealData.items.forEach(item => {
+            const listItem = document.createElement('li');
+            listItem.className = 'flex items-center';
+            
+            // Handle different item formats
+            if (typeof item === 'object' && item !== null && item.name) {
+                // Item is an object with name and type properties
+                const foodType = item.type || 'veg';
+                listItem.innerHTML = `
+                    ${getFoodTypeIcon(foodType)}
+                    <span class="text-gray-700 dark:text-gray-300">${item.name}</span>
+                `;
+            } else if (typeof item === 'string') {
+                // Fallback for string items (legacy data)
+                listItem.innerHTML = `
+                    ${getFoodTypeIcon('veg')}
+                    <span class="text-gray-700 dark:text-gray-300">${item}</span>
+                `;
+            } else {
+                console.error('Unknown item format:', item);
+                listItem.innerHTML = `
+                    ${getFoodTypeIcon('veg')}
+                    <span class="text-gray-700 dark:text-gray-300">Unknown item</span>
+                `;
             }
-        }
+            
+            itemsList.appendChild(listItem);
+        });
+        
+        // Assemble menu card
+        menuCard.appendChild(timeInfo);
+        menuCard.appendChild(itemsList);
+        menuContainer.appendChild(menuCard);
+    } else {
+        // No menu data available
+        menuContainer.innerHTML = `
+            <div class="bg-gray-100 dark:bg-gray-700 rounded-lg p-6 text-center">
+                <i class="bi bi-exclamation-circle text-gray-400 text-4xl mb-3"></i>
+                <p class="text-gray-600 dark:text-gray-400">No menu information available for ${day}'s ${mealType}.</p>
+            </div>
+        `;
+    }
+}
+// Render canteen menu for selected category
+function renderCanteenMenu(category) {
+    const categoryContainer = document.getElementById('categoryContainer');
+    categoryContainer.innerHTML = '';
+    
+    if (canteenMenuData[category] && canteenMenuData[category].length > 0) {
+        // Create grid for items
+        const itemsGrid = document.createElement('div');
+        itemsGrid.className = 'grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4';
+        
+        canteenMenuData[category].forEach(item => {
+            const itemCard = document.createElement('div');
+            itemCard.className = 'bg-white dark:bg-gray-700 rounded-lg shadow p-4 flex justify-between items-center';
+            
+            const itemInfo = document.createElement('div');
+            itemInfo.innerHTML = `
+                <h4 class="font-medium text-gray-800 dark:text-gray-200">${item.name}</h4>
+                <p class="text-gray-500 dark:text-gray-400">₹${item.price.toFixed(2)}</p>
+            `;
+            
+            const availability = document.createElement('div');
+            if (item.available) {
+                availability.innerHTML = `<span class="px-2 py-1 bg-green-100 text-green-700 dark:bg-green-900 dark:text-green-300 text-xs rounded-full">Available</span>`;
+            } else {
+                availability.innerHTML = `<span class="px-2 py-1 bg-red-100 text-red-700 dark:bg-red-900 dark:text-red-300 text-xs rounded-full">Out of Stock</span>`;
+            }
+            
+            itemCard.appendChild(itemInfo);
+            itemCard.appendChild(availability);
+            itemsGrid.appendChild(itemCard);
+        });
+        
+        categoryContainer.appendChild(itemsGrid);
+    } else {
+        // No canteen items available for this category
+        categoryContainer.innerHTML = `
+            <div class="bg-gray-100 dark:bg-gray-700 rounded-lg p-6 text-center">
+                <i class="bi bi-exclamation-circle text-gray-400 text-4xl mb-3"></i>
+                <p class="text-gray-600 dark:text-gray-400">No items available in the ${category} category.</p>
+            </div>
+        `;
+    }
+}
 
-        // Sidebar toggle for smaller screens
+// Update upcoming meal information based on current time
+function updateUpcomingMeal() {
+    const now = new Date();
+    const currentHour = now.getHours();
+    const days = ['sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday'];
+    const today = days[now.getDay()];
+    
+    let upcomingMealText = '';
+    
+    // Determine upcoming meal based on time
+    if (currentHour < 10) {
+        upcomingMealText = `Today's breakfast${messMenuData[today]?.breakfast?.time ? ' at ' + messMenuData[today].breakfast.time : ''}`;
+        showMealType('breakfast');
+    } else if (currentHour < 15) {
+        upcomingMealText = `Today's lunch${messMenuData[today]?.lunch?.time ? ' at ' + messMenuData[today].lunch.time : ''}`;
+        showMealType('lunch');
+    } else if (currentHour < 18) {
+        upcomingMealText = `Today's snacks${messMenuData[today]?.snacks?.time ? ' at ' + messMenuData[today].snacks.time : ''}`;
+        showMealType('snacks');
+    } else if (currentHour < 22) {
+        upcomingMealText = `Today's dinner${messMenuData[today]?.dinner?.time ? ' at ' + messMenuData[today].dinner.time : ''}`;
+        showMealType('dinner');
+    } else {
+        // After 10 PM, show tomorrow's breakfast
+        const tomorrowIndex = (now.getDay() + 1) % 7;
+        const tomorrow = days[tomorrowIndex];
+        upcomingMealText = `Tomorrow's breakfast${messMenuData[tomorrow]?.breakfast?.time ? ' at ' + messMenuData[tomorrow].breakfast.time : ''}`;
+    }
+    
+    document.getElementById('upcomingMealText').textContent = upcomingMealText;
+}
+
+// Setup admin controls and event listeners
+function setupAdminControls() {
+    if (!userIsAdmin) return;
+    
+    // Edit mess menu button
+    const editMenuBtn = document.getElementById('editMenuBtn');
+    if (editMenuBtn) {
+        editMenuBtn.addEventListener('click', () => {
+            openEditModal();
+        });
+    }
+    
+    // Add canteen item button
+    const addCanteenItemBtn = document.getElementById('addCanteenItem');
+    if (addCanteenItemBtn) {
+        addCanteenItemBtn.addEventListener('click', addCanteenItemRow);
+    }
+    
+    // Setup event listeners for delete buttons (delegated)
+    document.addEventListener('click', function(e) {
+        if (e.target.closest('.delete-item')) {
+            e.target.closest('.canteen-item').remove();
+        }
+    });
+    
+    // Event listener for edit category dropdown
+    const editCategorySelect = document.getElementById('editCategory');
+    if (editCategorySelect) {
+        editCategorySelect.addEventListener('change', () => {
+            loadCanteenItemsForEdit(editCategorySelect.value);
+        });
+    }
+}
+
+// Open edit modal for mess menu
+function openEditModal() {
+    // Populate the edit form with current day and meal type
+    document.getElementById('editDay').value = currentDay;
+    document.getElementById('editMeal').value = currentMealType;
+    
+    // Populate menu items if they exist
+    const mealData = messMenuData[currentDay]?.[currentMealType];
+    if (mealData) {
+        document.getElementById('editMealTime').value = mealData.time || '';
+        
+        // Convert items objects to string format for editing
+        let itemsText = '';
+        mealData.items.forEach(item => {
+            if (typeof item === 'object' && item.name) {
+                // Format: {ItemName}|{FoodType}
+                itemsText += `${item.name}|${item.type || 'veg'}\n`;
+            } else {
+                itemsText += `${item}|veg\n`;
+            }
+        });
+        
+        document.getElementById('editMenuItems').value = itemsText;
+    } else {
+        document.getElementById('editMealTime').value = '';
+        document.getElementById('editMenuItems').value = '';
+    }
+    
+    // Show the modal
+    document.getElementById('editMenuModal').classList.remove('hidden');
+    
+    // Add help text for food type
+    const helpText = document.createElement('div');
+    helpText.className = 'mt-2 text-sm text-gray-500 dark:text-gray-400';
+    helpText.innerHTML = `
+        <p>Format each item as: <strong>Item Name|Food Type</strong></p>
+        <p>Food types: veg, non-veg, egg</p>
+        <p>Example: <code>Paneer Butter Masala|veg</code> or <code>Chicken Biryani|non-veg</code></p>
+    `;
+    document.getElementById('editMenuItems').parentNode.appendChild(helpText);
+}
+
+// Close edit modal for mess menu
+function closeEditModal() {
+    document.getElementById('editMenuModal').classList.add('hidden');
+}
+
+// Save mess menu changes
+async function saveMenuChanges() {
+    try {
+        const day = document.getElementById('editDay').value;
+        const mealType = document.getElementById('editMeal').value;
+        const mealTime = document.getElementById('editMealTime').value;
+        const menuItemsText = document.getElementById('editMenuItems').value;
+        
+        // Parse menu items text into structured objects
+        const menuItems = menuItemsText.split('\n')
+            .filter(line => line.trim() !== '')
+            .map(line => {
+                const parts = line.split('|');
+                const itemName = parts[0].trim();
+                const itemType = (parts[1] && ['veg', 'non-veg', 'egg'].includes(parts[1].trim().toLowerCase())) 
+                    ? parts[1].trim().toLowerCase() 
+                    : 'veg';
+                
+                return {
+                    name: itemName,
+                    type: itemType
+                };
+            });
+        
+        // Check if this menu already exists
+        const existingMenuIndex = messMenuData[day] && messMenuData[day][mealType] ? true : false;
+        
+        if (existingMenuIndex) {
+            // Update existing menu
+            const { error } = await window.supabaseClient
+                .from('mess_menu')
+                .update({
+                    time: mealTime,
+                    items: menuItems
+                })
+                .match({ day: day, meal_type: mealType });
+                
+            if (error) throw error;
+        } else {
+            // Insert new menu
+            const { error } = await window.supabaseClient
+                .from('mess_menu')
+                .insert({
+                    day: day,
+                    meal_type: mealType,
+                    time: mealTime,
+                    items: menuItems
+                });
+                
+            if (error) throw error;
+        }
+        
+        // Update local data
+        if (!messMenuData[day]) {
+            messMenuData[day] = {};
+        }
+        
+        messMenuData[day][mealType] = {
+            time: mealTime,
+            items: menuItems
+        };
+        
+        // Render updated menu
+        renderMessMenu(currentDay, currentMealType);
+        
+        // Close modal
+        closeEditModal();
+        
+        // Show success notification
+        showNotification('Menu updated successfully', 'success');
+        
+    } catch (error) {
+        console.error('Error saving menu changes:', error);
+        showNotification('Failed to update menu', 'error');
+    }
+}
+
+// Open edit modal for canteen menu
+function openCanteenEditModal() {
+    document.getElementById('editCategory').value = currentCategory;
+    loadCanteenItemsForEdit(currentCategory);
+    document.getElementById('editCanteenModal').classList.remove('hidden');
+}
+
+// Close edit modal for canteen menu
+function closeCanteenEditModal() {
+    document.getElementById('editCanteenModal').classList.add('hidden');
+}
+
+// Load canteen items for editing
+function loadCanteenItemsForEdit(category) {
+    const container = document.getElementById('canteenItemsContainer');
+    container.innerHTML = '';
+    
+    if (canteenMenuData[category] && canteenMenuData[category].length > 0) {
+        canteenMenuData[category].forEach(item => {
+            addCanteenItemRow(item);
+        });
+    } else {
+        // Add an empty row if no items exist
+        addCanteenItemRow();
+    }
+}
+
+// Add a new canteen item row to the edit form
+function addCanteenItemRow(itemData = null) {
+    const container = document.getElementById('canteenItemsContainer');
+    
+    const itemRow = document.createElement('div');
+    itemRow.className = 'canteen-item border border-gray-200 dark:border-gray-700 p-4 rounded-lg mb-3';
+    
+    itemRow.innerHTML = `
+        <div class="grid grid-cols-12 gap-2">
+            <div class="col-span-5">
+                <label class="block text-gray-700 dark:text-gray-300 text-sm mb-1">Item Name</label>
+                <input type="text" class="item-name w-full px-3 py-2 text-sm rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-800 dark:text-white" value="${itemData ? itemData.name : ''}">
+            </div>
+            <div class="col-span-3">
+                <label class="block text-gray-700 dark:text-gray-300 text-sm mb-1">Price (₹)</label>
+                <input type="number" class="item-price w-full px-3 py-2 text-sm rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-800 dark:text-white" value="${itemData ? itemData.price : ''}">
+            </div>
+            <div class="col-span-3">
+                <label class="block text-gray-700 dark:text-gray-300 text-sm mb-1">Available</label>
+                <select class="item-available w-full px-3 py-2 text-sm rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-800 dark:text-white">
+                    <option value="true" ${itemData && itemData.available ? 'selected' : ''}>Yes</option>
+                    <option value="false" ${itemData && !itemData.available ? 'selected' : ''}>No</option>
+                </select>
+            </div>
+            <div class="col-span-1 flex items-end justify-center">
+                <button class="delete-item p-2 bg-red-100 hover:bg-red-200 dark:bg-red-900/30 dark:hover:bg-red-900/50 text-red-500 rounded-lg">
+                    <i class="bi bi-trash"></i>
+                </button>
+            </div>
+        </div>
+    `;
+    
+    container.appendChild(itemRow);
+}
+
+// Save canteen menu changes
+async function saveCanteenChanges() {
+    try {
+        const category = document.getElementById('editCategory').value;
+        const itemRows = document.querySelectorAll('.canteen-item');
+        const updatedItems = [];
+        
+        // Collect data from form
+        itemRows.forEach(row => {
+            const name = row.querySelector('.item-name').value.trim();
+            const price = parseFloat(row.querySelector('.item-price').value);
+            const available = row.querySelector('.item-available').value === 'true';
+            
+            if (name && !isNaN(price)) {
+                updatedItems.push({
+                    name,
+                    price,
+                    available,
+                    category
+                });
+            }
+        });
+        
+        // Delete existing items for this category
+        const { error: deleteError } = await window.supabaseClient
+            .from('canteen_menu')
+            .delete()
+            .match({ category });
+            
+        if (deleteError) throw deleteError;
+        
+        // Insert new items
+        if (updatedItems.length > 0) {
+            const { error: insertError } = await window.supabaseClient
+                .from('canteen_menu')
+                .insert(updatedItems);
+                
+            if (insertError) throw insertError;
+        }
+        
+        // Update local data
+        canteenMenuData[category] = updatedItems;
+        
+        // Render updated menu
+        renderCanteenMenu(category);
+        
+        // Close modal
+        closeCanteenEditModal();
+        
+        // Show success notification
+        showNotification('Canteen menu updated successfully', 'success');
+        
+    } catch (error) {
+        console.error('Error saving canteen menu changes:', error);
+        showNotification('Failed to update canteen menu', 'error');
+    }
+}
+
+// Show notification to user
+function showNotification(message, type = 'info') {
+    // Create notification element
+    const notification = document.createElement('div');
+    notification.className = `fixed bottom-4 right-4 p-4 rounded-lg shadow-lg notification-enter z-50 ${
+        type === 'success' ? 'bg-green-500 text-white' : 
+        type === 'error' ? 'bg-red-500 text-white' : 
+        'bg-blue-500 text-white'
+    }`;
+    
+    notification.innerHTML = `
+        <div class="flex items-center">
+            <i class="bi ${
+                type === 'success' ? 'bi-check-circle' : 
+                type === 'error' ? 'bi-exclamation-circle' : 
+                'bi-info-circle'
+            } mr-2"></i>
+            <span>${message}</span>
+        </div>
+    `;
+    
+    // Add to DOM
+    document.body.appendChild(notification);
+    
+    // Remove after 3 seconds
+    setTimeout(() => {
+        notification.style.opacity = '0';
+        notification.style.transform = 'translateY(20px)';
+        notification.style.transition = 'opacity 0.3s, transform 0.3s';
+        
+        setTimeout(() => {
+            notification.remove();
+        }, 300);
+    }, 3000);
+}
+
+// Initialize theme based on saved preference
+function initializeTheme() {
+    const savedTheme = localStorage.getItem('darkMode');
+    const themeToggleBtn = document.getElementById('themeToggleBtn');
+    const themeIcon = document.getElementById('themeIcon');
+    
+    if (savedTheme === 'enabled') {
+        document.documentElement.classList.add('dark');
+        if (themeIcon) {
+            themeIcon.className = 'bi bi-moon text-lg';
+        }
+    } else {
+        document.documentElement.classList.remove('dark');
+        if (themeIcon) {
+            themeIcon.className = 'bi bi-sun text-lg';
+        }
+    }
+}
+
+// Toggle theme between light and dark mode
+function toggleTheme() {
+    const isDark = document.documentElement.classList.toggle('dark');
+    localStorage.setItem('darkMode', isDark ? 'enabled' : 'disabled');
+    
+    const themeIcon = document.getElementById('themeIcon');
+    if (themeIcon) {
+        themeIcon.className = isDark ? 'bi bi-moon text-lg' : 'bi bi-sun text-lg';
+    }
+}
+
+// Sidebar toggle
+        
+        // Sidebar toggle for mobile screens
         function toggleSidebar() {
             const sidebar = document.getElementById('sidebar');
-            if (sidebar) {
-                sidebar.classList.toggle('-translate-x-full');
+            const sidebarIcon = document.getElementById('sidebarIcon');
+            
+            if (sidebar.classList.contains('-translate-x-full')) {
+                sidebar.classList.remove('-translate-x-full');
+                sidebarIcon.className = 'bi bi-x-lg text-xl';
+            } else {
+                sidebar.classList.add('-translate-x-full');
+                sidebarIcon.className = 'bi bi-list text-xl';
             }
         }
-
+        
         // Logout function
         function logout() {
-            localStorage.removeItem('currentUserData');
+            sessionStorage.removeItem('currentUserData');
             window.location.href = 'index.html';
         }
     </script>

@@ -1,186 +1,567 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" class="light">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Student Companion</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    animation: {
+                        'fade-in': 'fadeIn 0.6s ease-out',
+                        'slide-in': 'slideIn 0.6s ease-out',
+                        'pulse-slow': 'pulse 3s infinite',
+                        'float': 'float 6s ease-in-out infinite',
+                        'bob': 'bob 4s ease-in-out infinite',
+                        'spin-slow': 'spin 15s linear infinite',
+                        'zoom': 'zoom 10s ease infinite',
+                    },
+                    keyframes: {
+                        fadeIn: {
+                            '0%': { opacity: '0' },
+                            '100%': { opacity: '1' }
+                        },
+                        slideIn: {
+                            '0%': { transform: 'translateY(20px)', opacity: '0' },
+                            '100%': { transform: 'translateY(0)', opacity: '1' }
+                        },
+                        float: {
+                            '0%, 100%': { transform: 'translateY(0)' },
+                            '50%': { transform: 'translateY(-20px)' }
+                        },
+                        bob: {
+                            '0%, 100%': { transform: 'translateY(0) rotate(0deg)' },
+                            '50%': { transform: 'translateY(-10px) rotate(5deg)' }
+                        },
+                        zoom: {
+                            '0%, 100%': { transform: 'scale(1)' },
+                            '50%': { transform: 'scale(1.05)' }
+                        }
+                    },
+                    backgroundImage: {
+                        'gradient-radial': 'radial-gradient(var(--tw-gradient-stops))',
+                    },
+                    colors: {
+                        primary: {
+                            50: '#f0f9ff',
+                            100: '#e0f2fe',
+                            200: '#bae6fd',
+                            300: '#7dd3fc',
+                            400: '#38bdf8',
+                            500: '#0ea5e9',
+                            600: '#0284c7',
+                            700: '#0369a1',
+                            800: '#075985',
+                            900: '#0c4a6e'
+                        },
+                        secondary: {
+                            50: '#faf5ff',
+                            100: '#f3e8ff',
+                            200: '#e9d5ff',
+                            300: '#d8b4fe',
+                            400: '#c084fc',
+                            500: '#a855f7',
+                            600: '#9333ea',
+                            700: '#7e22ce',
+                            800: '#6b21a8',
+                            900: '#581c87'
+                        },
+                        tertiary: {
+                            50: '#fff7ed',
+                            100: '#ffedd5',
+                            200: '#fed7aa',
+                            300: '#fdba74',
+                            400: '#fb923c',
+                            500: '#f97316',
+                            600: '#ea580c',
+                            700: '#c2410c',
+                            800: '#9a3412',
+                            900: '#7c2d12'
+                        }
+                    }
+                }
+            }
+        }
+    </script>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css" rel="stylesheet">
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <style>
         * {
-            font-family: 'Poppins', sans-serif;
+            font-family: 'Outfit', sans-serif;
         }
-        .auth-container {
-            background: linear-gradient(135deg, #6366f1 0%, #3b82f6 100%);
+        
+        .floating-shape {
+            position: absolute;
+            opacity: 0.7;
+            border-radius: 50%;
+            filter: blur(20px);
+            z-index: 0;
         }
-        .glass-effect {
-            background: rgba(255, 255, 255, 0.1);
-            backdrop-filter: blur(10px);
-            border: 1px solid rgba(255, 255, 255, 0.2);
-        }
-        :root {
-            color-scheme: light dark;
-        }
-        .nav-link {
-            transition: all 0.3s ease;
-        }
-        .nav-link:hover {
-            background-color: rgba(255, 255, 255, 0.1);
-            transform: translateY(-2px);
-        }
+        
         #homepage {
             display: none;
         }
+        
+        .animate-delay-1 {
+            animation-delay: 0.2s;
+        }
+        
+        .animate-delay-2 {
+            animation-delay: 0.4s;
+        }
+        
+        .animate-delay-3 {
+            animation-delay: 0.6s;
+        }
+        
+        .animate-delay-4 {
+            animation-delay: 0.8s;
+        }
+        
+        /* Sidebar hover effect */
+        .sidebar-item {
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .sidebar-item::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 0;
+            height: 100%;
+            background-color: rgba(255, 255, 255, 0.1);
+            transition: width 0.3s ease;
+            z-index: -1;
+        }
+        
+        .sidebar-item:hover::after {
+            width: 100%;
+        }
+        
+        /* Custom scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+        
+        ::-webkit-scrollbar-track {
+            background: transparent;
+        }
+        
+        ::-webkit-scrollbar-thumb {
+            background: rgba(156, 163, 175, 0.5);
+            border-radius: 10px;
+        }
+        
+        ::-webkit-scrollbar-thumb:hover {
+            background: rgba(156, 163, 175, 0.8);
+        }
     </style>
+    <!-- Add these styles to your existing <style> tag -->
+<style>
+    /* Mobile optimizations */
+    @media (max-width: 640px) {
+        .floating-shape {
+            opacity: 0.4;
+            filter: blur(30px);
+        }
+        
+        #contentArea {
+            padding: 1rem !important;
+        }
+    }
+    
+    /* Tablet optimizations */
+    @media (min-width: 641px) and (max-width: 1024px) {
+        .floating-shape {
+            opacity: 0.5;
+            filter: blur(25px);
+        }
+    }
+    
+    /* Animations for mobile */
+    @media (prefers-reduced-motion: reduce) {
+        .animate-float, .animate-bob, .animate-spin-slow, .animate-zoom {
+            animation: none !important;
+        }
+    }
+    
+    /* Responsive sidebar */
+    @media (max-width: 768px) {
+        #sidebar {
+            width: 240px;
+        }
+    }
+    
+    /* Smoother transitions */
+    .content-section {
+        transition: opacity 0.3s ease;
+    }
+    
+    .content-section.hidden {
+        display: none;
+        opacity: 0;
+    }
+    
+    /* Notification animation */
+    @keyframes slideInUp {
+        from {
+            transform: translateY(100%);
+            opacity: 0;
+        }
+        to {
+            transform: translateY(0);
+            opacity: 1;
+        }
+    }
+    
+    .notification-enter {
+        animation: slideInUp 0.3s forwards;
+    }
+    
+    /* Fix for mobile view content padding */
+    #contentArea {
+        transition: margin-left 0.3s ease;
+    }
+    
+    /* Better mobile form experience */
+    input, select, textarea {
+        font-size: 16px !important; /* Prevents iOS zoom on focus */
+    }
+</style>
 </head>
-<body class="bg-gray-50 dark:bg-gray-900">
+<body class="bg-gray-50 dark:bg-gray-900 transition-colors duration-300">
     <!-- Auth Container -->
-    <div id="authPage" class="auth-container min-h-screen flex items-center justify-center p-4">
-        <div class="glass-effect w-full max-w-md p-8 rounded-2xl shadow-xl">
+    <div id="authPage" class="min-h-screen flex items-center justify-center p-4 bg-gradient-to-br from-primary-600 via-secondary-500 to-tertiary-400 dark:from-primary-800 dark:via-secondary-700 dark:to-tertiary-600 relative overflow-hidden">
+        <!-- Animated Background Shapes -->
+        <div class="floating-shape w-64 h-64 bg-blue-400 top-10 left-10 animate-float"></div>
+        <div class="floating-shape w-48 h-48 bg-purple-400 bottom-20 right-10 animate-bob"></div>
+        <div class="floating-shape w-56 h-56 bg-orange-300 bottom-40 left-1/4 animate-float" style="animation-delay: 1s;"></div>
+        <div class="floating-shape w-32 h-32 bg-blue-300 top-1/4 right-1/4 animate-spin-slow"></div>
+        <div class="floating-shape w-72 h-72 bg-purple-300 top-1/3 left-1/3 animate-zoom"></div>
+        
+        <div class="w-full max-w-md p-8 rounded-2xl shadow-2xl backdrop-blur-lg bg-white/20 dark:bg-gray-800/20 border border-white/20 dark:border-gray-700/20 animate-fade-in z-10">
             <div class="text-center mb-8">
-                <h1 class="text-3xl font-bold text-white mb-2">Student Companion</h1>
-                <p class="text-gray-200">Your college life, simplified.</p>
+                <div class="w-20 h-20 mx-auto mb-4 bg-white dark:bg-gray-700 rounded-full flex items-center justify-center shadow-lg transform hover:rotate-12 transition-all duration-500">
+                    <i class="bi bi-mortarboard-fill text-4xl text-primary-600 dark:text-primary-400"></i>
+                </div>
+                <h1 class="text-3xl font-bold text-white dark:text-white mb-2 animate-pulse-slow">Student Companion</h1>
+                <p class="text-gray-200 dark:text-gray-300">Your college life, simplified.</p>
             </div>
 
             <!-- Auth Tabs -->
             <div class="mb-6">
                 <div class="flex space-x-2 mb-6">
-                    <button onclick="switchTab('login')" class="flex-1 py-2 px-4 rounded-lg bg-white bg-opacity-20 text-white hover:bg-opacity-30 transition" id="loginTab">Student Login</button>
-                    <button onclick="switchTab('admin')" class="flex-1 py-2 px-4 rounded-lg bg-white bg-opacity-20 text-white hover:bg-opacity-30 transition" id="adminTab">Admin Login</button>
-                    <button onclick="switchTab('register')" class="flex-1 py-2 px-4 rounded-lg bg-white bg-opacity-20 text-white hover:bg-opacity-30 transition" id="registerTab">Register</button>
+                    <button onclick="switchTab('login')" class="flex-1 py-2 px-4 rounded-lg bg-white/20 dark:bg-gray-700/30 text-white hover:bg-white/30 dark:hover:bg-gray-700/50 transition-all duration-300 transform hover:-translate-y-1 focus:ring-2 focus:ring-white/50 dark:focus:ring-gray-400/50 focus:outline-none" id="loginTab">Student Login</button>
+                    <button onclick="switchTab('admin')" class="flex-1 py-2 px-4 rounded-lg bg-white/20 dark:bg-gray-700/30 text-white hover:bg-white/30 dark:hover:bg-gray-700/50 transition-all duration-300 transform hover:-translate-y-1 focus:ring-2 focus:ring-white/50 dark:focus:ring-gray-400/50 focus:outline-none" id="adminTab">Admin Login</button>
+                    <button onclick="switchTab('register')" class="flex-1 py-2 px-4 rounded-lg bg-white/20 dark:bg-gray-700/30 text-white hover:bg-white/30 dark:hover:bg-gray-700/50 transition-all duration-300 transform hover:-translate-y-1 focus:ring-2 focus:ring-white/50 dark:focus:ring-gray-400/50 focus:outline-none" id="registerTab">Register</button>
                 </div>
 
                 <!-- Login Form -->
-                <form id="loginForm" class="space-y-4" onsubmit="handleLogin(event)">
-                    <div>
-                        <input type="email" id="loginEmail" placeholder="Email" class="w-full p-3 rounded-lg bg-white bg-opacity-20 text-white placeholder-gray-300 outline-none" required>
+                <form id="loginForm" class="space-y-4 animate-slide-in" onsubmit="handleLogin(event)">
+                    <div class="group">
+                        <div class="relative">
+                            <span class="absolute left-3 top-3 text-white/70 dark:text-gray-400 transition-all duration-300 group-focus-within:text-primary-400">
+                                <i class="bi bi-envelope"></i>
+                            </span>
+                            <input type="email" id="loginEmail" placeholder="Email" class="w-full p-3 pl-10 rounded-lg bg-white/20 dark:bg-gray-700/30 text-white dark:text-gray-200 placeholder-gray-300 dark:placeholder-gray-500 outline-none border border-transparent focus:border-white/50 dark:focus:border-gray-400/50 transition-all duration-300" required>
+                        </div>
                     </div>
-                    <div>
-                        <input type="password" id="loginPassword" placeholder="Password" class="w-full p-3 rounded-lg bg-white bg-opacity-20 text-white placeholder-gray-300 outline-none" required>
+                    <div class="group">
+                        <div class="relative">
+                            <span class="absolute left-3 top-3 text-white/70 dark:text-gray-400 transition-all duration-300 group-focus-within:text-primary-400">
+                                <i class="bi bi-lock"></i>
+                            </span>
+                            <input type="password" id="loginPassword" placeholder="Password" class="w-full p-3 pl-10 rounded-lg bg-white/20 dark:bg-gray-700/30 text-white dark:text-gray-200 placeholder-gray-300 dark:placeholder-gray-500 outline-none border border-transparent focus:border-white/50 dark:focus:border-gray-400/50 transition-all duration-300" required>
+                        </div>
                     </div>
-                    <button type="submit" class="w-full py-3 rounded-lg bg-white text-indigo-600 font-semibold hover:bg-opacity-90 transition">Login</button>
+                    <button type="submit" class="w-full py-3 rounded-lg bg-white dark:bg-gray-800 text-primary-600 dark:text-primary-400 font-semibold hover:bg-opacity-90 dark:hover:bg-opacity-90 transition-all duration-300 shadow-lg hover:shadow-xl transform hover:-translate-y-1">
+                        <span class="flex items-center justify-center">
+                            <i class="bi bi-box-arrow-in-right mr-2"></i>
+                            Login
+                        </span>
+                    </button>
                 </form>
 
                 <!-- Admin Form -->
-                <form id="adminForm" class="space-y-4 hidden" onsubmit="handleAdminLogin(event)">
-                    <div>
-                        <input type="password" id="adminPassword" placeholder="Admin Password" class="w-full p-3 rounded-lg bg-white bg-opacity-20 text-white placeholder-gray-300 outline-none" required>
+                <form id="adminForm" class="space-y-4 hidden animate-slide-in" onsubmit="handleAdminLogin(event)">
+                    <div class="group">
+                        <div class="relative">
+                            <span class="absolute left-3 top-3 text-white/70 dark:text-gray-400 transition-all duration-300 group-focus-within:text-primary-400">
+                                <i class="bi bi-shield-lock"></i>
+                            </span>
+                            <input type="password" id="adminPassword" placeholder="Admin Password" class="w-full p-3 pl-10 rounded-lg bg-white/20 dark:bg-gray-700/30 text-white dark:text-gray-200 placeholder-gray-300 dark:placeholder-gray-500 outline-none border border-transparent focus:border-white/50 dark:focus:border-gray-400/50 transition-all duration-300" required>
+                        </div>
                     </div>
-                    <button type="submit" class="w-full py-3 rounded-lg bg-white text-indigo-600 font-semibold hover:bg-opacity-90 transition">Admin Login</button>
+                    <button type="submit" class="w-full py-3 rounded-lg bg-white dark:bg-gray-800 text-primary-600 dark:text-primary-400 font-semibold hover:bg-opacity-90 dark:hover:bg-opacity-90 transition-all duration-300 shadow-lg hover:shadow-xl transform hover:-translate-y-1">
+                        <span class="flex items-center justify-center">
+                            <i class="bi bi-person-check mr-2"></i>
+                            Admin Login
+                        </span>
+                    </button>
                 </form>
 
                 <!-- Register Form -->
-                <form id="registerForm" class="space-y-4 hidden" onsubmit="handleRegister(event)">
-                    <div>
-                        <input type="text" id="registerName" placeholder="Full Name" class="w-full p-3 rounded-lg bg-white bg-opacity-20 text-white placeholder-gray-300 outline-none" required>
+                <form id="registerForm" class="space-y-4 hidden animate-slide-in" onsubmit="handleRegister(event)">
+                    <div class="group">
+                        <div class="relative">
+                            <span class="absolute left-3 top-3 text-white/70 dark:text-gray-400 transition-all duration-300 group-focus-within:text-primary-400">
+                                <i class="bi bi-person"></i>
+                            </span>
+                            <input type="text" id="registerName" placeholder="Full Name" class="w-full p-3 pl-10 rounded-lg bg-white/20 dark:bg-gray-700/30 text-white dark:text-gray-200 placeholder-gray-300 dark:placeholder-gray-500 outline-none border border-transparent focus:border-white/50 dark:focus:border-gray-400/50 transition-all duration-300" required>
+                        </div>
                     </div>
-                    <div>
-                        <input type="email" id="registerEmail" placeholder="College Email" class="w-full p-3 rounded-lg bg-white bg-opacity-20 text-white placeholder-gray-300 outline-none" required>
+                    <div class="group">
+                        <div class="relative">
+                            <span class="absolute left-3 top-3 text-white/70 dark:text-gray-400 transition-all duration-300 group-focus-within:text-primary-400">
+                                <i class="bi bi-envelope"></i>
+                            </span>
+                            <input type="email" id="registerEmail" placeholder="College Email" class="w-full p-3 pl-10 rounded-lg bg-white/20 dark:bg-gray-700/30 text-white dark:text-gray-200 placeholder-gray-300 dark:placeholder-gray-500 outline-none border border-transparent focus:border-white/50 dark:focus:border-gray-400/50 transition-all duration-300" required>
+                        </div>
                     </div>
-                    <div>
-                        <input type="password" id="registerPassword" placeholder="Create Password" class="w-full p-3 rounded-lg bg-white bg-opacity-20 text-white placeholder-gray-300 outline-none" required>
+                    <div class="group">
+                        <div class="relative">
+                            <span class="absolute left-3 top-3 text-white/70 dark:text-gray-400 transition-all duration-300 group-focus-within:text-primary-400">
+                                <i class="bi bi-lock"></i>
+                            </span>
+                            <input type="password" id="registerPassword" placeholder="Create Password" class="w-full p-3 pl-10 rounded-lg bg-white/20 dark:bg-gray-700/30 text-white dark:text-gray-200 placeholder-gray-300 dark:placeholder-gray-500 outline-none border border-transparent focus:border-white/50 dark:focus:border-gray-400/50 transition-all duration-300" required>
+                        </div>
                     </div>
-                    <div>
-                        <input type="password" id="confirmPassword" placeholder="Confirm Password" class="w-full p-3 rounded-lg bg-white bg-opacity-20 text-white placeholder-gray-300 outline-none" required>
+                    <div class="group">
+                        <div class="relative">
+                            <span class="absolute left-3 top-3 text-white/70 dark:text-gray-400 transition-all duration-300 group-focus-within:text-primary-400">
+                                <i class="bi bi-lock-check"></i>
+                            </span>
+                            <input type="password" id="confirmPassword" placeholder="Confirm Password" class="w-full p-3 pl-10 rounded-lg bg-white/20 dark:bg-gray-700/30 text-white dark:text-gray-200 placeholder-gray-300 dark:placeholder-gray-500 outline-none border border-transparent focus:border-white/50 dark:focus:border-gray-400/50 transition-all duration-300" required>
+                        </div>
                     </div>
-                    <button type="submit" class="w-full py-3 rounded-lg bg-white text-indigo-600 font-semibold hover:bg-opacity-90 transition">Register</button>
+                    <button type="submit" class="w-full py-3 rounded-lg bg-white dark:bg-gray-800 text-primary-600 dark:text-primary-400 font-semibold hover:bg-opacity-90 dark:hover:bg-opacity-90 transition-all duration-300 shadow-lg hover:shadow-xl transform hover:-translate-y-1">
+                        <span class="flex items-center justify-center">
+                            <i class="bi bi-person-plus mr-2"></i>
+                            Register
+                        </span>
+                    </button>
                 </form>
             </div>
         </div>
     </div>
 
     <!-- Homepage with Navbar -->
-    <div id="homepage" class="min-h-screen bg-gray-50 dark:bg-gray-900">
+    <div id="homepage" class="min-h-screen bg-gray-50 dark:bg-gray-900 transition-colors duration-300">
         <!-- Navbar -->
-        <nav class="bg-indigo-600 text-white shadow-lg sticky top-0 z-50">
+        <nav class="bg-gradient-to-r from-primary-600 to-secondary-600 dark:from-primary-800 dark:to-secondary-800 text-white shadow-lg sticky top-0 z-50 transition-colors duration-300">
             <div class="container mx-auto px-4">
                 <div class="flex justify-between items-center py-4">
                     <div class="flex items-center space-x-4">
-                        <h1 class="text-2xl font-bold">Student Companion</h1>
-                        <span id="welcomeMessage" class="hidden md:inline text-sm">Welcome, <span id="userName">User</span>!</span>
+                        <div class="flex items-center space-x-2">
+                            <i class="bi bi-mortarboard-fill text-2xl"></i>
+                            <h1 class="text-xl md:text-2xl font-bold">Student Companion</h1>
+                        </div>
+                        <span id="welcomeMessage" class="hidden md:inline text-sm bg-white/10 py-1 px-3 rounded-full">
+                            <i class="bi bi-person-check mr-1"></i>
+                            Welcome, <span id="userName" class="font-medium">User</span>!
+                        </span>
                     </div>
                     
-                    <div class="flex items-center">
-                        <button id="logoutBtn" class="py-1 px-2 md:py-2 md:px-4 text-xs md:text-base rounded-lg bg-white bg-opacity-20 hover:bg-opacity-30 transition" onclick="logout()">Logout</button>
+                    <div class="flex items-center space-x-3">
+                        <!-- Theme Toggle Button -->
+                        <button id="themeToggleBtn" class="p-2 rounded-full bg-white/10 hover:bg-white/20 transition-all duration-300" onclick="toggleTheme()">
+                            <i id="themeIcon" class="bi bi-sun text-lg"></i>
+                        </button>
+                        
+                        <button id="logoutBtn" class="py-1 px-2 md:py-2 md:px-4 text-xs md:text-base rounded-lg bg-white/20 hover:bg-white/30 transition-all duration-300 transform hover:-translate-y-1 flex items-center space-x-1" onclick="logout()">
+                            <i class="bi bi-box-arrow-right"></i>
+                            <span class="hidden md:inline">Logout</span>
+                        </button>
                     </div>
                 </div>
             </div>
         </nav>
 
         <!-- Mobile Menu -->
-        <div id="mobileMenu" class="hidden md:hidden bg-indigo-700 text-white">
+        <div id="mobileMenu" class="hidden md:hidden bg-primary-700 dark:bg-primary-900 text-white transition-colors duration-300">
             <div class="container mx-auto px-4 py-2">
-                <button class="w-full text-left py-2 px-4 hover:bg-indigo-600 rounded-lg" onclick="logout()">Logout</button>
+                <button class="w-full text-left py-2 px-4 hover:bg-primary-600 dark:hover:bg-primary-800 rounded-lg transition-colors duration-300 flex items-center space-x-2" onclick="logout()">
+                    <i class="bi bi-box-arrow-right"></i>
+                    <span>Logout</span>
+                </button>
             </div>
         </div>
 
         <!-- Sidebar Navigation -->
         <div class="flex flex-col md:flex-row">
             <!-- Sidebar -->
-            <div id="sidebar" class="fixed md:relative w-64 bg-indigo-800 text-white h-screen z-40 transform -translate-x-full md:translate-x-0 transition-transform duration-300">
+            <div id="sidebar" class="fixed md:relative w-64 bg-gradient-to-b from-primary-800 via-primary-700 to-secondary-700 dark:from-gray-800 dark:via-gray-800 dark:to-gray-900 text-white h-screen z-40 transform -translate-x-full md:translate-x-0 transition-transform duration-300 shadow-xl overflow-auto">
                 <div class="p-4">
-                    <h2 class="text-xl font-semibold mb-4">Features</h2>
+                    <div class="mb-6 flex items-center justify-center">
+                        <div class="w-12 h-12 rounded-full flex items-center justify-center bg-white/10 hover:bg-white/20 transition-all duration-300 cursor-pointer animate-pulse-slow">
+                            <i class="bi bi-mortarboard-fill text-2xl"></i>
+                        </div>
+                    </div>
+                    
+                    <h2 class="text-xl font-semibold mb-6 pb-2 border-b border-white/20 dark:border-gray-700/50 flex items-center">
+                        <i class="bi bi-grid-fill mr-2"></i>
+                        Features
+                    </h2>
+                    
                     <ul class="space-y-2">
-                        <li><a href="notice.html" class="block py-2 px-4 rounded-lg nav-link">Notice Board</a></li>
-                        <li><a href="taxi-search.html" class="block py-2 px-4 rounded-lg nav-link">Taxi Search</a></li>
-                        <li><a href="study.html" class="block py-2 px-4 rounded-lg nav-link">Study Materials</a></li>
-                        <li><a href="mail.html" class="block py-2 px-4 rounded-lg nav-link">Mail Formats</a></li>
-                        <li><a href="kyp.html" class="block py-2 px-4 rounded-lg nav-link" >Know Your People</a></li>
-                        <li><a href="outings.html" class="block py-2 px-4 rounded-lg nav-link" >Outings & Trips</a></li>
-                        <li><a href="messmenu.html" class="block py-2 px-4 rounded-lg nav-link" >Mess & Canteen</a></li>
+                        <li class="sidebar-item">
+                            <a href="notice.html" class="block py-3 px-4 rounded-lg hover:bg-white/10 dark:hover:bg-gray-700/30 transition-all duration-300 flex items-center space-x-3">
+                                <div class="w-8 h-8 rounded-lg bg-white/10 flex items-center justify-center">
+                                    <i class="bi bi-megaphone"></i>
+                                </div>
+                                <span>Notice Board</span>
+                            </a>
+                        </li>
+                        <li class="sidebar-item">
+                            <a href="taxi-search.html" class="block py-3 px-4 rounded-lg hover:bg-white/10 dark:hover:bg-gray-700/30 transition-all duration-300 flex items-center space-x-3">
+                                <div class="w-8 h-8 rounded-lg bg-white/10 flex items-center justify-center">
+                                    <i class="bi bi-car-front"></i>
+                                </div>
+                                <span>Taxi Search</span>
+                            </a>
+                        </li>
+                        <li class="sidebar-item">
+                            <a href="study.html" class="block py-3 px-4 rounded-lg hover:bg-white/10 dark:hover:bg-gray-700/30 transition-all duration-300 flex items-center space-x-3">
+                                <div class="w-8 h-8 rounded-lg bg-white/10 flex items-center justify-center">
+                                    <i class="bi bi-book"></i>
+                                </div>
+                                <span>Study Materials</span>
+                            </a>
+                        </li>
+                        <li class="sidebar-item">
+                            <a href="mail.html" class="block py-3 px-4 rounded-lg hover:bg-white/10 dark:hover:bg-gray-700/30 transition-all duration-300 flex items-center space-x-3">
+                                <div class="w-8 h-8 rounded-lg bg-white/10 flex items-center justify-center">
+                                    <i class="bi bi-envelope"></i>
+                                </div>
+                                <span>Mail Formats</span>
+                            </a>
+                        </li>
+                        <li class="sidebar-item">
+                            <a href="kyp.html" class="block py-3 px-4 rounded-lg hover:bg-white/10 dark:hover:bg-gray-700/30 transition-all duration-300 flex items-center space-x-3">
+                                <div class="w-8 h-8 rounded-lg bg-white/10 flex items-center justify-center">
+                                    <i class="bi bi-people"></i>
+                                </div>
+                                <span>Know Your People</span>
+                            </a>
+                        </li>
+                        <li class="sidebar-item">
+                            <a href="outings.html" class="block py-3 px-4 rounded-lg hover:bg-white/10 dark:hover:bg-gray-700/30 transition-all duration-300 flex items-center space-x-3">
+                                <div class="w-8 h-8 rounded-lg bg-white/10 flex items-center justify-center">
+                                    <i class="bi bi-geo"></i>
+                                </div>
+                                <span>Outings & Trips</span>
+                            </a>
+                        </li>
+                        <li class="sidebar-item">
+                            <a href="messmenu.html" class="block py-3 px-4 rounded-lg hover:bg-white/10 dark:hover:bg-gray-700/30 transition-all duration-300 flex items-center space-x-3">
+                                <div class="w-8 h-8 rounded-lg bg-white/10 flex items-center justify-center">
+                                    <i class="bi bi-cup-hot"></i>
+                                </div>
+                                <span>Mess & Canteen</span>
+                            </a>
+                        </li>
                     </ul>
+                </div>
+                
+                <!-- Sidebar Footer -->
+                <div class="mt-auto p-4 border-t border-white/10 dark:border-gray-700/30">
+                    <div class="text-xs text-white/50 text-center">
+                        <p>© 2025 Student Companion</p>
+                    </div>
                 </div>
             </div>
 
-            <div class="fixed bottom-4 left-4 z-40 md:hidden">
-                <button onclick="toggleSidebar()" class="bg-indigo-600 text-white p-3 rounded-full shadow-lg">
-                    <i class="bi bi-list text-xl"></i>
+            <!-- Mobile Sidebar Toggle -->
+            <div class="fixed bottom-6 left-6 z-40 md:hidden">
+                <button onclick="toggleSidebar()" class="bg-primary-600 dark:bg-primary-700 text-white p-4 rounded-full shadow-lg hover:bg-primary-500 dark:hover:bg-primary-600 transition-all duration-300">
+                    <i id="sidebarIcon" class="bi bi-list text-xl"></i>
                 </button>
             </div>
 
             <!-- Main Content -->
-            <div class="flex-1 p-8">
-                <div id="contentArea" class="bg-white dark:bg-gray-800 rounded-xl shadow-lg p-6">
+            <div class="flex-1 p-4 md:p-8">
+                <div id="contentArea" class="bg-white dark:bg-gray-800 rounded-xl shadow-lg p-6 transition-all duration-300 transform hover:shadow-2xl">
                     <!-- Default content (Notice Board) -->
                     <div id="notice" class="content-section">
-                        <h2 class="text-2xl font-bold mb-6 text-gray-800 dark:text-white">Notice Board</h2>
+                        <h2 class="text-2xl font-bold mb-6 text-gray-800 dark:text-white border-b pb-2 border-gray-200 dark:border-gray-700 flex items-center">
+                            <i class="bi bi-megaphone mr-2 text-primary-600 dark:text-primary-400"></i>
+                            Notice Board
+                        </h2>
                         <p class="text-gray-600 dark:text-gray-300">Welcome to the Student Companion Notice Board! Important announcements and updates will appear here.</p>
-                        <div class="mt-6 p-4 bg-gray-100 dark:bg-gray-700 rounded-lg">
-                            <h3 class="font-semibold text-gray-800 dark:text-white">No new announcements</h3>
-                            <p class="text-gray-600 dark:text-gray-400 text-sm">Check back later for updates</p>
+                        
+                        <div class="mt-6 space-y-4">
+                            <div class="p-4 bg-primary-50 dark:bg-gray-700 rounded-lg shadow-sm border-l-4 border-primary-500 dark:border-primary-400 hover:shadow-md transition-all duration-300">
+                                <div class="flex justify-between items-start">
+                                    <h3 class="font-semibold text-primary-700 dark:text-primary-300">End Semester Exam Schedule</h3>
+                                    <span class="text-xs text-gray-500 dark:text-gray-400">2 days ago</span>
+                                </div>
+                                <p class="text-gray-600 dark:text-gray-400 text-sm mt-2">The final exam schedule has been published. Check your student portal for details.</p>
+                            </div>
+                            
+                            <div class="p-4 bg-secondary-50 dark:bg-gray-700 rounded-lg shadow-sm border-l-4 border-secondary-500 dark:border-secondary-400 hover:shadow-md transition-all duration-300">
+                                <div class="flex justify-between items-start">
+                                    <h3 class="font-semibold text-secondary-700 dark:text-secondary-300">Cultural Festival Registration</h3>
+                                    <span class="text-xs text-gray-500 dark:text-gray-400">1 week ago</span>
+                                </div>
+                                <p class="text-gray-600 dark:text-gray-400 text-sm mt-2">Register for the annual cultural festival before April 15th. Limited spots available!</p>
+                            </div>
                         </div>
                     </div>
 
                     <!-- Other content sections (hidden by default) -->
-                    <div id="taxi" class="content-section hidden">
-                        <h2 class="text-2xl font-bold mb-6 text-gray-800 dark:text-white">Taxi Search</h2>
+                    <div id="tax" class="content-section hidden">
+                        <h2 class="text-2xl font-bold mb-6 text-gray-800 dark:text-white border-b pb-2 border-gray-200 dark:border-gray-700 flex items-center">
+                            <i class="bi bi-car-front mr-2 text-primary-600 dark:text-primary-400"></i>
+                            Taxi Search
+                        </h2>
                         <p class="text-gray-600 dark:text-gray-300">Find and join taxi groups for shared rides.</p>
                     </div>
 
                     <div id="study" class="content-section hidden">
-                        <h2 class="text-2xl font-bold mb-6 text-gray-800 dark:text-white">Study Materials</h2>
+                        <h2 class="text-2xl font-bold mb-6 text-gray-800 dark:text-white border-b pb-2 border-gray-200 dark:border-gray-700 flex items-center">
+                            <i class="bi bi-book mr-2 text-primary-600 dark:text-primary-400"></i>
+                            Study Materials
+                        </h2>
                         <p class="text-gray-600 dark:text-gray-300">Access and share study materials and resources.</p>
                     </div>
 
                     <div id="mail" class="content-section hidden">
-                        <h2 class="text-2xl font-bold mb-6 text-gray-800 dark:text-white">Mail Formats</h2>
+                        <h2 class="text-2xl font-bold mb-6 text-gray-800 dark:text-white border-b pb-2 border-gray-200 dark:border-gray-700
+
+                    <!-- Other content sections (hidden by default) -->
+                    <div id="taxi" class="content-section hidden">
+                        <h2 class="text-2xl font-bold mb-6 text-gray-800 dark:text-white border-b pb-2 border-gray-200 dark:border-gray-700">Taxi Search</h2>
+                        <p class="text-gray-600 dark:text-gray-300">Find and join taxi groups for shared rides.</p>
+                    </div>
+
+                    <div id="study" class="content-section hidden">
+                        <h2 class="text-2xl font-bold mb-6 text-gray-800 dark:text-white border-b pb-2 border-gray-200 dark:border-gray-700">Study Materials</h2>
+                        <p class="text-gray-600 dark:text-gray-300">Access and share study materials and resources.</p>
+                    </div>
+
+                    <div id="mail" class="content-section hidden">
+                        <h2 class="text-2xl font-bold mb-6 text-gray-800 dark:text-white border-b pb-2 border-gray-200 dark:border-gray-700">Mail Formats</h2>
                         <p class="text-gray-600 dark:text-gray-300">Templates for common emails and important contacts.</p>
                     </div>
 
                     <div id="people" class="content-section hidden">
-                        <h2 class="text-2xl font-bold mb-6 text-gray-800 dark:text-white">Know Your People</h2>
+                        <h2 class="text-2xl font-bold mb-6 text-gray-800 dark:text-white border-b pb-2 border-gray-200 dark:border-gray-700">Know Your People</h2>
                         <p class="text-gray-600 dark:text-gray-300">Directory of important contacts and representatives.</p>
                     </div>
 
                     <div id="trips" class="content-section hidden">
-                        <h2 class="text-2xl font-bold mb-6 text-gray-800 dark:text-white">Outings & Trips</h2>
+                        <h2 class="text-2xl font-bold mb-6 text-gray-800 dark:text-white border-b pb-2 border-gray-200 dark:border-gray-700">Outings & Trips</h2>
                         <p class="text-gray-600 dark:text-gray-300">Plan and join trips and outings with fellow students.</p>
                     </div>
 
                     <div id="mess" class="content-section hidden">
-                        <h2 class="text-2xl font-bold mb-6 text-gray-800 dark:text-white">Mess & Canteen</h2>
+                        <h2 class="text-2xl font-bold mb-6 text-gray-800 dark:text-white border-b pb-2 border-gray-200 dark:border-gray-700">Mess & Canteen</h2>
                         <p class="text-gray-600 dark:text-gray-300">View mess schedules and canteen menus.</p>
                     </div>
                 </div>
@@ -189,33 +570,107 @@
     </div>
 
     <script>
- document.addEventListener('DOMContentLoaded', function() {
-    // Initialize Supabase
-    const supabaseUrl = 'https://cebomekzvltlaabcvjix.supabase.co';
-    const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImNlYm9tZWt6dmx0bGFhYmN2aml4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDM3NjUwNjQsImV4cCI6MjA1OTM0MTA2NH0.dtlBNgdctrv-txCEpNxjpfwzL02X0g7msUZIVuzG9J8';
+ // ==== THEME FUNCTIONALITY ====
+function toggleTheme() {
+    // Check if currently in dark mode
+    const isDarkMode = document.documentElement.classList.contains('dark');
     
-    // Create a proper client instance
-    window.supabaseClient = supabase.createClient(supabaseUrl, supabaseKey);
+    // Toggle the dark class on the html element
+    document.documentElement.classList.toggle('dark');
     
-    // Make sure the auth handlers use the client
-    initializeAuthHandlers();
+    // Update the icon based on current theme
+    const themeIcon = document.getElementById('themeIcon');
+    if (isDarkMode) {
+        // Switching to light mode
+        themeIcon.classList.remove('bi-moon');
+        themeIcon.classList.add('bi-sun');
+    } else {
+        // Switching to dark mode
+        themeIcon.classList.remove('bi-sun');
+        themeIcon.classList.add('bi-moon');
+    }
     
-    // Check session on page load
-    checkSession();
-});
-
-function initializeAuthHandlers() {
-    // Login form handler
-    document.getElementById('loginForm').addEventListener('submit', handleLogin);
-    
-    // Admin form handler
-    document.getElementById('adminForm').addEventListener('submit', handleAdminLogin);
-    
-    // Register form handler
-    document.getElementById('registerForm').addEventListener('submit', handleRegister);
+    // Save preference to localStorage
+    localStorage.setItem('theme', isDarkMode ? 'light' : 'dark');
 }
 
-// Updated auth handlers to use window.supabaseClient
+// Function to initialize theme based on saved preference
+function initializeTheme() {
+    // Check for saved theme preference or use system preference
+    const savedTheme = localStorage.getItem('theme');
+    
+    if (savedTheme) {
+        // Apply saved preference
+        if (savedTheme === 'dark') {
+            document.documentElement.classList.add('dark');
+            document.getElementById('themeIcon').classList.remove('bi-sun');
+            document.getElementById('themeIcon').classList.add('bi-moon');
+        } else {
+            document.documentElement.classList.remove('dark');
+            document.getElementById('themeIcon').classList.remove('bi-moon');
+            document.getElementById('themeIcon').classList.add('bi-sun');
+        }
+    } else {
+        // Apply system preference
+        if (window.matchMedia('(prefers-color-scheme: dark)').matches) {
+            document.documentElement.classList.add('dark');
+            document.getElementById('themeIcon').classList.remove('bi-sun');
+            document.getElementById('themeIcon').classList.add('bi-moon');
+        }
+    }
+}
+
+// ==== RESPONSIVE FUNCTIONALITY ====
+function setupResponsiveness() {
+    // Adjust UI based on screen size
+    const handleResize = () => {
+        const width = window.innerWidth;
+        const sidebar = document.getElementById('sidebar');
+        const contentArea = document.getElementById('contentArea');
+        
+        // Sidebar handling based on screen size
+        if (width < 768) { // Mobile view
+            sidebar.classList.add('-translate-x-full');
+            sidebar.classList.add('fixed');
+            sidebar.classList.remove('relative');
+            
+            // Adjust content area
+            contentArea.classList.remove('ml-64');
+        } else { // Desktop view
+            sidebar.classList.remove('-translate-x-full');
+            sidebar.classList.remove('fixed');
+            sidebar.classList.add('relative');
+            
+            // Reset content area
+            contentArea.classList.add('ml-64');
+        }
+    };
+    
+    // Call once on load
+    handleResize();
+    
+    // Add event listener for window resize
+    window.addEventListener('resize', handleResize);
+}
+
+// Toggle mobile sidebar
+function toggleSidebar() {
+    const sidebar = document.getElementById('sidebar');
+    const sidebarIcon = document.getElementById('sidebarIcon');
+    
+    sidebar.classList.toggle('-translate-x-full');
+    
+    // Update icon based on sidebar state
+    if (sidebar.classList.contains('-translate-x-full')) {
+        sidebarIcon.classList.remove('bi-x-lg');
+        sidebarIcon.classList.add('bi-list');
+    } else {
+        sidebarIcon.classList.remove('bi-list');
+        sidebarIcon.classList.add('bi-x-lg');
+    }
+}
+
+// ==== AUTH FUNCTIONALITY ====
 async function handleLogin(e) {
     e.preventDefault();
     const email = document.getElementById('loginEmail').value;
@@ -231,7 +686,7 @@ async function handleLogin(e) {
         if (error) {
             // Better error handling for email confirmation
             if (error.message.includes('Email not confirmed')) {
-                alert('Please confirm your email address before logging in. Check your inbox for a confirmation email.');
+                showNotification('Please confirm your email address before logging in.', 'warning');
                 return;
             }
             throw error;
@@ -271,8 +726,10 @@ async function handleLogin(e) {
             console.log("Profile found:", profiles[0]);
             showHomepage(profiles[0].name);
         }
+        
+        showNotification('Login successful!', 'success');
     } catch (error) {
-        alert('Error logging in: ' + error.message);
+        showNotification('Error logging in: ' + error.message, 'error');
         console.error("Login error details:", error);
     }
 }
@@ -305,8 +762,9 @@ async function handleAdminLogin(e) {
         
         // Admin login successful
         showHomepage('Admin');
+        showNotification('Admin login successful!', 'success');
     } catch (error) {
-        alert('Invalid admin credentials: ' + error.message);
+        showNotification('Invalid admin credentials: ' + error.message, 'error');
     }
 }
 
@@ -317,15 +775,21 @@ async function handleRegister(e) {
     const password = document.getElementById('registerPassword').value;
     const confirmPassword = document.getElementById('confirmPassword').value;
     
+    // Form validation
+    if (!name || !email || !password || !confirmPassword) {
+        showNotification('Please fill in all fields', 'warning');
+        return;
+    }
+    
     // Check if passwords match
     if (password !== confirmPassword) {
-        alert('Passwords do not match');
+        showNotification('Passwords do not match', 'warning');
         return;
     }
     
     // Check if username is not "admin" or "Admin"
-    if (name === "admin" || name === "Admin") {
-        alert('Username cannot be "admin" or "Admin"');
+    if (name.toLowerCase() === "admin") {
+        showNotification('Username cannot be "admin"', 'warning');
         return;
     }
     
@@ -355,43 +819,201 @@ async function handleRegister(e) {
         
         // Check if email confirmation is needed
         if (data.user && !data.user.confirmed_at) {
-            alert('Registration successful! Please check your email to confirm your account before logging in.');
+            showNotification('Registration successful! Please check your email to confirm your account before logging in.', 'success');
         } else {
-            alert('Registration successful! You can now log in.');
+            showNotification('Registration successful! You can now log in.', 'success');
         }
         
         switchTab('login');
     } catch (error) {
-        alert('Error registering: ' + error.message);
+        showNotification('Error registering: ' + error.message, 'error');
         console.error('Detailed error:', error);
     }
 }
 
-async function logout() {
-    try {
-        const { error } = await window.supabaseClient.auth.signOut();
-        if (error) throw error;
+// ==== NAVIGATION FUNCTIONALITY ====
+function loadContent(page) {
+    // Hide all content sections
+    document.querySelectorAll('.content-section').forEach(section => {
+        section.classList.add('hidden');
+    });
+    
+    // Show selected content section
+    const selectedContent = document.getElementById(page);
+    if (selectedContent) {
+        selectedContent.classList.remove('hidden');
+    }
+    
+    // Update URL without reloading
+    history.pushState(null, null, `?page=${page}`);
+    
+    // On mobile, close sidebar after navigation
+    if (window.innerWidth < 768) {
+        const sidebar = document.getElementById('sidebar');
+        sidebar.classList.add('-translate-x-full');
         
-        // Hide homepage
-        document.getElementById('homepage').style.display = 'none';
-        
-        // Show auth page
-        document.getElementById('authPage').style.display = 'flex';
-        
-        // Reset forms
-        document.getElementById('loginForm').reset();
-        document.getElementById('adminForm').reset();
-        document.getElementById('registerForm').reset();
-        
-        // Switch to login tab
-        switchTab('login');
-        
-        // Clear session storage
-        sessionStorage.removeItem('currentUserData');
-    } catch (error) {
-        alert('Error signing out: ' + error.message);
+        // Update sidebar toggle icon
+        const sidebarIcon = document.getElementById('sidebarIcon');
+        sidebarIcon.classList.remove('bi-x-lg');
+        sidebarIcon.classList.add('bi-list');
     }
 }
+
+// ==== UI HELPERS ====
+function showNotification(message, type = 'info') {
+    // Create notification element
+    const notification = document.createElement('div');
+    notification.className = `fixed bottom-4 right-4 px-6 py-3 rounded-lg shadow-lg transform transition-all duration-500 text-white z-50`;
+    
+    // Set background color based on type
+    switch(type) {
+        case 'success':
+            notification.classList.add('bg-green-500');
+            break;
+        case 'error':
+            notification.classList.add('bg-red-500');
+            break;
+        case 'warning':
+            notification.classList.add('bg-yellow-500');
+            break;
+        default:
+            notification.classList.add('bg-blue-500');
+    }
+    
+    // Add content
+    notification.innerHTML = `
+        <div class="flex items-center">
+            <i class="bi ${type === 'success' ? 'bi-check-circle' : 
+                       type === 'error' ? 'bi-x-circle' : 
+                       type === 'warning' ? 'bi-exclamation-triangle' : 
+                       'bi-info-circle'} mr-2"></i>
+            <span>${message}</span>
+        </div>
+    `;
+    
+    // Add to DOM
+    document.body.appendChild(notification);
+    
+    // Animate in
+    setTimeout(() => {
+        notification.classList.add('translate-y-0');
+        notification.classList.remove('translate-y-12');
+    }, 10);
+    
+    // Remove after 3 seconds
+    setTimeout(() => {
+        notification.classList.add('opacity-0');
+        setTimeout(() => {
+            document.body.removeChild(notification);
+        }, 300);
+    }, 3000);
+}
+
+function switchTab(tab) {
+    const forms = {
+        login: document.getElementById('loginForm'),
+        admin: document.getElementById('adminForm'),
+        register: document.getElementById('registerForm')
+    };
+    
+    // Hide all forms with animation
+    Object.values(forms).forEach(form => {
+        form.classList.add('hidden');
+        form.classList.remove('animate-slide-in');
+    });
+    
+    // Show selected form with animation
+    forms[tab].classList.remove('hidden');
+    setTimeout(() => {
+        forms[tab].classList.add('animate-slide-in');
+    }, 10);
+    
+    // Update active tab styling
+    document.querySelectorAll('#loginTab, #adminTab, #registerTab').forEach(btn => {
+        btn.classList.remove('bg-white/30', 'dark:bg-gray-700/50');
+        btn.classList.add('bg-white/20', 'dark:bg-gray-700/30');
+    });
+    document.getElementById(`${tab}Tab`).classList.remove('bg-white/20', 'dark:bg-gray-700/30');
+    document.getElementById(`${tab}Tab`).classList.add('bg-white/30', 'dark:bg-gray-700/50');
+}
+
+function showHomepage(userName) {
+    // Hide auth page with animation
+    const authPage = document.getElementById('authPage');
+    authPage.classList.add('opacity-0');
+    
+    setTimeout(() => {
+        // Hide auth page
+        authPage.style.display = 'none';
+        
+        // Show homepage
+        const homepage = document.getElementById('homepage');
+        homepage.style.display = 'block';
+        homepage.classList.add('animate-fade-in');
+        
+        // Set welcome message
+        document.getElementById('userName').textContent = userName;
+        document.getElementById('welcomeMessage').classList.remove('hidden');
+        
+        // Setup responsive behavior
+        setupResponsiveness();
+        
+        // Store user info in sessionStorage
+        sessionStorage.setItem('currentUserData', JSON.stringify({
+            name: userName,
+            email: document.getElementById('loginEmail')?.value || 'admin@example.com'
+        }));
+        
+        // Check for page parameter in URL
+        // const urlParams = new URLSearchParams(window.location.search);
+        // const page = urlParams.get('page');
+        // if (page) {
+        //     loadContent(page);
+        // }
+        window.location.href = 'notice.html';
+    }, 300);
+}
+
+// ==== INITIALIZATION ====
+document.addEventListener('DOMContentLoaded', function() {
+    // Initialize Supabase if it's not already initialized
+    if (!window.supabaseClient) {
+        const supabaseUrl = 'https://cebomekzvltlaabcvjix.supabase.co';
+        const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImNlYm9tZWt6dmx0bGFhYmN2aml4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDM3NjUwNjQsImV4cCI6MjA1OTM0MTA2NH0.dtlBNgdctrv-txCEpNxjpfwzL02X0g7msUZIVuzG9J8';
+        
+        window.supabaseClient = supabase.createClient(supabaseUrl, supabaseKey);
+    }
+    
+    // Initialize theme
+    initializeTheme();
+    
+    // Setup event listeners for navigation links
+    document.querySelectorAll('.sidebar-item a').forEach(link => {
+        link.addEventListener('click', function(e) {
+            e.preventDefault();
+            const page = this.getAttribute('href').split('.')[0]; // Remove .html extension
+            loadContent(page);
+        });
+    });
+    
+    // Add event listener for system theme changes
+    window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', e => {
+        if (!localStorage.getItem('theme')) {
+            if (e.matches) {
+                document.documentElement.classList.add('dark');
+                document.getElementById('themeIcon').classList.remove('bi-sun');
+                document.getElementById('themeIcon').classList.add('bi-moon');
+            } else {
+                document.documentElement.classList.remove('dark');
+                document.getElementById('themeIcon').classList.remove('bi-moon');
+                document.getElementById('themeIcon').classList.add('bi-sun');
+            }
+        }
+    });
+    
+    // Check if user is logged in
+    checkSession();
+});
 
 async function checkSession() {
     try {
@@ -408,13 +1030,6 @@ async function checkSession() {
                 
             if (!error && profile) {
                 showHomepage(profile.name);
-                
-                // Check for page parameter in URL
-                const urlParams = new URLSearchParams(window.location.search);
-                const page = urlParams.get('page');
-                if (page) {
-                    loadContent(page);
-                }
             }
         }
     } catch (error) {
@@ -422,55 +1037,42 @@ async function checkSession() {
     }
 }
 
-function switchTab(tab) {
-    const forms = {
-        login: document.getElementById('loginForm'),
-        admin: document.getElementById('adminForm'),
-        register: document.getElementById('registerForm')
-    };
-    
-    // Hide all forms
-    Object.values(forms).forEach(form => form.classList.add('hidden'));
-    
-    // Show selected form
-    forms[tab].classList.remove('hidden');
-    
-    // Update active tab styling
-    document.querySelectorAll('button').forEach(btn => {
-        btn.classList.remove('bg-opacity-30');
-    });
-    document.getElementById(`${tab}Tab`).classList.add('bg-opacity-30');
-}
-
-function toggleSidebar() {
-    const sidebar = document.getElementById('sidebar');
-    sidebar.classList.toggle('-translate-x-full');
-}
-
-function showHomepage(userName) {
-    // Hide auth page
-    document.getElementById('authPage').style.display = 'none';
-    
-    // Show homepage
-    document.getElementById('homepage').style.display = 'block';
-    
-    // Set welcome message
-    document.getElementById('userName').textContent = userName;
-    document.getElementById('welcomeMessage').classList.remove('hidden');
-    
-    // Store user info in sessionStorage
-    sessionStorage.setItem('currentUserData', JSON.stringify({
-        name: userName,
-        email: document.getElementById('loginEmail').value || 'admin@example.com'
-
-    
-    }));
-    window.location.href = 'notice.html';
-}
-
-// Check for system dark mode preference
-if (window.matchMedia('(prefers-color-scheme: dark)').matches) {
-    document.documentElement.classList.add('dark');
+async function logout() {
+    try {
+        const { error } = await window.supabaseClient.auth.signOut();
+        if (error) throw error;
+        
+        // Show fade out animation for homepage
+        const homepage = document.getElementById('homepage');
+        homepage.classList.add('opacity-0');
+        homepage.classList.remove('animate-fade-in');
+        
+        setTimeout(() => {
+            // Hide homepage
+            homepage.style.display = 'none';
+            
+            // Show auth page with animation
+            const authPage = document.getElementById('authPage');
+            authPage.style.display = 'flex';
+            authPage.classList.remove('opacity-0');
+            
+            // Reset forms
+            document.getElementById('loginForm').reset();
+            document.getElementById('adminForm').reset();
+            document.getElementById('registerForm').reset();
+            
+            // Switch to login tab
+            switchTab('login');
+            
+            // Clear session storage
+            sessionStorage.removeItem('currentUserData');
+            
+            // Show notification
+            showNotification('Successfully logged out', 'success');
+        }, 300);
+    } catch (error) {
+        showNotification('Error signing out: ' + error.message, 'error');
+    }
 }
     </script>
 </body>
