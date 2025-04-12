@@ -233,6 +233,8 @@
     input, select, textarea {
         font-size: 16px !important; /* Prevents iOS zoom on focus */
     }
+    /* Additional responsive utilities */
+
 </style>
 </head>
 <body class="bg-gray-50 dark:bg-gray-900 transition-colors duration-300">
@@ -278,8 +280,8 @@
     <!-- Main Content -->
     <div class="flex flex-col md:flex-row">
         <!-- Sidebar -->
-        <div id="sidebar" class="fixed md:relative w-64 bg-gradient-to-b from-primary-800 via-primary-700 to-secondary-700 dark:from-gray-800 dark:via-gray-800 dark:to-gray-900 text-white h-screen z-40 transform -translate-x-full md:translate-x-0 transition-transform duration-300 shadow-xl overflow-auto">
-            <div class="p-4">
+        <div id="sidebar" class="fixed md:relative w-64 bg-gradient-to-b from-primary-800 via-primary-700 to-secondary-700 dark:from-gray-800 dark:via-gray-800 dark:to-gray-900 text-white min-h-screen z-40 transform -translate-x-full md:translate-x-0 transition-all duration-300 shadow-xl overflow-auto">
+               <div class="p-4">
                 <div class="mb-6 flex items-center justify-center">
                     <div class="w-12 h-12 rounded-full flex items-center justify-center bg-white/10 hover:bg-white/20 transition-all duration-300 cursor-pointer animate-pulse-slow">
                         <i class="bi bi-mortarboard-fill text-2xl"></i>
@@ -531,6 +533,8 @@
         </div>
     </div>
 </div>
+</div>
+
         
     
 
@@ -586,6 +590,7 @@ function initializeTheme() {
     }
 }
 
+// ==== RESPONSIVE FUNCTIONALITY ====
 function setupResponsiveness() {
     // Adjust UI based on screen size
     const handleResize = () => {
@@ -617,6 +622,7 @@ function setupResponsiveness() {
     // Add event listener for window resize
     window.addEventListener('resize', handleResize);
 }
+
 // Toggle mobile sidebar
 function toggleSidebar() {
     const sidebar = document.getElementById('sidebar');
@@ -667,6 +673,7 @@ window.logout = async function() {
     // Check if we're in a logged-in session
     checkSession();
     ensureModalsExist();
+    
 
     // Initialize trips
     let trips = [];
@@ -1416,19 +1423,6 @@ async function leaveTrip(tripId) {
 
     
     
-    // Page redirection
-    window.redirectToPage = function(page) {
-        if (page === 'notice') {
-            window.location.href = 'index.html';
-        } else if (page === 'taxi') {
-            // Already on taxi page, do nothing
-        } else if (page === 'people') {
-            window.location.href = 'kyp.html';
-        } else {
-            // For other pages, go to index and load the specific content
-            window.location.href = `index.html?page=${page}`;
-        }
-    };
     // Add this function to ensure modals are added to the document
 function ensureModalsExist() {
     // Check if edit modal already exists
