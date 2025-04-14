@@ -1371,15 +1371,35 @@ document.addEventListener('DOMContentLoaded', function() {
         window.supabaseClient = supabase.createClient(supabaseUrl, supabaseKey);
     }
     // Add this at the top of your DOMContentLoaded handler
-window.supabaseClient.auth.onAuthStateChange((event, session) => {
+    window.supabaseClient.auth.onAuthStateChange(async (event, session) => {
     console.log('Auth state changed:', event, session);
     
-    // If we get an initial session with a recovery token, process it
+    // Handle initial session after magic link (e.g., password recovery)
     if (event === 'INITIAL_SESSION' && window.location.hash.includes('type=recovery')) {
         console.log('Initial session with recovery detected');
         handlePasswordResetRedirect();
     }
+
+    // ✅ Handle when user finishes password reset and gets signed in
+    if (event === 'SIGNED_IN' && window.location.hash.includes('type=recovery')) {
+        console.log('Password reset completed, user signed in:', session.user);
+
+        // Clear recovery hash so we don’t stay stuck in recovery mode
+        window.location.hash = '';
+
+        // Load user profile and show homepage
+        const { data: profiles } = await window.supabaseClient
+            .from('profiles')
+            .select('name')
+            .eq('id', session.user.id);
+
+        const userName = profiles?.[0]?.name || session.user.email.split('@')[0];
+
+        showHomepage(userName);
+        showNotification('Password reset successful! Welcome back.', 'success');
+    }
 });
+
     // Initialize theme
     initializeTheme();
 
