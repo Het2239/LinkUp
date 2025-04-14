@@ -1006,40 +1006,43 @@ function switchTab(tab) {
     document.getElementById(`${tab}Tab`).classList.add('bg-white/30', 'dark:bg-gray-700/50');
 }
 function showHomepage(userName) {
+    const isRecoveryFlow = window.location.hash.includes('type=recovery');
+
     // Hide auth page with animation
     const authPage = document.getElementById('authPage');
     authPage.classList.add('opacity-0');
-
+    
     setTimeout(() => {
         // Hide auth page
         authPage.style.display = 'none';
-
+        
         // Show homepage
         const homepage = document.getElementById('homepage');
         homepage.style.display = 'block';
         homepage.classList.add('animate-fade-in');
-
+        
         // Set welcome message
         document.getElementById('userName').textContent = userName;
         document.getElementById('welcomeMessage').classList.remove('hidden');
-
+        
         // Setup responsive behavior
         setupResponsiveness();
-
+        
         // Store user info in sessionStorage
         sessionStorage.setItem('currentUserData', JSON.stringify({
             name: userName,
             email: document.getElementById('loginEmail')?.value || 'admin@example.com'
         }));
 
-        // Don't redirect if user is recovering their password
-        const isRecoveryFlow = window.location.hash.includes('type=recovery');
+        // ✅ Only redirect if NOT in recovery flow
         if (!isRecoveryFlow) {
             window.location.href = 'notice.html';
+        } else {
+            console.log('Skipping redirect due to recovery flow');
         }
-
     }, 300);
 }
+
 
 // ==== FORGOT PASSWORD FUNCTIONALITY ====
 function showForgotPasswordModal() {
