@@ -1005,43 +1005,42 @@ function switchTab(tab) {
     document.getElementById(`${tab}Tab`).classList.remove('bg-white/20', 'dark:bg-gray-700/30');
     document.getElementById(`${tab}Tab`).classList.add('bg-white/30', 'dark:bg-gray-700/50');
 }
-
 function showHomepage(userName) {
     // Hide auth page with animation
     const authPage = document.getElementById('authPage');
     authPage.classList.add('opacity-0');
-    
+
     setTimeout(() => {
         // Hide auth page
         authPage.style.display = 'none';
-        
+
         // Show homepage
         const homepage = document.getElementById('homepage');
         homepage.style.display = 'block';
         homepage.classList.add('animate-fade-in');
-        
+
         // Set welcome message
         document.getElementById('userName').textContent = userName;
         document.getElementById('welcomeMessage').classList.remove('hidden');
-        
+
         // Setup responsive behavior
         setupResponsiveness();
-        
+
         // Store user info in sessionStorage
         sessionStorage.setItem('currentUserData', JSON.stringify({
             name: userName,
             email: document.getElementById('loginEmail')?.value || 'admin@example.com'
         }));
-        
-        // Check for page parameter in URL
-        // const urlParams = new URLSearchParams(window.location.search);
-        // const page = urlParams.get('page');
-        // if (page) {
-        //     loadContent(page);
-        // }
-        window.location.href = 'notice.html';
+
+        // Don't redirect if user is recovering their password
+        const isRecoveryFlow = window.location.hash.includes('type=recovery');
+        if (!isRecoveryFlow) {
+            window.location.href = 'notice.html';
+        }
+
     }, 300);
 }
+
 // ==== FORGOT PASSWORD FUNCTIONALITY ====
 function showForgotPasswordModal() {
     const modal = document.getElementById('forgotPasswordModal');
