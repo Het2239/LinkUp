@@ -1007,6 +1007,7 @@ function switchTab(tab) {
 }
 function showHomepage(userName) {
     const isRecoveryFlow = window.location.hash.includes('type=recovery');
+    const inPasswordResetFlow = sessionStorage.getItem('inPasswordResetFlow') === 'true';
 
     // Hide auth page with animation
     const authPage = document.getElementById('authPage');
@@ -1034,12 +1035,12 @@ function showHomepage(userName) {
             email: document.getElementById('loginEmail')?.value || 'admin@example.com'
         }));
 
-        // ✅ Only redirect if NOT in recovery flow
-        // if (!isRecoveryFlow) {
-        //     window.location.href = 'notice.html';
-        // } else {
-        //     console.log('Skipping redirect due to recovery flow');
-        // }
+        // Only redirect if NOT in recovery flow and NOT in password reset flow
+        if (!isRecoveryFlow && !inPasswordResetFlow) {
+            window.location.href = 'notice.html';
+        } else {
+            console.log('Skipping redirect due to recovery/password reset flow');
+        }
     }, 300);
 }
 
@@ -1172,7 +1173,7 @@ async function handlePasswordResetRedirect() {
     
     // Check if there's any hash data
     if (window.location.hash) {
-        const hashString = window.location.hash.substring(1); // Remove the # symbol
+        const hashString = window.location.hash.substring(1);
         console.log('Hash detected:', hashString);
         
         // Check if hash contains 'type=recovery'
@@ -1206,6 +1207,9 @@ async function handlePasswordResetRedirect() {
                 statusDiv.classList.remove('hidden');
                 statusDiv.classList.add('bg-blue-100', 'text-blue-800', 'dark:bg-blue-900/30', 'dark:text-blue-300');
                 statusDiv.innerHTML = '<i class="bi bi-info-circle-fill mr-2"></i> Please set your new password.';
+                
+                // Set a flag to prevent redirect
+                sessionStorage.setItem('inPasswordResetFlow', 'true');
             } catch (err) {
                 console.error('Error handling recovery redirect:', err);
                 showNotification('An error occurred processing your password reset. Please try again.', 'error');
@@ -1260,6 +1264,8 @@ async function updatePasswordWithToken() {
         }
         
         console.log('Password updated successfully');
+        // Clear the password reset flow flag
+        sessionStorage.removeItem('inPasswordResetFlow');
         
         const statusDiv = document.getElementById('passwordResetStatus');
         statusDiv.classList.remove('hidden', 'bg-red-100', 'text-red-800', 'dark:bg-red-900/30', 'dark:text-red-300');
