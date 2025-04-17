@@ -404,13 +404,20 @@
                 <option value="">All Departments</option>
                 <option value="cs">Computer Science</option>
                 <option value="ee">Electrical Engineering</option>
-                <option value="me">Mechanical Engineering</option>
+                <option value="ds">Data Science & AI</option>
             </select>
             <select class="px-4 py-2 rounded-lg border focus:outline-none focus:ring-2 focus:ring-primary-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white transition-colors duration-300">
                 <option value="">All Semesters</option>
                 <option value="1">Semester 1</option>
                 <option value="2">Semester 2</option>
                 <option value="3">Semester 3</option>
+                <option value="3">Semester 4</option>
+                <option value="3">Semester 5</option>
+                <option value="3">Semester 6</option>
+                <option value="3">Semester 7</option>
+                <option value="3">Semester 8</option>
+                <option value="3">Semester 9</option>
+                <option value="3">Semester 10</option>
             </select>
         </div>
 
@@ -498,7 +505,7 @@
                     <option value="">Select Department</option>
                     <option value="cs">Computer Science</option>
                     <option value="ee">Electrical Engineering</option>
-                    <option value="me">Mechanical Engineering</option>
+                    <option value="ds">Data Science & AI</option>
                 </select>
                 
                 <select id="materialSemester" class="w-full px-3 py-2 border rounded-lg mb-3 dark:bg-gray-700 dark:border-gray-600 dark:text-white focus:outline-none focus:ring-2 focus:ring-primary-500 transition-colors duration-300">
@@ -506,6 +513,13 @@
                     <option value="1">Semester 1</option>
                     <option value="2">Semester 2</option>
                     <option value="3">Semester 3</option>
+                    <option value="3">Semester 4</option>
+                    <option value="3">Semester 5</option>
+                    <option value="3">Semester 6</option>
+                    <option value="3">Semester 7</option>
+                    <option value="3">Semester 8</option>
+                    <option value="3">Semester 9</option>
+                    <option value="3">Semester 10</option>
                 </select>
                 
                 <input type="text" id="materialLink" placeholder="Material Link URL" class="w-full px-3 py-2 border rounded-lg mb-3 dark:bg-gray-700 dark:border-gray-600 dark:text-white focus:outline-none focus:ring-2 focus:ring-primary-500 transition-colors duration-300">
@@ -929,7 +943,7 @@ function setupFilters() {
                 const deptMap = {
                     'cs': 'computer science',
                     'ee': 'electrical engineering',
-                    'me': 'mechanical engineering'
+                    'ds': 'data science & ai'
                 };
                 matchesDepartment = departmentText === deptMap[selectedDepartment].toLowerCase();
             }
@@ -1123,7 +1137,7 @@ function getDepartmentText(code) {
     switch(code) {
         case 'cs': return 'Computer Science';
         case 'ee': return 'Electrical Engineering';
-        case 'me': return 'Mechanical Engineering';
+        case 'ds': return 'Data Science & AI';
         default: return code || '';
     }
 }
