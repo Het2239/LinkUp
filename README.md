@@ -167,8 +167,21 @@ Want to help improve LinkUp? We welcome contributions!
   📧 [hetchavadiya@gmail.com](mailto:hetchavadiya@gmail.com)
 
 
+---
+
+## 📎 License
+
+This project is licensed under the **MIT License** - see the [LICENSE](./LICENSE) file for details.
 
 ---
+
+## 🎉 Final Words
+
+LinkUp isn’t just a project — it’s a mission to make campus life easier, more connected, and engaging. We hope this tool becomes a go-to platform for **collaboration, support, and community-building** among students. Let’s LinkUp! 🔗
+
+---
+
+> _“The best way to predict your future is to create it.”_ – Abraham Lincoln
 
 
 
