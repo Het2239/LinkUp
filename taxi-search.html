@@ -235,7 +235,15 @@
         font-size: 16px !important; /* Prevents iOS zoom on focus */
     }
     /* Additional responsive utilities */
-
+    .my-custom-icon {
+  display: inline-block;
+  width: 32px;
+  height: 32px;
+  background-image: url("linkuplogo.png"); /* Replace with your icon URL */
+  background-size: contain;
+  background-repeat: no-repeat;
+  background-position: center;
+}
 </style>
 </head>
 <body class="bg-gray-50 dark:bg-gray-900 transition-colors duration-300">
@@ -245,7 +253,8 @@
             <div class="flex justify-between items-center py-4">
                 <div class="flex items-center space-x-4">
                     <div class="flex items-center space-x-2">
-                        <i class="bi bi-mortarboard-fill text-2xl"></i>
+                        <!-- <i class="bi bi-mortarboard-fill text-2xl"></i> -->
+                        <span class="my-custom-icon text-4xl text-primary-600 dark:text-primary-400"></span>
                         <h1 class="text-xl md:text-2xl font-bold">LinkUp</h1>
                     </div>
                     <span id="welcomeMessage" class="hidden md:inline text-sm bg-white/10 py-1 px-3 rounded-full">
@@ -285,7 +294,8 @@
                <div class="p-4">
                 <div class="mb-6 flex items-center justify-center">
                     <div class="w-12 h-12 rounded-full flex items-center justify-center bg-white/10 hover:bg-white/20 transition-all duration-300 cursor-pointer animate-pulse-slow">
-                        <i class="bi bi-mortarboard-fill text-2xl"></i>
+                        <!-- <i class="bi bi-mortarboard-fill text-2xl"></i> -->
+                        <span class="my-custom-icon text-4xl text-primary-600 dark:text-primary-400"></span>
                     </div>
                 </div>
                 
